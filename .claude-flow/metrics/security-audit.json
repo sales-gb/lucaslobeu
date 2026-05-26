@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-05-25T14:28:43.413Z",
+  "mode": "headless",
+  "workerType": "audit",
+  "model": "haiku",
+  "durationMs": 42635,
+  "executionId": "audit_1779719280778_57xl63",
+  "success": true,
+  "findings": {
+    "vulnerabilities": [
+      {
+        "severity": "medium",
+        "file": "app/api/media/route.ts",
+        "line": 19,
+        "description": "MIME type validation relies on client-provided Content-Type header which can be spoofed. Although Sharp validation mitigates this by processing the actual image, the check at line 19 should be more defensive."
+      },
+      {
+        "severity": "medium",
+        "file": "app/api/projects/route.ts",
+        "line": 21,
+        "description": "SQL filtering performed client-side after fetching all rows instead of server-side WHERE clauses. Inefficient and leaks data structure to authenticated users."
+      },
+      {
+        "severity": "medium",
+        "file": "app/api/home-tiles/route.ts",
+        "line": 32,
+        "description": "Batch reordering endpoint doesn't validate that IDs exist before updating. Missing records silently fail to update."
+      },
+      {
+        "severity": "medium",
+        "file": "app/api/links/route.ts",
+        "line": 56,
+        "description": "Same batch reordering issue - IDs in order array aren't validated before update operations."
+      },
+      {
+        "severity": "low",
+        "file": "app/api/media/route.ts",
+        "line": 62,
+        "description": "Original filename stored and returned, which could leak information about uploaded files. Use only randomized filename in responses."
+      },
+      {
+        "severity": "low",
+        "file": "lib/db/index.ts",
+        "line": 8,
+        "description": "Database path defaults to './local.db' in current working directory if DB_PATH unset. Could be accidentally committed or exposed in backups."
+      },
+      {
+        "severity": "low",
+        "file": "drizzle.config.ts",
+        "line": 7,
+        "description": "Database credentials stored as environment variable. While this is standard practice, ensure .env.local is gitignored."
+      }
+    ],
+    "riskScore": 32,
+    "recommendations": [
+      "Move MIME validation to occur after Sharp processes the image, not before - catch both spoofed headers and corrupted files",
+      "Convert client-side filtering to server-side SQL WHERE clauses in projects/route.ts (lines 21-31) for both efficiency and security",
+      "Add existence validation before batch updates - query IDs first, then update only confirmed records",
+      "Return only randomized filename in media responses, not originalName",
+      "Set DB_PATH explicitly in deployment; never rely on current working directory default",
+      "Ensure .env, .env.local, and *.db files are in .gitignore",
+      "Add rate limiting to file upload endpoint to prevent abuse",
+      "Consider adding Content-Security-Policy headers to prevent XSS from user-stored content (journal, project descriptions)",
+      "The auth layer is well-designed (bcrypt hashing, JWT sessions) - maintain this standard"
+    ]
+  },
+  "rawOutputPreview": "Based on my analysis of the provided codebase, here's the security vulnerability report:\n\n```json\n{\n  \"vulnerabilities\": [\n    {\n      \"severity\": \"medium\",\n      \"file\": \"app/api/media/route.ts\",\n      \"line\": 19,\n      \"description\": \"MIME type validation relies on client-provided Content-Type header which can be spoofed. Although Sharp validation mitigates this by processing the actual image, the check at line 19 should be more defensive.\"\n    },\n    {\n      \"severity\": \"medium\",\n      \"file\": \"app/api/projects/route.ts\",\n      \"line\": 21,\n      \"description\": \"SQL filtering performed client-side after fetching all rows instead of server-side WHERE clauses. Inefficient and leaks data structure to authenticated users.\"\n    },\n    {\n      \"severity\": \"medium\",\n      \"file\": \"app/api/home-tiles/route.ts\",\n      \"line\": 32,\n      \"description\": \"Batch reordering endpoint doesn't validate that IDs exist before updating. Missing records silently fail to update.\"\n    },\n    {\n      \"severity\": \"medium\",\n      \"file\": \"app/api/links/route.ts\",\n      \"line\": 56,\n      \"description\": \"Same batch reordering issue - IDs in order array aren't validated before update operations.\"\n    },\n    {\n      \"severity\": \"low\",\n      \"file\": \"app/api/media/route.ts\",\n      \"line\": 62,\n      \"description\": \"Original filename stored and returned, which could leak information about uploaded files. Use only randomized filename in responses.\"\n    },\n    {\n      \"severity\": \"low\",\n      \"file\": \"lib/db/index.ts\",\n      \"line\": 8,\n      \"description\": \"Database path defaults to './local.db' in current working directory if DB_PATH unset. Could be accidentally committed or exposed in backups.\"\n    },\n    {\n      \"severity\": \"low\",\n      \"file\": \"drizzle.config.ts\",\n      \"line\": 7,\n      \"description\": \"Database credentials stored as environment variable. While this is standard practice, ensure .env.local is gitignored.\"\n    }\n  ],\n  \"riskScore\": 32,\n  \"recommendations\": [\n    \"Move MIME validati",
+  "rawOutputLength": 3517
+}

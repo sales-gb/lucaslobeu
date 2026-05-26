@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-25T14:26:00.777Z",
+  "projectRoot": "/home/gb_sa/projetos/freela/lucaslobeu/portfolio",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": true,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1779719160777
+}
