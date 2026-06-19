@@ -25,7 +25,8 @@ export async function GET() {
     .from(schema.media)
     .orderBy(desc(schema.media.createdAt))
 
-  return Response.json(rows)
+  const withUrls = rows.map((r) => ({ ...r, url: storage.getUrl(r.path) }))
+  return Response.json(withUrls)
 }
 
 export async function POST(request: NextRequest) {

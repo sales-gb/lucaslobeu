@@ -5,21 +5,34 @@ import { useRouter } from 'next/navigation'
 import AdminShell from '@/components/admin/AdminShell'
 import type { Media } from '@/lib/db/schema'
 
+type MediaWithUrl = Media & { url: string }
+
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function MediaThumb({ media }: { media: Media }) {
+function MediaThumb({ media, onCopy }: { media: MediaWithUrl; onCopy: (url: string) => void }) {
   return (
     <div
       className="adm-media-thumb"
-      style={{ aspectRatio: '1', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      title="Clique para copiar URL"
+      onClick={() => onCopy(media.url)}
+      style={{
+        aspectRatio: '1',
+        background: 'var(--surface-2)',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        position: 'relative',
+      }}
     >
-      <span className="adm-mono adm-muted" style={{ fontSize: 9, padding: 4, textAlign: 'center', wordBreak: 'break-all' }}>
-        {media.mimeType.split('/')[1].toUpperCase()}
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={media.url}
+        alt={media.alt || media.originalName}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
     </div>
   )
 }
@@ -27,9 +40,10 @@ function MediaThumb({ media }: { media: Media }) {
 export default function MediaPage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
-  const [media, setMedia] = useState<Media[]>([])
+  const [media, setMedia] = useState<MediaWithUrl[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState('')
 
   const load = async () => {
     const res = await fetch('/api/media')
@@ -37,6 +51,13 @@ export default function MediaPage() {
   }
 
   useEffect(() => { load() }, [])
+
+  const handleCopy = (url: string) => {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(url)
+      setTimeout(() => setCopied(''), 2000)
+    })
+  }
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
@@ -79,6 +100,7 @@ export default function MediaPage() {
             <p className="adm-sub">{media.length} arquivo{media.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="adm-page-head-actions">
+            {copied && <span className="adm-mono adm-muted" style={{ fontSize: 11 }}>URL copiada!</span>}
             {error && <span className="adm-err">{error}</span>}
             <button className="adm-btn adm-btn--primary" onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? 'Enviando...' : '+ Upload'}
@@ -97,16 +119,23 @@ export default function MediaPage() {
         <div className="adm-media-grid">
           {media.map((item) => (
             <div key={item.id} className="adm-media-cell">
-              <MediaThumb media={item} />
+              <MediaThumb media={item} onCopy={handleCopy} />
               <div className="adm-media-info">
                 <span className="adm-h6" style={{ fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item.originalName}
                 </span>
-                <span className="adm-mono adm-muted">{item.mimeType.split('/')[1].toUpperCase()}</span>
-                <span className="adm-muted" style={{ fontSize: 11 }}>{formatBytes(item.size)}</span>
+                <span className="adm-mono adm-muted" style={{ fontSize: 10 }}>{item.mimeType.split('/')[1].toUpperCase()} · {formatBytes(item.size)}</span>
                 {item.width && item.height && (
                   <span className="adm-muted" style={{ fontSize: 10 }}>{item.width} × {item.height}</span>
                 )}
+                <span
+                  className="adm-mono adm-muted"
+                  style={{ fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                  title="Clique para copiar URL"
+                  onClick={() => handleCopy(item.url)}
+                >
+                  {copied === item.url ? '✓ copiada' : item.url}
+                </span>
               </div>
               <button className="adm-btn adm-btn--xs adm-btn--danger" onClick={() => handleDelete(item.id)}>
                 Excluir
