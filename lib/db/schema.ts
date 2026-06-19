@@ -130,6 +130,10 @@ export const homeSettings = sqliteTable('home_settings', {
   aboutFooterImageUrl: text('about_footer_image_url').notNull().default(''),
   // Featured projects count on home
   homeFeaturedCount: integer('home_featured_count').notNull().default(5),
+  // Projects page sections
+  projectsHeroSub: text('projects_hero_sub').notNull().default(''),
+  projectsManifestoText: text('projects_manifesto_text').notNull().default(''),
+  projectsManifestoImageUrl: text('projects_manifesto_image_url').notNull().default(''),
   // JSON arrays — stored as text, parsed at query time
   stats: text('stats').notNull().default('[]'),         // StatItem[]
   testimonials: text('testimonials').notNull().default('[]'), // TestimonialItem[]

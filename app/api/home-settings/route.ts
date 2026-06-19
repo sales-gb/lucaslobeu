@@ -10,6 +10,7 @@ const ALLOWED_FIELDS = [
   'manifestoText', 'ctaHeadline', 'ctaSub',
   'showcaseImageUrl', 'aboutPortraitUrl', 'aboutFooterImageUrl',
   'homeFeaturedCount',
+  'projectsHeroSub', 'projectsManifestoText', 'projectsManifestoImageUrl',
   ...JSON_FIELDS,
 ] as const
 

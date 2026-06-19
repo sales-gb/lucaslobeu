@@ -2,9 +2,10 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import ImageBlock from './ImageBlock';
 import Reveal from './Reveal';
+import TextReveal from './TextReveal';
 import type { Project } from '@/lib/db/schema';
 
 // The tone revealed "behind" the cover on hover — the opposite end of the
@@ -21,6 +22,108 @@ const FILTERS: Filter[] = ['Todos', 'Filme', 'Foto', 'Social'];
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
+// ─── Hero section (dark) ──────────────────────────────────────
+function ProjectsHero({ sub }: { sub: string }) {
+  return (
+    <section className="ll-projects-hero">
+      <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
+      <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
+      <div className="ll-projects-hero-inner">
+        <Reveal y={8} delay={0}>
+          <div className="ll-section-marker" style={{ marginBottom: 24 }}>
+            <span className="ll-accent-dot" />
+            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.5)' }}>Portfolio</span>
+          </div>
+        </Reveal>
+        <TextReveal
+          text="Projetos"
+          as="h1"
+          className="ll-projects-hero-title"
+          delay={80}
+          stagger={0.06}
+          splitBy="char"
+        />
+        {sub && (
+          <Reveal y={12} delay={500}>
+            <p className="ll-projects-hero-sub">{sub}</p>
+          </Reveal>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── Manifesto word (scroll-animated opacity) ─────────────────
+function ManifestoWord({
+  word,
+  index,
+  total,
+  scrollYProgress,
+}: {
+  word: string;
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
+}) {
+  const pct = (index / total) * 0.9;
+  const opacity = useTransform(
+    scrollYProgress,
+    [Math.max(0, pct - 0.02), Math.min(1, pct + 0.05)],
+    [0.12, 1],
+  );
+  return (
+    <motion.span className="ll-projects-manifesto-word" style={{ opacity }}>
+      {word}{' '}
+    </motion.span>
+  );
+}
+
+// ─── Manifesto section (image left + scroll text right) ───────
+function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }) {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 1', 'end 0'] });
+  const words = (text || 'Cada projeto começa por uma conversa. A maior parte acontece antes da câmera ser acionada.').split(' ');
+
+  const hasImage = !!imageUrl;
+
+  return (
+    <section className="ll-projects-manifesto" ref={ref}>
+      <div className={`ll-projects-manifesto-grid${!hasImage ? ' ll-projects-manifesto-grid--noimg' : ''}`}>
+        {hasImage && (
+          <div className="ll-projects-manifesto-img-col">
+            <div className="ll-projects-manifesto-img">
+              <ImageBlock tone="dark" ratio="3/4" style={{ height: '100%' }} src={imageUrl} />
+            </div>
+          </div>
+        )}
+        <div className="ll-projects-manifesto-text-col">
+          <div className="ll-section-marker" style={{ marginBottom: 32 }}>
+            <span className="ll-accent-dot" />
+            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.5)' }}>Manifesto</span>
+          </div>
+          <p className="ll-projects-manifesto-statement">
+            {words.map((word, i) => (
+              <ManifestoWord
+                key={i}
+                word={word}
+                index={i}
+                total={words.length}
+                scrollYProgress={scrollYProgress}
+              />
+            ))}
+          </p>
+          <div className="ll-projects-manifesto-foot">
+            <Link href="/contact" className="ll-link-rule" style={{ color: 'rgba(244,241,234,.75)' }}>
+              Falar sobre um projeto <span>→</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Project card ─────────────────────────────────────────────
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const tone = (project.coverTone as 'light' | 'mid' | 'dark') ?? 'mid';
   const ratioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' };
@@ -108,7 +211,18 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   );
 }
 
-export default function ProjectsClient({ projects }: { projects: Project[] }) {
+// ─── Main component ───────────────────────────────────────────
+export default function ProjectsClient({
+  projects,
+  heroSub = '',
+  manifestoText = '',
+  manifestoImageUrl = '',
+}: {
+  projects: Project[];
+  heroSub?: string;
+  manifestoText?: string;
+  manifestoImageUrl?: string;
+}) {
   const [active, setActive] = useState<Filter>('Todos');
 
   const filtered = active === 'Todos'
@@ -128,6 +242,8 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
 
   return (
     <>
+      <ProjectsHero sub={heroSub || 'Direção audiovisual, fotografia e social media.'} />
+
       <div className="ll-projects-filterbar" style={{ padding: '24px var(--page-x)' }}>
         <div className="ll-filter">
           {FILTERS.map((f) => (
@@ -162,6 +278,8 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
           Iniciar um projeto <span>→</span>
         </Link>
       </div>
+
+      <ManifestoSection text={manifestoText} imageUrl={manifestoImageUrl} />
     </>
   );
 }

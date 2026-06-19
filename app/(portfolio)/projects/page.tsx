@@ -22,6 +22,16 @@ async function getProjects(): Promise<Project[]> {
   }
 }
 
+async function getSettings() {
+  try {
+    const db = getDb()
+    const [row] = await db.select().from(schema.homeSettings).where(eq(schema.homeSettings.id, 1))
+    return row ?? null
+  } catch {
+    return null
+  }
+}
+
 const FALLBACK: Project[] = [
   { id: '1', slug: 'editorial-sp', title: 'Editorial SP', client: 'Marca A', year: '2025', category: 'Foto', role: 'Dir. Foto', summary: 'Uma coleção de imagens editoriais.', coverTone: 'mid', coverKind: 'tall', template: 'editorial', status: 'published', sortOrder: 0, body: '[]', credits: '[]', coverImageId: null, metaTitle: null, metaDescription: null, createdAt: '', updatedAt: '' },
   { id: '2', slug: 'campanha-verao', title: 'Campanha Verão', client: 'Marca B', year: '2025', category: 'Filme', role: 'Direção', summary: 'Campanha audiovisual completa.', coverTone: 'dark', coverKind: 'wide', template: 'gallery', status: 'published', sortOrder: 1, body: '[]', credits: '[]', coverImageId: null, metaTitle: null, metaDescription: null, createdAt: '', updatedAt: '' },
@@ -32,7 +42,14 @@ const FALLBACK: Project[] = [
 ]
 
 export default async function ProjectsPage() {
-  const projects = await getProjects()
+  const [projects, settings] = await Promise.all([getProjects(), getSettings()])
   const display = projects.length > 0 ? projects : FALLBACK
-  return <ProjectsClient projects={display} />
+  return (
+    <ProjectsClient
+      projects={display}
+      heroSub={settings?.projectsHeroSub ?? ''}
+      manifestoText={settings?.projectsManifestoText ?? ''}
+      manifestoImageUrl={settings?.projectsManifestoImageUrl ?? ''}
+    />
+  )
 }

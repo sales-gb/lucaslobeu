@@ -1,30 +1,41 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import Reveal from './Reveal'
 import TextReveal from './TextReveal'
 import ImageBlock from './ImageBlock'
 import type { Project } from '@/lib/db/schema'
 
+// Block types use `kind` (matching admin editor output)
+type ImageSlot = {
+  imageId?: string
+  imageUrl?: string
+  ratio?: string
+  caption?: string
+}
+
 type ContentBlock =
-  | { type: 'paragraph'; text: string }
-  | { type: 'quote'; text: string; attribution?: string }
-  | { type: 'image'; tone?: string; ratio?: string; caption?: string }
-  | { type: 'image-pair'; items: Array<{ tone?: string; ratio?: string; caption?: string }> }
-  | { type: 'image-trio'; items: Array<{ tone?: string; ratio?: string; caption?: string }> }
-  | { type: 'image-grid'; cols?: number; items: Array<{ tone?: string; ratio?: string }> }
+  | { kind: 'paragraph'; text: string }
+  | { kind: 'quote'; text: string; attribution?: string }
+  | { kind: 'image'; imageId?: string; imageUrl?: string; ratio?: string; caption?: string }
+  | { kind: 'image-pair'; items: ImageSlot[] }
+  | { kind: 'image-trio'; items: ImageSlot[] }
+  | { kind: 'image-grid'; cols?: number; items: ImageSlot[] }
 
 type CreditRow = [string, string]
 
 function safeTone(t?: string | null): 'light' | 'mid' | 'dark' {
-  return (t === 'light' || t === 'mid' || t === 'dark') ? t : 'mid'
+  return t === 'light' || t === 'mid' || t === 'dark' ? t : 'mid'
 }
 
 function BodyBlock({ block }: { block: ContentBlock }) {
-  switch (block.type) {
+  switch (block.kind) {
     case 'paragraph':
-      return <p className="ll-body ll-body--large ll-pd-block">{block.text}</p>
+      return (
+        <div className="ll-pd-block">
+          <p className="ll-body ll-body--large">{block.text}</p>
+        </div>
+      )
     case 'quote':
       return (
         <div className="ll-pd-block ll-pd-quote">
@@ -35,14 +46,14 @@ function BodyBlock({ block }: { block: ContentBlock }) {
     case 'image':
       return (
         <div className="ll-pd-block ll-pd-image">
-          <ImageBlock tone={safeTone(block.tone)} ratio={block.ratio ?? '16/9'} caption={block.caption} />
+          <ImageBlock ratio={block.ratio ?? '16/9'} src={block.imageUrl} caption={block.caption} />
         </div>
       )
     case 'image-pair':
       return (
         <div className="ll-pd-block ll-pd-pair">
           {block.items.map((item, i) => (
-            <ImageBlock key={i} tone={safeTone(item.tone)} ratio={item.ratio ?? '3/4'} caption={item.caption} />
+            <ImageBlock key={i} ratio={item.ratio ?? '3/4'} src={item.imageUrl} caption={item.caption} />
           ))}
         </div>
       )
@@ -50,16 +61,19 @@ function BodyBlock({ block }: { block: ContentBlock }) {
       return (
         <div className="ll-pd-block ll-pd-trio">
           {block.items.map((item, i) => (
-            <ImageBlock key={i} tone={safeTone(item.tone)} ratio={item.ratio ?? '1/1'} caption={item.caption} />
+            <ImageBlock key={i} ratio={item.ratio ?? '1/1'} src={item.imageUrl} caption={item.caption} />
           ))}
         </div>
       )
     case 'image-grid': {
       const cols = block.cols ?? 2
       return (
-        <div className="ll-pd-block ll-pd-grid" style={{ '--pd-cols': cols } as React.CSSProperties}>
+        <div
+          className="ll-pd-block ll-pd-grid"
+          style={{ '--pd-cols': cols } as React.CSSProperties}
+        >
           {block.items.map((item, i) => (
-            <ImageBlock key={i} tone={safeTone(item.tone)} ratio={item.ratio ?? '1/1'} />
+            <ImageBlock key={i} ratio={item.ratio ?? '1/1'} src={item.imageUrl} />
           ))}
         </div>
       )
@@ -73,15 +87,18 @@ interface Props {
   project: Project
   nextProject: Project | null
   prevProject?: Project | null
+  coverImageUrl?: string
 }
 
-export default function ProjectDetailClient({ project, nextProject, prevProject }: Props) {
+export default function ProjectDetailClient({ project, nextProject, prevProject, coverImageUrl }: Props) {
   let blocks: ContentBlock[] = []
   let credits: CreditRow[] = []
   try { blocks = JSON.parse(project.body) as ContentBlock[] } catch {}
   try { credits = JSON.parse(project.credits) as CreditRow[] } catch {}
 
   const tone = safeTone(project.coverTone)
+  const coverRatioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' }
+  const coverRatio = coverRatioMap[project.coverKind ?? 'tall'] ?? '3/4'
 
   return (
     <>
@@ -96,35 +113,27 @@ export default function ProjectDetailClient({ project, nextProject, prevProject 
           </Reveal>
 
           <div className="ll-pd-hero-layout">
-            <TextReveal
-              text={project.title}
-              as="h1"
-              className="ll-pd-title"
-              delay={60}
-              stagger={0.04}
-            />
-
+            <TextReveal text={project.title} as="h1" className="ll-pd-title" delay={60} stagger={0.04} />
             <Reveal y={20} delay={300} className="ll-pd-hero-desc">
               <p className="ll-pd-summary">{project.summary}</p>
             </Reveal>
           </div>
         </div>
 
-        {/* Crosshairs */}
         <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
         <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
         <span className="ll-crosshair ll-crosshair--bl" aria-hidden />
         <span className="ll-crosshair ll-crosshair--br" aria-hidden />
       </section>
 
-      {/* ── COVER IMAGE ──────────────────────────────────────── */}
+      {/* ── COVER ────────────────────────────────────────────── */}
       <div className="ll-pd-cover">
         <Reveal y={0}>
-          <ImageBlock tone={tone} ratio="16/9" style={{ height: '100%' }} />
+          <ImageBlock tone={tone} ratio={coverRatio} src={coverImageUrl} />
         </Reveal>
       </div>
 
-      {/* ── METADATA TABLE ───────────────────────────────────── */}
+      {/* ── METADATA ─────────────────────────────────────────── */}
       <section className="ll-pd-meta-section">
         <div className="ll-pd-meta-grid">
           {[
@@ -140,7 +149,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject 
               </div>
             </Reveal>
           ))}
-          {credits.length > 0 && credits.map(([role, name], i) => (
+          {credits.map(([role, name], i) => (
             <Reveal key={role} y={16} delay={(i + 4) * 50}>
               <div className="ll-pd-meta-row">
                 <span className="ll-pd-meta-label ll-mono small-cap">{role}</span>
@@ -178,17 +187,13 @@ export default function ProjectDetailClient({ project, nextProject, prevProject 
               <div className="ll-pd-next-overlay" />
             </div>
             <div className="ll-pd-next-meta">
-              <TextReveal
-                text={nextProject.title}
-                as="h2"
-                className="ll-pd-next-title"
-                stagger={0.04}
-              />
-              <span className="ll-mono small-cap muted ll-pd-next-cat">{nextProject.category} · {nextProject.year}</span>
+              <TextReveal text={nextProject.title} as="h2" className="ll-pd-next-title" stagger={0.04} />
+              <span className="ll-mono small-cap muted ll-pd-next-cat">
+                {nextProject.category} · {nextProject.year}
+              </span>
             </div>
           </Link>
 
-          {/* Crosshairs */}
           <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
           <span className="ll-crosshair ll-crosshair--br" aria-hidden />
         </section>

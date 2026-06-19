@@ -15,20 +15,26 @@ const MIME_EXT: Record<string, string> = {
 }
 
 export async function GET() {
-  const session = await auth()
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const session = await auth()
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
-  const rows = await db
-    .select()
-    .from(schema.media)
-    .orderBy(desc(schema.media.createdAt))
+    const db = getDb()
+    const rows = await db
+      .select()
+      .from(schema.media)
+      .orderBy(desc(schema.media.createdAt))
 
-  const withUrls = rows.map((r) => ({ ...r, url: storage.getUrl(r.path) }))
-  return Response.json(withUrls)
+    const withUrls = rows.map((r) => ({ ...r, url: storage.getUrl(r.path) }))
+    return Response.json(withUrls)
+  } catch (err) {
+    console.error('[GET /api/media] error:', err)
+    return Response.json({ error: String(err) }, { status: 500 })
+  }
 }
 
 export async function POST(request: NextRequest) {
+  try {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -91,4 +97,8 @@ export async function POST(request: NextRequest) {
     .returning()
 
   return Response.json(record, { status: 201 })
+  } catch (err) {
+    console.error('[POST /api/media] error:', err)
+    return Response.json({ error: String(err) }, { status: 500 })
+  }
 }

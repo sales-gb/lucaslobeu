@@ -29,6 +29,13 @@
       "when": 1750464000000,
       "tag": "0003_home_featured_count",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1750550400000,
+      "tag": "0004_projects_page_settings",
+      "breakpoints": true
     }
   ]
 }

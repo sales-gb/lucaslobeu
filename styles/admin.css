@@ -585,6 +585,7 @@
 .adm-media-picker-item {
   aspect-ratio: 1; overflow: hidden; border-radius: 6px;
   border: 2px solid transparent;
+  position: relative;
   cursor: pointer; transition: border-color .15s ease, transform .15s ease;
 }
 .adm-media-picker-item:hover { border-color: var(--border-strong); transform: scale(1.02); }
@@ -848,6 +849,17 @@
   background: var(--border);
 }
 
+/* ─── Projects dashboard top cards (2-col) ─────────────────── */
+.adm-proj-top {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 700px) {
+  .adm-proj-top { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 1200px) {
   .adm-home-top { grid-template-columns: repeat(2, 1fr); }
 }
@@ -858,6 +870,73 @@
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
+/* ─── Image thumb (block image slot) ────────────────────────── */
+.adm-img-thumb {
+  position: relative;
+  border-radius: 6px;
+  border: 1.5px dashed var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface-2);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s ease, background .15s ease;
+}
+.adm-img-thumb:hover { border-color: var(--border-strong); background: #ebebeb; }
+.adm-img-thumb-empty { font-size: 18px; color: var(--fg-subtle); line-height: 1; }
+
+/* ─── Block – editable variant ───────────────────────────────── */
+.adm-block--editable { align-items: flex-start; }
+.adm-block--editable .adm-block-body { gap: 10px; }
+.adm-block-textarea { min-height: 60px; font-family: var(--sans); line-height: 1.5; margin-top: 4px; }
+
+/* ─── Blocks empty state & add bar ──────────────────────────── */
+.adm-blocks-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 32px 20px; text-align: center;
+  border: 1px dashed var(--border); border-radius: 8px; background: var(--surface-2);
+  margin-bottom: 12px;
+}
+.adm-blocks-add-bar {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+}
+
+/* ─── Cover picker ───────────────────────────────────────────── */
+.adm-cover-picker {
+  width: 100%;
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: var(--surface-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.adm-cover-picker:hover { border-color: var(--border-strong); background: #ebebeb; }
+.adm-cover-picker-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--fg-muted);
+}
+
+/* ─── Cover kind picker ──────────────────────────────────────── */
+.adm-cover-kind-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.adm-cover-kind-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 8px 4px;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); cursor: pointer;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase;
+  transition: all .15s ease;
+}
+.adm-cover-kind-btn.is-active { border-color: var(--fg); background: var(--surface-2); }
+.adm-cover-kind-preview {
+  width: 100%; max-width: 38px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px;
+}
+
 @media (max-width: 1280px) {
   .adm-editor-layout { grid-template-columns: 1fr; }
   .adm-editor-side { position: static; }
