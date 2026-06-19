@@ -279,7 +279,6 @@ db.insert(schema.homeSettings).values({
   manifestoText: 'Cada projeto começa por um caderno. A maior parte dele acontece antes da câmera ser acionada. O resto é só obediência ao plano.',
   ctaHeadline: 'Tem um projeto?',
   ctaSub: 'O estúdio aceita três a quatro projetos por trimestre.',
-  heroVariant: 'editorial',
 }).run();
 
 console.log('✓ Seed concluído. BD em:', DB_PATH);

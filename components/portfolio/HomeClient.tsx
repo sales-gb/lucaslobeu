@@ -15,18 +15,36 @@ import ImageBlock from "./ImageBlock";
 import Marquee from "./Marquee";
 import type { Project } from "@/lib/db/schema";
 
+export type StatItem = { val: string; label: string; desc: string }
+export type TestimonialItem = { quote: string; name: string; role: string; company: string }
+export type FaqItem = { q: string; a: string }
+export type ClientItem = { name: string; category: string }
+export type JournalEntry = { id: string; slug: string; title: string; excerpt: string; readTime: string | null; publishedAt: string }
+
 interface Props {
-  projects: Project[];
-  manifestoText: string;
-  ctaHeadline: string;
-  ctaSub: string;
+  projects: Project[]
+  journalEntries?: JournalEntry[]
+  heroRoles?: string | null
+  heroDescription?: string | null
+  aboutStatement?: string | null
+  aboutFooterHeadline?: string | null
+  manifestoText?: string | null
+  ctaHeadline?: string | null
+  ctaSub?: string | null
+  stats?: StatItem[]
+  testimonials?: TestimonialItem[]
+  faqItems?: FaqItem[]
+  clients?: ClientItem[]
+  showcaseImageUrl?: string | null
+  aboutPortraitUrl?: string | null
+  aboutFooterImageUrl?: string | null
 }
 
 // ─── Ease tokens ─────────────────────────────────────────────
 const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 // ─── HERO ─────────────────────────────────────────────────────
-function HeroSection() {
+function HeroSection({ roles, description }: { roles: string; description: string }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -38,7 +56,7 @@ function HeroSection() {
     <section className="ll-h3-hero" ref={ref}>
       <motion.div className="ll-h3-hero-title-block" style={{ y: titleY }}>
         <Reveal y={8} delay={0}>
-          <p className="ll-h3-hero-roles">Filmmaker · Photographer · Social</p>
+          <p className="ll-h3-hero-roles">{roles}</p>
         </Reveal>
         <TextReveal
           text="Lucas"
@@ -57,10 +75,7 @@ function HeroSection() {
           splitBy="char"
         />
         <Reveal y={12} delay={600}>
-          <p className="ll-h3-hero-desc">
-            Diretor audiovisual e fotógrafo. Narrativas visuais que movem
-            marcas, produtos e pessoas.
-          </p>
+          <p className="ll-h3-hero-desc">{description}</p>
         </Reveal>
       </motion.div>
 
@@ -77,7 +92,6 @@ function HeroSection() {
         </Reveal>
       </div>
 
-      {/* Scroll line */}
       <motion.div
         className="ll-h3-scroll-line"
         initial={{ scaleY: 0 }}
@@ -116,18 +130,14 @@ function AboutWord({
   );
 }
 
-function AboutSection() {
+function AboutSection({ statement, footerHeadline, portraitUrl, footerImageUrl }: { statement: string; footerHeadline: string; portraitUrl?: string; footerImageUrl?: string }) {
   const ref = useRef<HTMLElement>(null);
-  // Full section height as scroll range → animation completes before section ends
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start 1", "end 0"],
   });
 
-  const words =
-    "DIRETOR AUDIOVISUAL E FOTÓGRAFO DE SÃO PAULO. CRIO IMAGENS CLARAS, IMPACTANTES E AUTÊNTICAS PARA MARCAS E FUNDADORES — TRABALHOS QUE PARECEM CERTOS, FUNCIONAM BEM E DURAM.".split(
-      " ",
-    );
+  const words = statement.split(" ");
 
   return (
     <section className="ll-ek-about" ref={ref}>
@@ -162,7 +172,7 @@ function AboutSection() {
         {/* Col 4: sticky portrait + caption text below */}
         <div className="ll-ek-about-col4">
           <div className="ll-ek-about-portrait">
-            <ImageBlock tone="dark" ratio="3/4" style={{ height: "100%" }} />
+            <ImageBlock tone="dark" ratio="3/4" style={{ height: "100%" }} src={portraitUrl || undefined} />
           </div>
           <div className="ll-ek-about-portrait-caption">
             <span
@@ -188,7 +198,7 @@ function AboutSection() {
       {/* Footer: cols 1-2 image, cols 3-4 tagline */}
       <div className="ll-ek-about-footer">
         <div className="ll-ek-about-footer-img">
-          <ImageBlock tone="mid" ratio="4/5" style={{ height: "100%" }} />
+          <ImageBlock tone="mid" ratio="4/5" style={{ height: "100%" }} src={footerImageUrl || undefined} />
         </div>
         <div className="ll-ek-about-footer-copy">
           <div className="ll-section-marker" style={{ marginBottom: 24 }}>
@@ -200,40 +210,23 @@ function AboutSection() {
               Resultado
             </span>
           </div>
-          <p className="ll-ek-about-footer-headline">
-            O TRABALHO NÃO É SÓ BONITO — ELE PERFORMA. ISSO É O QUE ESTÁ POR
-            TRÁS DE CADA IMAGEM.
-          </p>
+          <p className="ll-ek-about-footer-headline">{footerHeadline}</p>
         </div>
       </div>
     </section>
   );
 }
 
+const DEFAULT_STATS: StatItem[] = [
+  { val: "72+", label: "Projetos realizados", desc: "Campanhas, editoriais e filmes para marcas em 8 países." },
+  { val: "8", label: "Países atendidos", desc: "Produção em campo, do Brasil para o mundo." },
+  { val: "3–4", label: "Projetos por trimestre", desc: "Capacidade selecionada para máxima qualidade." },
+  { val: "2019", label: "Ano de fundação", desc: "Seis anos construindo referências visuais." },
+]
+
 // ─── STATS · eliankent-style staggered ────────────────────────
-function StatsSection() {
-  const STATS = [
-    {
-      val: "72+",
-      label: "Projetos realizados",
-      desc: "Campanhas, editoriais e filmes para marcas em 8 países.",
-    },
-    {
-      val: "8",
-      label: "Países atendidos",
-      desc: "Produção em campo, do Brasil para o mundo.",
-    },
-    {
-      val: "3–4",
-      label: "Projetos por trimestre",
-      desc: "Capacidade selecionada para máxima qualidade.",
-    },
-    {
-      val: "2019",
-      label: "Ano de fundação",
-      desc: "Seis anos construindo referências visuais.",
-    },
-  ];
+function StatsSection({ stats }: { stats: StatItem[] }) {
+  const STATS = stats.length > 0 ? stats : DEFAULT_STATS
 
   return (
     <div className="ll-ek-stats">
@@ -609,32 +602,15 @@ function SelectedWorksSection({ projects }: { projects: Project[] }) {
   );
 }
 
-// ─── TESTIMONIALS ─────────────────────────────────────────────
-const TESTIMONIALS = [
-  {
-    quote:
-      "Lucas tem uma sensibilidade rara para transformar briefings complexos em imagens que realmente comunicam. O resultado superou todas as nossas expectativas.",
-    name: "Ana Cavalcanti",
-    role: "Head de Marketing",
-    company: "Studio Branding Co.",
-  },
-  {
-    quote:
-      "Trabalhar com o estúdio foi diferente de tudo que já fizemos. A metodologia editorial deles garante que cada frame tenha propósito.",
-    name: "Rafael Moura",
-    role: "Diretor Criativo",
-    company: "Agência Forma",
-  },
-  {
-    quote:
-      "Entregaram antes do prazo, dentro do budget, e o conteúdo ainda gera engajamento seis meses depois da campanha. Parceria contínua garantida.",
-    name: "Beatriz Lemos",
-    role: "CEO",
-    company: "Marca Premium Ltda.",
-  },
-];
+const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
+  { quote: "Lucas tem uma sensibilidade rara para transformar briefings complexos em imagens que realmente comunicam. O resultado superou todas as nossas expectativas.", name: "Ana Cavalcanti", role: "Head de Marketing", company: "Studio Branding Co." },
+  { quote: "Trabalhar com o estúdio foi diferente de tudo que já fizemos. A metodologia editorial deles garante que cada frame tenha propósito.", name: "Rafael Moura", role: "Diretor Criativo", company: "Agência Forma" },
+  { quote: "Entregaram antes do prazo, dentro do budget, e o conteúdo ainda gera engajamento seis meses depois da campanha. Parceria contínua garantida.", name: "Beatriz Lemos", role: "CEO", company: "Marca Premium Ltda." },
+]
 
-function TestimonialsSection() {
+// ─── TESTIMONIALS ─────────────────────────────────────────────
+function TestimonialsSection({ testimonials }: { testimonials: TestimonialItem[] }) {
+  const TESTIMONIALS = testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS
   const [active, setActive] = useState(0);
 
   return (
@@ -701,35 +677,20 @@ function TestimonialsSection() {
   );
 }
 
-// ─── FAQ ──────────────────────────────────────────────────────
-const FAQ_ITEMS = [
-  {
-    q: "Como funciona o processo de contratação?",
-    a: "Começamos com uma conversa de descoberta de 30 minutos para entender seu projeto. Em seguida, enviamos uma proposta detalhada com escopo, timeline e investimento. Após aprovação, iniciamos com o briefing editorial.",
-  },
-  {
-    q: "Qual o prazo médio de um projeto?",
-    a: "Projetos de foto editorial levam entre 2 e 4 semanas da aprovação ao entregável final. Produções audiovisuais variam de 4 a 10 semanas, dependendo da complexidade.",
-  },
-  {
-    q: "O estúdio trabalha com clientes fora de São Paulo?",
-    a: "Sim. Já produzimos em 8 países e atendemos clientes remotamente em todo o Brasil. Custos de deslocamento são incluídos no orçamento quando aplicável.",
-  },
-  {
-    q: "É possível contratar apenas fotografia ou apenas audiovisual?",
-    a: "Sim. Trabalhamos tanto com projetos isolados quanto com contratos mensais de produção de conteúdo. O escopo é sempre definido conforme sua necessidade.",
-  },
-  {
-    q: "Como vocês garantem que o resultado vai refletir nossa marca?",
-    a: "A metodologia editorial começa por imersão na marca antes de qualquer câmera ser acionada. Desenvolvemos um moodboard e brief visual aprovado por você antes do início da produção.",
-  },
-];
+const DEFAULT_FAQ: FaqItem[] = [
+  { q: "Como funciona o processo de contratação?", a: "Começamos com uma conversa de descoberta de 30 minutos para entender seu projeto. Em seguida, enviamos uma proposta detalhada com escopo, timeline e investimento. Após aprovação, iniciamos com o briefing editorial." },
+  { q: "Qual o prazo médio de um projeto?", a: "Projetos de foto editorial levam entre 2 e 4 semanas da aprovação ao entregável final. Produções audiovisuais variam de 4 a 10 semanas, dependendo da complexidade." },
+  { q: "O estúdio trabalha com clientes fora de São Paulo?", a: "Sim. Já produzimos em 8 países e atendemos clientes remotamente em todo o Brasil. Custos de deslocamento são incluídos no orçamento quando aplicável." },
+  { q: "É possível contratar apenas fotografia ou apenas audiovisual?", a: "Sim. Trabalhamos tanto com projetos isolados quanto com contratos mensais de produção de conteúdo. O escopo é sempre definido conforme sua necessidade." },
+  { q: "Como vocês garantem que o resultado vai refletir nossa marca?", a: "A metodologia editorial começa por imersão na marca antes de qualquer câmera ser acionada. Desenvolvemos um moodboard e brief visual aprovado por você antes do início da produção." },
+]
 
+// ─── FAQ ──────────────────────────────────────────────────────
 function FaqItem({
   item,
   index,
 }: {
-  item: (typeof FAQ_ITEMS)[0];
+  item: FaqItem;
   index: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -765,7 +726,8 @@ function FaqItem({
   );
 }
 
-function FaqSection() {
+function FaqSection({ faqItems }: { faqItems: FaqItem[] }) {
+  const items = faqItems.length > 0 ? faqItems : DEFAULT_FAQ
   return (
     <section className="ll-h3-faq">
       <div className="ll-h3-faq-inner">
@@ -787,7 +749,7 @@ function FaqSection() {
         </div>
 
         <div className="ll-h3-faq-list">
-          {FAQ_ITEMS.map((item, i) => (
+          {items.map((item, i) => (
             <Reveal key={i} y={12} delay={i * 40}>
               <FaqItem item={item} index={i} />
             </Reveal>
@@ -799,7 +761,7 @@ function FaqSection() {
 }
 
 // ─── CLIENTS ──────────────────────────────────────────────────
-const CLIENTS = [
+const DEFAULT_CLIENTS: ClientItem[] = [
   { name: "Studio Branding Co.", category: "Branding" },
   { name: "Agência Forma", category: "Publicidade" },
   { name: "Marca Premium", category: "Moda" },
@@ -812,7 +774,7 @@ function ClientRow({
   client,
   index,
 }: {
-  client: (typeof CLIENTS)[0];
+  client: ClientItem;
   index: number;
 }) {
   const [hovered, setHovered] = useState(false);
@@ -858,7 +820,8 @@ function ClientRow({
   );
 }
 
-function ClientsSection() {
+function ClientsSection({ clients }: { clients: ClientItem[] }) {
+  const CLIENTS = clients.length > 0 ? clients : DEFAULT_CLIENTS
   return (
     <section className="ll-h3-clients">
       <div className="ll-h3-clients-inner">
@@ -899,44 +862,20 @@ function ClientsSection() {
 }
 
 // ─── JOURNAL · sticky scroll ──────────────────────────────────
-type JournalEntry = {
-  title: string;
-  date: string;
-  readTime: string;
-  excerpt: string;
-  tone: "light" | "mid" | "dark";
-  slug: string;
-};
+const TONES: Array<"light" | "mid" | "dark"> = ["light", "mid", "dark"]
 
-const JOURNAL_ENTRIES = [
-  {
-    title: "Sobre o caderno que precede a câmera",
-    date: "Mar 2026",
-    readTime: "4 min",
-    excerpt:
-      "Toda imagem boa tem um peso antes de ter uma forma. O planejamento editorial define tudo.",
-    tone: "light" as const,
-    slug: "sobre-o-caderno",
-  },
-  {
-    title: "O que a luz natural de inverno ensina",
-    date: "Fev 2026",
-    readTime: "3 min",
-    excerpt:
-      "A qualidade da luz muda a percepção do produto. Fotografar no inverno paulistano tem nuances que nenhum estúdio replica.",
-    tone: "mid" as const,
-    slug: "luz-natural-inverno",
-  },
-  {
-    title: "Por que todo projeto começa por um briefing editorial",
-    date: "Jan 2026",
-    readTime: "6 min",
-    excerpt:
-      "Antes de qualquer câmera ligada, o projeto precisa existir em palavras. A metodologia que usamos para cada cliente.",
-    tone: "dark" as const,
-    slug: "metodo-editorial",
-  },
-];
+const FALLBACK_JOURNAL: JournalEntry[] = [
+  { id: "1", slug: "sobre-o-caderno", title: "Sobre o caderno que precede a câmera", excerpt: "Toda imagem boa tem um peso antes de ter uma forma. O planejamento editorial define tudo.", readTime: "4 min", publishedAt: "2026-03-01" },
+  { id: "2", slug: "luz-natural-inverno", title: "O que a luz natural de inverno ensina", excerpt: "A qualidade da luz muda a percepção do produto. Fotografar no inverno paulistano tem nuances que nenhum estúdio replica.", readTime: "3 min", publishedAt: "2026-02-01" },
+  { id: "3", slug: "metodo-editorial", title: "Por que todo projeto começa por um briefing editorial", excerpt: "Antes de qualquer câmera ligada, o projeto precisa existir em palavras. A metodologia que usamos para cada cliente.", readTime: "6 min", publishedAt: "2026-01-01" },
+]
+
+function formatMonth(iso: string) {
+  const d = new Date(iso)
+  return d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }).replace(/^\w/, c => c.toUpperCase())
+}
+
+type JournalCardEntry = { slug: string; title: string; excerpt: string; readTime: string | null; publishedAt: string; tone: "light" | "mid" | "dark" }
 
 function JournalCard({
   entry,
@@ -944,7 +883,7 @@ function JournalCard({
   total,
   scrollYProgress,
 }: {
-  entry: JournalEntry;
+  entry: JournalCardEntry;
   index: number;
   total: number;
   scrollYProgress: MotionValue<number>;
@@ -969,7 +908,7 @@ function JournalCard({
 
       <div className="ll-h3-jsc-topbar">
         <span className="ll-eyebrow">
-          {entry.date}&nbsp;·&nbsp;{entry.readTime} leitura
+          {formatMonth(entry.publishedAt)}&nbsp;·&nbsp;{entry.readTime ?? '3 min'} leitura
         </span>
         <span className="ll-h3-jsc-num">
           /{String(index + 1).padStart(2, "0")}
@@ -1002,13 +941,18 @@ function JournalCard({
   );
 }
 
-function JournalSection() {
+function JournalSection({ journalEntries }: { journalEntries: JournalEntry[] }) {
+  const entries = (journalEntries.length > 0 ? journalEntries : FALLBACK_JOURNAL).map((e, i) => ({
+    ...e,
+    tone: TONES[i % TONES.length],
+  }))
+
   const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: trackRef,
     offset: ["start start", "end start"],
   });
-  const total = JOURNAL_ENTRIES.length;
+  const total = entries.length;
 
   return (
     <section className="ll-h3-journal-section">
@@ -1021,12 +965,11 @@ function JournalSection() {
         </Reveal>
       </div>
 
-      {/* Tall track — 100vh per entry */}
       <div ref={trackRef} className="ll-h3-journal-stack-track">
         <div className="ll-h3-journal-sticky-container">
-          {JOURNAL_ENTRIES.map((entry, i) => (
+          {entries.map((entry, i) => (
             <JournalCard
-              key={i}
+              key={entry.id}
               entry={entry}
               index={i}
               total={total}
@@ -1123,7 +1066,8 @@ function CtaSection({ headline, sub }: { headline: string; sub: string }) {
 }
 
 // ─── SHOWCASE INTRO · scroll-scale + SHOW/CASE split title ───
-function ShowcaseIntroSection() {
+function ShowcaseIntroSection({ imageUrl }: { imageUrl?: string }) {
+  const isVideo = imageUrl ? /\.mp4$/i.test(imageUrl) : false
   const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: trackRef,
@@ -1149,7 +1093,16 @@ function ShowcaseIntroSection() {
           className="ll-sc-media"
           style={{ scale: videoScale, borderRadius: videoBorderRadius }}
         >
-          <ImageBlock tone="dark" ratio="16/9" style={{ height: "100%" }} />
+          {isVideo ? (
+            <video
+              autoPlay muted loop playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            >
+              <source src={imageUrl} type="video/mp4" />
+            </video>
+          ) : (
+            <ImageBlock tone="dark" ratio="16/9" style={{ height: "100%" }} src={imageUrl || undefined} />
+          )}
         </motion.div>
 
         {/* SHOW   CASE split title */}
@@ -1180,26 +1133,52 @@ function ShowcaseIntroSection() {
   );
 }
 
+const DEFAULT_HERO_ROLES = 'Filmmaker · Photographer · Social'
+const DEFAULT_HERO_DESC = 'Diretor audiovisual e fotógrafo. Narrativas visuais que movem marcas, produtos e pessoas.'
+const DEFAULT_ABOUT_STMT = 'DIRETOR AUDIOVISUAL E FOTÓGRAFO DE SÃO PAULO. CRIO IMAGENS CLARAS, IMPACTANTES E AUTÊNTICAS PARA MARCAS E FUNDADORES — TRABALHOS QUE PARECEM CERTOS, FUNCIONAM BEM E DURAM.'
+const DEFAULT_ABOUT_FOOT = 'O TRABALHO NÃO É SÓ BONITO — ELE PERFORMA. ISSO É O QUE ESTÁ POR TRÁS DE CADA IMAGEM.'
+const DEFAULT_CTA_HEAD = 'Tem um projeto?'
+const DEFAULT_CTA_SUB = 'O estúdio aceita três a quatro projetos por trimestre.'
+
 // ─── ROOT ─────────────────────────────────────────────────────
 export default function HomeClient({
   projects,
-  manifestoText,
+  journalEntries = [],
+  heroRoles,
+  heroDescription,
+  aboutStatement,
+  aboutFooterHeadline,
   ctaHeadline,
   ctaSub,
+  stats = [],
+  testimonials = [],
+  faqItems = [],
+  clients = [],
+  showcaseImageUrl,
+  aboutPortraitUrl,
+  aboutFooterImageUrl,
 }: Props) {
   return (
     <>
-      <HeroSection />
-      <AboutSection />
-      <StatsSection />
-      <ShowcaseIntroSection />
+      <HeroSection
+        roles={heroRoles || DEFAULT_HERO_ROLES}
+        description={heroDescription || DEFAULT_HERO_DESC}
+      />
+      <AboutSection
+        statement={aboutStatement || DEFAULT_ABOUT_STMT}
+        footerHeadline={aboutFooterHeadline || DEFAULT_ABOUT_FOOT}
+        portraitUrl={aboutPortraitUrl || undefined}
+        footerImageUrl={aboutFooterImageUrl || undefined}
+      />
+      <StatsSection stats={stats} />
+      <ShowcaseIntroSection imageUrl={showcaseImageUrl || undefined} />
       <SelectedWorksSection projects={projects} />
-      <TestimonialsSection />
-      <FaqSection />
-      <ClientsSection />
-      <JournalSection />
+      <TestimonialsSection testimonials={testimonials} />
+      <FaqSection faqItems={faqItems} />
+      <ClientsSection clients={clients} />
+      <JournalSection journalEntries={journalEntries} />
       <MarqueeSection />
-      <CtaSection headline={ctaHeadline} sub={ctaSub} />
+      <CtaSection headline={ctaHeadline || DEFAULT_CTA_HEAD} sub={ctaSub || DEFAULT_CTA_SUB} />
     </>
   );
 }

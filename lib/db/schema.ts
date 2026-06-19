@@ -111,13 +111,30 @@ export const aboutContent = sqliteTable('about_content', {
 });
 
 // ─── Home Settings ────────────────────────────────────────────
-// Editable home page copy (manifesto text, CTA)
+// Editable home page copy — all sections stored here as text/JSON.
 export const homeSettings = sqliteTable('home_settings', {
   id: integer('id').primaryKey().default(1),
+  // Hero section
+  heroRoles: text('hero_roles').notNull().default('Filmmaker · Photographer · Social'),
+  heroDescription: text('hero_description').notNull().default('Diretor audiovisual e fotógrafo. Narrativas visuais que movem marcas, produtos e pessoas.'),
+  // About section
+  aboutStatement: text('about_statement').notNull().default('DIRETOR AUDIOVISUAL E FOTÓGRAFO DE SÃO PAULO. CRIO IMAGENS CLARAS, IMPACTANTES E AUTÊNTICAS PARA MARCAS E FUNDADORES — TRABALHOS QUE PARECEM CERTOS, FUNCIONAM BEM E DURAM.'),
+  aboutFooterHeadline: text('about_footer_headline').notNull().default('O TRABALHO NÃO É SÓ BONITO — ELE PERFORMA. ISSO É O QUE ESTÁ POR TRÁS DE CADA IMAGEM.'),
+  // Repeated text sections — kept from original
   manifestoText: text('manifesto_text').notNull().default('Cada projeto começa por um caderno. A maior parte dele acontece antes da câmera ser acionada. O resto é só obediência ao plano.'),
   ctaHeadline: text('cta_headline').notNull().default('Tem um projeto?'),
   ctaSub: text('cta_sub').notNull().default('O estúdio aceita três a quatro projetos por trimestre.'),
-  heroVariant: text('hero_variant').notNull().default('editorial'), // editorial | mosaic | display
+  // Media fields
+  showcaseImageUrl: text('showcase_image_url').notNull().default(''),
+  aboutPortraitUrl: text('about_portrait_url').notNull().default(''),
+  aboutFooterImageUrl: text('about_footer_image_url').notNull().default(''),
+  // Featured projects count on home
+  homeFeaturedCount: integer('home_featured_count').notNull().default(5),
+  // JSON arrays — stored as text, parsed at query time
+  stats: text('stats').notNull().default('[]'),         // StatItem[]
+  testimonials: text('testimonials').notNull().default('[]'), // TestimonialItem[]
+  faqItems: text('faq_items').notNull().default('[]'),  // FaqItem[]
+  clients: text('clients').notNull().default('[]'),     // ClientItem[]
   updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });
 

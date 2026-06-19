@@ -8,6 +8,27 @@
       "when": 1779574990772,
       "tag": "0000_fast_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1750291200000,
+      "tag": "0001_home_sections",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1750377600000,
+      "tag": "0002_home_media",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1750464000000,
+      "tag": "0003_home_featured_count",
+      "breakpoints": true
     }
   ]
 }

@@ -346,10 +346,8 @@ describe('HomeSettings entity', () => {
       manifestoText: 'Cada projeto começa por um caderno.',
       ctaHeadline: 'Tem um projeto?',
       ctaSub: 'O estúdio aceita 3-4 projetos por trimestre.',
-      heroVariant: 'editorial',
     }).run();
     const hs = db.select().from(schema.homeSettings).where(eq(schema.homeSettings.id, 1)).get();
-    expect(hs?.heroVariant).toBe('editorial');
     expect(hs?.ctaHeadline).toBe('Tem um projeto?');
   });
 });
