@@ -1,11 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ImageBlock from './ImageBlock';
 import Reveal from './Reveal';
 import type { Project } from '@/lib/db/schema';
+
+// The tone revealed "behind" the cover on hover — the opposite end of the
+// tonal range so the reveal reads as a distinct second frame.
+const REVEAL_TONE: Record<'light' | 'mid' | 'dark', 'light' | 'mid' | 'dark'> = {
+  light: 'dark',
+  mid: 'dark',
+  dark: 'light',
+};
 
 type Filter = 'Todos' | 'Filme' | 'Foto' | 'Social';
 
@@ -18,6 +26,38 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const ratioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' };
   const ratio = ratioMap[project.coverKind ?? 'tall'] ?? '3/4';
   const [hovered, setHovered] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  // Expanding circular clip-path, centred on the cursor, reveals the frame
+  // sitting "behind" the cover image. Driven imperatively to avoid re-renders.
+  const getPercent = (e: React.MouseEvent) => {
+    const rect = imgRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 50, y: 50 };
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    };
+  };
+
+  const reveal = (e: React.MouseEvent) => {
+    const { x, y } = getPercent(e);
+    const p = previewRef.current;
+    if (!p) return;
+    p.style.transition = 'none';
+    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+    void p.offsetWidth; // force reflow so the transition runs
+    p.style.transition = 'clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
+    p.style.clipPath = `circle(150% at ${x}% ${y}%)`;
+  };
+
+  const conceal = (e: React.MouseEvent) => {
+    const { x, y } = getPercent(e);
+    const p = previewRef.current;
+    if (!p) return;
+    p.style.transition = 'clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
+    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+  };
 
   return (
     <Reveal y={20} delay={index * 40}>
@@ -27,13 +67,17 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className="ll-projectcard-imgwrap">
+        <div className="ll-projectcard-imgwrap" ref={imgRef} onMouseEnter={reveal} onMouseLeave={conceal}>
           <motion.div
             animate={{ scale: hovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: EASE_OUT }}
           >
             <ImageBlock tone={tone} ratio={ratio} />
           </motion.div>
+          {/* Frame revealed "behind" the cover on hover */}
+          <div ref={previewRef} className="ll-projectcard-preview" aria-hidden>
+            <ImageBlock tone={REVEAL_TONE[tone]} ratio={ratio} style={{ height: '100%' }} />
+          </div>
           <motion.div
             className="ll-projectcard-overlay"
             animate={{ opacity: hovered ? 1 : 0 }}

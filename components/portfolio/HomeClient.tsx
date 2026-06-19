@@ -1,38 +1,45 @@
-'use client'
+"use client";
 
-import { useRef, useState, useEffect } from 'react'
-import Link from 'next/link'
-import { motion, useScroll, useTransform, AnimatePresence, type MotionValue } from 'framer-motion'
-import Reveal from './Reveal'
-import TextReveal from './TextReveal'
-import ImageBlock from './ImageBlock'
-import Marquee from './Marquee'
-import type { Project } from '@/lib/db/schema'
+import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+  type MotionValue,
+} from "framer-motion";
+import Reveal from "./Reveal";
+import TextReveal from "./TextReveal";
+import ImageBlock from "./ImageBlock";
+import Marquee from "./Marquee";
+import type { Project } from "@/lib/db/schema";
 
 interface Props {
-  projects: Project[]
-  manifestoText: string
-  ctaHeadline: string
-  ctaSub: string
+  projects: Project[];
+  manifestoText: string;
+  ctaHeadline: string;
+  ctaSub: string;
 }
 
 // ─── Ease tokens ─────────────────────────────────────────────
-const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number]
+const EASE_OUT = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 // ─── HERO ─────────────────────────────────────────────────────
 function HeroSection() {
-  const ref = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   return (
     <section className="ll-h3-hero" ref={ref}>
-      <div className="ll-h3-hero-top">
-        <span className="ll-eyebrow">São Paulo · Brasil</span>
-        <span className="ll-eyebrow">Estúdio · 2019—</span>
-      </div>
-
       <motion.div className="ll-h3-hero-title-block" style={{ y: titleY }}>
+        <Reveal y={8} delay={0}>
+          <p className="ll-h3-hero-roles">Filmmaker · Photographer · Social</p>
+        </Reveal>
         <TextReveal
           text="Lucas"
           as="h1"
@@ -49,18 +56,23 @@ function HeroSection() {
           stagger={0.06}
           splitBy="char"
         />
+        <Reveal y={12} delay={600}>
+          <p className="ll-h3-hero-desc">
+            Diretor audiovisual e fotógrafo. Narrativas visuais que movem
+            marcas, produtos e pessoas.
+          </p>
+        </Reveal>
       </motion.div>
 
       <div className="ll-h3-hero-bottom">
-        <Reveal y={12} delay={600}>
-          <p className="ll-h3-hero-desc">
-            Diretor audiovisual e fotógrafo. Narrativas visuais que movem marcas, produtos e pessoas.
-          </p>
-        </Reveal>
         <Reveal y={8} delay={720}>
           <div className="ll-h3-hero-actions">
-            <Link href="/projects" className="ll-btn-outline">Ver projetos</Link>
-            <Link href="/contact" className="ll-link-rule">Falar sobre um projeto <span>→</span></Link>
+            <Link href="/projects" className="ll-btn-outline">
+              Ver projetos
+            </Link>
+            <Link href="/contact" className="ll-link-rule">
+              Falar sobre um projeto <span>→</span>
+            </Link>
           </div>
         </Reveal>
       </div>
@@ -72,237 +84,220 @@ function HeroSection() {
         animate={{ scaleY: 1 }}
         transition={{ delay: 1, duration: 1.4, ease: EASE_OUT }}
       />
-
-      {/* Rule bottom */}
-      <div className="ll-h3-hero-rule" />
     </section>
-  )
+  );
 }
 
-// ─── ABOUT ────────────────────────────────────────────────────
-function AboutWord({ word, index, total, scrollYProgress }: {
-  word: string; index: number; total: number; scrollYProgress: MotionValue<number>
+// ─── ABOUT · eliankent-style ──────────────────────────────────
+function AboutWord({
+  word,
+  index,
+  total,
+  scrollYProgress,
+}: {
+  word: string;
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
 }) {
-  const pct = index / total
-  const opacity = useTransform(scrollYProgress, [Math.max(0, pct - 0.1), Math.min(1, pct + 0.1)], [0, 1])
-  return <motion.span className="ll-h3-about-word" style={{ opacity }}>{word}{' '}</motion.span>
+  // Spread the reveal across most of the scroll range so the LAST word lands
+  // right as the section finishes ("termina junto com a seção"), while each
+  // individual word fades in over a tight window so it feels fast.
+  const pct = (index / total) * 0.9;
+  const opacity = useTransform(
+    scrollYProgress,
+    [Math.max(0, pct - 0.02), Math.min(1, pct + 0.04)],
+    [0.13, 1],
+  );
+  return (
+    <motion.span className="ll-ek-word" style={{ opacity }}>
+      {word}{" "}
+    </motion.span>
+  );
 }
 
 function AboutSection() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.95', 'end 0.25'] })
+  const ref = useRef<HTMLElement>(null);
+  // Full section height as scroll range → animation completes before section ends
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 1", "end 0"],
+  });
 
-  // Text reveal word by word
-  const words = 'O estúdio nasceu da crença de que toda boa imagem começa por uma ideia boa o suficiente para sobreviver sem câmera. Construímos projetos para marcas que entendem a diferença entre conteúdo e comunicação.'.split(' ')
+  const words =
+    "DIRETOR AUDIOVISUAL E FOTÓGRAFO DE SÃO PAULO. CRIO IMAGENS CLARAS, IMPACTANTES E AUTÊNTICAS PARA MARCAS E FUNDADORES — TRABALHOS QUE PARECEM CERTOS, FUNCIONAM BEM E DURAM.".split(
+      " ",
+    );
 
   return (
-    <section className="ll-h3-about">
-      <div className="ll-h3-about-grid" ref={ref}>
+    <section className="ll-ek-about" ref={ref}>
+      <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
+      <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
 
-        {/* Big statement text — cols 1-2, rows 1-3 */}
-        <div className="ll-h3-about-text">
-          <Reveal y={0} delay={0}>
-            <div className="ll-section-marker" style={{ marginBottom: 32 }}>
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Sobre o estúdio</span>
-            </div>
-          </Reveal>
-          <p className="ll-h3-about-statement">
+      {/* 4-col grid: text cols 1-2, col 3 empty, portrait col 4 */}
+      <div className="ll-ek-about-inner">
+        <div className="ll-ek-about-text">
+          <div className="ll-section-marker" style={{ marginBottom: 40 }}>
+            <span className="ll-accent-dot" />
+            <span
+              className="ll-eyebrow"
+              style={{ color: "rgba(244,241,234,.5)" }}
+            >
+              Sobre
+            </span>
+          </div>
+          <p className="ll-ek-about-statement">
             {words.map((word, i) => (
-              <AboutWord key={i} word={word} index={i} total={words.length} scrollYProgress={scrollYProgress} />
+              <AboutWord
+                key={i}
+                word={word}
+                index={i}
+                total={words.length}
+                scrollYProgress={scrollYProgress}
+              />
             ))}
           </p>
-          <Reveal y={16} delay={200}>
-            <Link href="/about" className="ll-link-rule" style={{ marginTop: 40, display: 'inline-flex' }}>
-              Conhecer o estúdio <span>→</span>
-            </Link>
-          </Reveal>
         </div>
 
-        {/* Small portrait — col 4 row 1 */}
-        <div className="ll-h3-about-portrait-sm">
-          <Reveal y={20}>
-            <ImageBlock tone="mid" ratio="4/5" style={{ height: '100%' }} />
-          </Reveal>
+        {/* Col 4: sticky portrait + caption text below */}
+        <div className="ll-ek-about-col4">
+          <div className="ll-ek-about-portrait">
+            <ImageBlock tone="dark" ratio="3/4" style={{ height: "100%" }} />
+          </div>
+          <div className="ll-ek-about-portrait-caption">
+            <span
+              className="ll-eyebrow"
+              style={{
+                display: "block",
+                marginBottom: 6,
+                color: "rgba(244,241,234,.6)",
+              }}
+            >
+              Lucas Lobeu
+            </span>
+            <span
+              className="ll-mono small-cap"
+              style={{ fontSize: 10, color: "rgba(244,241,234,.38)" }}
+            >
+              São Paulo · Diretor & Fotógrafo
+            </span>
+          </div>
         </div>
+      </div>
 
-        {/* Portrait label — col 4 row 2 */}
-        <div className="ll-h3-about-portrait-label">
-          <Reveal y={12} delay={80}>
-            <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 6 }}>Lucas Lobeu</span>
-            <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>São Paulo · Diretor & Fotógrafo</span>
-          </Reveal>
+      {/* Footer: cols 1-2 image, cols 3-4 tagline */}
+      <div className="ll-ek-about-footer">
+        <div className="ll-ek-about-footer-img">
+          <ImageBlock tone="mid" ratio="4/5" style={{ height: "100%" }} />
         </div>
-
-        {/* Main portrait — cols 1-2 rows 4-6 */}
-        <div className="ll-h3-about-portrait-main">
-          <Reveal y={32}>
-            <ImageBlock tone="dark" ratio="4/5" style={{ height: '100%' }} />
-          </Reveal>
+        <div className="ll-ek-about-footer-copy">
+          <div className="ll-section-marker" style={{ marginBottom: 24 }}>
+            <span className="ll-accent-dot" />
+            <span
+              className="ll-eyebrow"
+              style={{ color: "rgba(244,241,234,.5)" }}
+            >
+              Resultado
+            </span>
+          </div>
+          <p className="ll-ek-about-footer-headline">
+            O TRABALHO NÃO É SÓ BONITO — ELE PERFORMA. ISSO É O QUE ESTÁ POR
+            TRÁS DE CADA IMAGEM.
+          </p>
         </div>
-
-        {/* Image caption — cols 3-4 rows 4-5 */}
-        <div className="ll-h3-about-portrait-caption">
-          <Reveal y={16} delay={120}>
-            <p className="ll-body" style={{ maxWidth: 320 }}>
-              Em set, Amazônia — 2024. Produção de conteúdo para campanha de
-              reflorestamento de marca global.
-            </p>
-            <div style={{ marginTop: 24 }}>
-              <span className="ll-eyebrow">Dir. Lucas Lobeu · 2024</span>
-            </div>
-          </Reveal>
-        </div>
-
       </div>
     </section>
-  )
+  );
 }
 
-// ─── STATS ────────────────────────────────────────────────────
+// ─── STATS · eliankent-style staggered ────────────────────────
 function StatsSection() {
   const STATS = [
-    { val: '72+', label: 'Projetos realizados', col: 1 },
-    { val: '8', label: 'Países atendidos', col: 2 },
-    { val: '3–4', label: 'Projetos por trimestre', col: 3 },
-    { val: '2019', label: 'Ano de fundação', col: 4 },
-  ]
+    {
+      val: "72+",
+      label: "Projetos realizados",
+      desc: "Campanhas, editoriais e filmes para marcas em 8 países.",
+    },
+    {
+      val: "8",
+      label: "Países atendidos",
+      desc: "Produção em campo, do Brasil para o mundo.",
+    },
+    {
+      val: "3–4",
+      label: "Projetos por trimestre",
+      desc: "Capacidade selecionada para máxima qualidade.",
+    },
+    {
+      val: "2019",
+      label: "Ano de fundação",
+      desc: "Seis anos construindo referências visuais.",
+    },
+  ];
 
   return (
-    <div className="ll-h3-stats">
+    <div className="ll-ek-stats">
       {STATS.map((s, i) => (
-        <Reveal key={s.label} y={20} delay={i * 60}>
-          <div className="ll-h3-stat">
-            <span className="ll-h3-stat-val">{s.val}</span>
-            <span className="ll-eyebrow">{s.label}</span>
+        <Reveal key={s.label} y={24} delay={i * 100}>
+          <div className="ll-ek-stat">
+            <span className="ll-ek-stat-dots">• • •</span>
+            <span className="ll-ek-stat-val">{s.val}</span>
+            <span className="ll-ek-stat-label">{s.label}</span>
+            <p className="ll-ek-stat-desc">{s.desc}</p>
           </div>
         </Reveal>
       ))}
     </div>
-  )
-}
-
-// ─── HORIZONTAL PROJECTS ──────────────────────────────────────
-function HorizontalProjects({ projects }: { projects: Project[] }) {
-  const outerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  const [xRange, setXRange] = useState<[string, string]>(['0px', '0px'])
-
-  useEffect(() => {
-    const update = () => {
-      const track = trackRef.current
-      const container = containerRef.current
-      if (!track || !container) return
-      const diff = track.scrollWidth - container.clientWidth
-      setXRange(['0px', diff > 0 ? `${-diff}px` : '0px'])
-    }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [projects])
-
-  const { scrollYProgress } = useScroll({
-    target: outerRef,
-    offset: ['start start', 'end start'],
-  })
-
-  const x = useTransform(scrollYProgress, [0, 1], xRange)
-  const progressScaleX = useTransform(scrollYProgress, [0, 1], [0, 1])
-
-  const trackHeight = `${Math.max(projects.length * 30, 250)}vh`
-
-  return (
-    <div ref={outerRef} className="ll-hscroll" style={{ height: trackHeight }}>
-      <div className="ll-hscroll-sticky" ref={containerRef}>
-        <div className="ll-hscroll-header">
-          <div>
-            <Reveal y={0}>
-              <div className="ll-section-marker" style={{ marginBottom: 16 }}>
-                <span className="ll-accent-dot" />
-                <span className="ll-eyebrow">Trabalhos</span>
-              </div>
-            </Reveal>
-            <TextReveal
-              text="Cada projeto, uma linguagem."
-              as="h2"
-              className="ll-hscroll-headline"
-              stagger={0.03}
-              delay={60}
-            />
-          </div>
-          <Reveal y={12} delay={120}>
-            <Link href="/projects" className="ll-link-rule">
-              Ver todos <span>→</span>
-            </Link>
-          </Reveal>
-        </div>
-
-        <motion.div className="ll-hscroll-track" ref={trackRef} style={{ x }}>
-          {projects.map((p, i) => (
-            <Link
-              key={p.id}
-              href={`/projects/${p.slug}`}
-              className="ll-hscroll-card"
-            >
-              <div className="ll-hscroll-card-img">
-                <div>
-                  <ImageBlock
-                    tone={(p.coverTone as 'dark' | 'mid' | 'light') ?? 'mid'}
-                    ratio="3/4"
-                    style={{ height: '100%' }}
-                  />
-                </div>
-              </div>
-              <div className="ll-hscroll-card-meta">
-                <span className="ll-hscroll-card-title">{p.title}</span>
-                <span className="ll-eyebrow muted">{p.category} · {p.year}</span>
-              </div>
-            </Link>
-          ))}
-        </motion.div>
-
-        <div className="ll-hscroll-progress">
-          <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>
-            {projects.length} projetos
-          </span>
-          <div className="ll-hscroll-progress-bar">
-            <motion.div className="ll-hscroll-progress-fill" style={{ scaleX: progressScaleX }} />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  );
 }
 
 // ─── SHOWCASE · scroll reveal ─────────────────────────────────
-function ShowcaseLetter({ letter, index, scrollYProgress }: {
-  letter: string; index: number; scrollYProgress: MotionValue<number>
+function ShowcaseLetter({
+  letter,
+  index,
+  scrollYProgress,
+}: {
+  letter: string;
+  index: number;
+  scrollYProgress: MotionValue<number>;
 }) {
-  const opacity = useTransform(scrollYProgress, [index / 8 * 0.3, (index / 8 * 0.3) + 0.08], [0, 1])
-  return <motion.span className="ll-h3-showcase-letter" style={{ opacity }}>{letter}</motion.span>
+  const opacity = useTransform(
+    scrollYProgress,
+    [(index / 8) * 0.3, (index / 8) * 0.3 + 0.08],
+    [0, 1],
+  );
+  return (
+    <motion.span className="ll-h3-showcase-letter" style={{ opacity }}>
+      {letter}
+    </motion.span>
+  );
 }
 
 function ShowcaseSection({ projects }: { projects: Project[] }) {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
 
-  const letters = 'SHOWCASE'.split('')
-  const wordOpacity = useTransform(scrollYProgress, [0, 0.35], [0, 1])
-  const wordScale = useTransform(scrollYProgress, [0, 0.4], [0.92, 1])
-  const wordY = useTransform(scrollYProgress, [0, 0.4], [40, 0])
-  const wordExit = useTransform(scrollYProgress, [0.55, 0.75], [0, 1])
-  const contentOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1])
-  const contentY = useTransform(scrollYProgress, [0.55, 0.75], [48, 0])
-  const showcaseBlur = useTransform(scrollYProgress, [0.5, 0.75], [0, 12])
-  const wordWrapOpacity = useTransform(wordExit, [0, 1], [1, 0])
-  const wordWrapFilter = useTransform(showcaseBlur, (v: number) => `blur(${v}px)`)
+  const letters = "SHOWCASE".split("");
+  const wordOpacity = useTransform(scrollYProgress, [0, 0.35], [0, 1]);
+  const wordScale = useTransform(scrollYProgress, [0, 0.4], [0.92, 1]);
+  const wordY = useTransform(scrollYProgress, [0, 0.4], [40, 0]);
+  const wordExit = useTransform(scrollYProgress, [0.55, 0.75], [0, 1]);
+  const contentOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
+  const contentY = useTransform(scrollYProgress, [0.55, 0.75], [48, 0]);
+  const showcaseBlur = useTransform(scrollYProgress, [0.5, 0.75], [0, 12]);
+  const wordWrapOpacity = useTransform(wordExit, [0, 1], [1, 0]);
+  const wordWrapFilter = useTransform(
+    showcaseBlur,
+    (v: number) => `blur(${v}px)`,
+  );
 
   // Big project + two below
-  const [big, ...rest] = projects
-  const proj1 = rest[0]
-  const proj2 = rest[1]
+  const [big, ...rest] = projects;
+  const proj1 = rest[0];
+  const proj2 = rest[1];
 
   return (
     <div ref={sectionRef} className="ll-h3-showcase-track">
@@ -312,9 +307,17 @@ function ShowcaseSection({ projects }: { projects: Project[] }) {
           className="ll-h3-showcase-word-wrap"
           style={{ opacity: wordWrapOpacity, filter: wordWrapFilter }}
         >
-          <motion.div className="ll-h3-showcase-word" style={{ opacity: wordOpacity, scale: wordScale, y: wordY }}>
+          <motion.div
+            className="ll-h3-showcase-word"
+            style={{ opacity: wordOpacity, scale: wordScale, y: wordY }}
+          >
             {letters.map((l, i) => (
-              <ShowcaseLetter key={i} letter={l} index={i} scrollYProgress={scrollYProgress} />
+              <ShowcaseLetter
+                key={i}
+                letter={l}
+                index={i}
+                scrollYProgress={scrollYProgress}
+              />
             ))}
           </motion.div>
         </motion.div>
@@ -340,9 +343,14 @@ function ShowcaseSection({ projects }: { projects: Project[] }) {
             </div>
             <div className="ll-h3-showcase-header-right">
               <p className="ll-body" style={{ maxWidth: 280 }}>
-                Execução precisa. Design que realmente funciona para marcas que levam comunicação a sério.
+                Execução precisa. Design que realmente funciona para marcas que
+                levam comunicação a sério.
               </p>
-              <Link href="/projects" className="ll-link-rule" style={{ marginTop: 24, display: 'inline-flex' }}>
+              <Link
+                href="/projects"
+                className="ll-link-rule"
+                style={{ marginTop: 24, display: "inline-flex" }}
+              >
                 Ver todos <span>→</span>
               </Link>
             </div>
@@ -353,10 +361,16 @@ function ShowcaseSection({ projects }: { projects: Project[] }) {
             <Reveal y={24}>
               <Link href={`/projects/${big.slug}`} className="ll-h3-proj-big">
                 <div className="ll-h3-proj-big-image">
-                  <ImageBlock tone={(big.coverTone as 'dark' | 'mid' | 'light') ?? 'mid'} ratio="21/9" style={{ height: '100%' }} />
+                  <ImageBlock
+                    tone={(big.coverTone as "dark" | "mid" | "light") ?? "mid"}
+                    ratio="21/9"
+                    style={{ height: "100%" }}
+                  />
                   <div className="ll-h3-proj-big-overlay" />
                   <div className="ll-h3-proj-big-meta">
-                    <span className="ll-mono small-cap">{big.category} · {big.year}</span>
+                    <span className="ll-mono small-cap">
+                      {big.category} · {big.year}
+                    </span>
                     <h3 className="ll-h3-proj-big-title">{big.title}</h3>
                     <span className="ll-eyebrow">{big.client}</span>
                   </div>
@@ -369,30 +383,62 @@ function ShowcaseSection({ projects }: { projects: Project[] }) {
           <div className="ll-h3-proj-row">
             {proj1 && (
               <Reveal y={20} delay={0}>
-                <Link href={`/projects/${proj1.slug}`} className="ll-h3-proj-sm ll-h3-proj-sm--left">
+                <Link
+                  href={`/projects/${proj1.slug}`}
+                  className="ll-h3-proj-sm ll-h3-proj-sm--left"
+                >
                   <div className="ll-h3-proj-sm-image">
-                    <ImageBlock tone={(proj1.coverTone as 'dark' | 'mid' | 'light') ?? 'mid'} ratio="4/5" style={{ height: '100%' }} />
+                    <ImageBlock
+                      tone={
+                        (proj1.coverTone as "dark" | "mid" | "light") ?? "mid"
+                      }
+                      ratio="4/5"
+                      style={{ height: "100%" }}
+                    />
                     <div className="ll-h3-proj-sm-overlay" />
                   </div>
                   <div className="ll-h3-proj-sm-meta">
-                    <span className="ll-eyebrow muted">{proj1.category} · {proj1.year}</span>
+                    <span className="ll-eyebrow muted">
+                      {proj1.category} · {proj1.year}
+                    </span>
                     <h3 className="ll-h3-proj-sm-title">{proj1.title}</h3>
-                    <span className="ll-mono small-cap muted" style={{ fontSize: 11 }}>{proj1.client}</span>
+                    <span
+                      className="ll-mono small-cap muted"
+                      style={{ fontSize: 11 }}
+                    >
+                      {proj1.client}
+                    </span>
                   </div>
                 </Link>
               </Reveal>
             )}
             {proj2 && (
               <Reveal y={20} delay={80}>
-                <Link href={`/projects/${proj2.slug}`} className="ll-h3-proj-sm ll-h3-proj-sm--right">
+                <Link
+                  href={`/projects/${proj2.slug}`}
+                  className="ll-h3-proj-sm ll-h3-proj-sm--right"
+                >
                   <div className="ll-h3-proj-sm-image">
-                    <ImageBlock tone={(proj2.coverTone as 'dark' | 'mid' | 'light') ?? 'mid'} ratio="3/4" style={{ height: '100%' }} />
+                    <ImageBlock
+                      tone={
+                        (proj2.coverTone as "dark" | "mid" | "light") ?? "mid"
+                      }
+                      ratio="3/4"
+                      style={{ height: "100%" }}
+                    />
                     <div className="ll-h3-proj-sm-overlay" />
                   </div>
                   <div className="ll-h3-proj-sm-meta">
-                    <span className="ll-eyebrow muted">{proj2.category} · {proj2.year}</span>
+                    <span className="ll-eyebrow muted">
+                      {proj2.category} · {proj2.year}
+                    </span>
                     <h3 className="ll-h3-proj-sm-title">{proj2.title}</h3>
-                    <span className="ll-mono small-cap muted" style={{ fontSize: 11 }}>{proj2.client}</span>
+                    <span
+                      className="ll-mono small-cap muted"
+                      style={{ fontSize: 11 }}
+                    >
+                      {proj2.client}
+                    </span>
                   </div>
                 </Link>
               </Reveal>
@@ -401,33 +447,195 @@ function ShowcaseSection({ projects }: { projects: Project[] }) {
         </motion.div>
       </div>
     </div>
-  )
+  );
+}
+
+// ─── SELECTED WORKS · bubble/reveal cards ────────────────────
+const SW_TONES: Record<"dark" | "mid" | "light", string> = {
+  dark: "repeating-linear-gradient(135deg, #1A1A1A 0px, #1A1A1A 2px, #0A0A0A 2px, #0A0A0A 12px)",
+  mid: "repeating-linear-gradient(135deg, #9C9183 0px, #9C9183 2px, #8A7F72 2px, #8A7F72 12px)",
+  light:
+    "repeating-linear-gradient(135deg, #E9E3D5 0px, #E9E3D5 2px, #DDD7C8 2px, #DDD7C8 12px)",
+};
+
+function SwCard({
+  project,
+  previewTone = "dark",
+}: {
+  project: Project;
+  previewTone?: "dark" | "mid" | "light";
+}) {
+  const imgRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  const getPercent = (e: React.MouseEvent) => {
+    const rect = imgRef.current?.getBoundingClientRect();
+    if (!rect) return { x: 50, y: 50 };
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    };
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    const { x, y } = getPercent(e);
+    const p = previewRef.current;
+    if (!p) return;
+    p.style.transition = "none";
+    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+    void p.offsetWidth; // force reflow for transition to kick in
+    p.style.transition = "clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)";
+    p.style.clipPath = `circle(150% at ${x}% ${y}%)`;
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    const { x, y } = getPercent(e);
+    const p = previewRef.current;
+    if (!p) return;
+    p.style.transition = "clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1)";
+    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
+  };
+
+  const coverTone = (project.coverTone as "dark" | "mid" | "light") ?? "mid";
+
+  return (
+    <Link href={`/projects/${project.slug}`} className="ll-sw-card-link">
+      <div className="ll-sw-card">
+        <div
+          ref={imgRef}
+          className="ll-sw-card-image"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <ImageBlock tone={coverTone} ratio="4/3" />
+          <div
+            ref={previewRef}
+            className="ll-sw-card-preview"
+            style={{ background: SW_TONES[previewTone] }}
+          />
+        </div>
+        <div className="ll-sw-card-meta">
+          <span className="ll-eyebrow muted">
+            {project.category} · {project.year}
+          </span>
+          <h3 className="ll-sw-card-name">{project.title}</h3>
+          <span className="ll-mono small-cap muted" style={{ fontSize: 11 }}>
+            {project.client}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function SelectedWorksSection({ projects }: { projects: Project[] }) {
+  const [proj1, proj2, proj3] = projects;
+
+  return (
+    <section className="ll-sw">
+      {/* Header: title cols 1–2, description col 4 */}
+      <div className="ll-sw-header">
+        <div className="ll-sw-header-title">
+          <Reveal y={0}>
+            <div className="ll-section-marker" style={{ marginBottom: 24 }}>
+              <span className="ll-accent-dot" />
+              <span className="ll-eyebrow">Trabalhos selecionados</span>
+            </div>
+          </Reveal>
+          <Reveal y={20} delay={60}>
+            <h2 className="ll-sw-title">
+              Uma coleção
+              <br />
+              de experiências
+              <br />
+              digitais refinadas
+            </h2>
+          </Reveal>
+        </div>
+        <div className="ll-sw-header-desc">
+          <Reveal y={16} delay={120}>
+            <p className="ll-sw-desc">
+              Cada projeto aqui foi moldado com intenção — do layout e
+              tipografia à interação e tom.
+            </p>
+          </Reveal>
+        </div>
+      </div>
+
+      {/* Cards: row 1 centered (cols 2–3), row 2 offset (col 1 + cols 3–4) */}
+      <div className="ll-sw-projects">
+        {proj1 && (
+          <Reveal y={28} delay={0} className="ll-sw-proj-center">
+            <SwCard project={proj1} previewTone="light" />
+          </Reveal>
+        )}
+        {proj2 && (
+          <Reveal y={28} delay={80} className="ll-sw-proj-left">
+            <SwCard project={proj2} previewTone="dark" />
+          </Reveal>
+        )}
+        {proj3 && (
+          <Reveal y={28} delay={160} className="ll-sw-proj-right">
+            <SwCard project={proj3} previewTone="mid" />
+          </Reveal>
+        )}
+      </div>
+
+      {/* Footer: text cols 1–2, CTA button col 4 */}
+      <div className="ll-sw-footer">
+        <div className="ll-sw-footer-text">
+          <Reveal y={12}>
+            <p
+              className="ll-body"
+              style={{ color: "var(--muted)", maxWidth: 360 }}
+            >
+              Cada projeto conta uma história. Veja o quadro completo.
+            </p>
+          </Reveal>
+        </div>
+        <div className="ll-sw-footer-btn">
+          <Reveal y={12} delay={80}>
+            <Link
+              href="/projects"
+              className="ll-btn-outline"
+              style={{ width: "100%", justifyContent: "center" }}
+            >
+              Ver todos os trabalhos →
+            </Link>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 // ─── TESTIMONIALS ─────────────────────────────────────────────
 const TESTIMONIALS = [
   {
-    quote: 'Lucas tem uma sensibilidade rara para transformar briefings complexos em imagens que realmente comunicam. O resultado superou todas as nossas expectativas.',
-    name: 'Ana Cavalcanti',
-    role: 'Head de Marketing',
-    company: 'Studio Branding Co.',
+    quote:
+      "Lucas tem uma sensibilidade rara para transformar briefings complexos em imagens que realmente comunicam. O resultado superou todas as nossas expectativas.",
+    name: "Ana Cavalcanti",
+    role: "Head de Marketing",
+    company: "Studio Branding Co.",
   },
   {
-    quote: 'Trabalhar com o estúdio foi diferente de tudo que já fizemos. A metodologia editorial deles garante que cada frame tenha propósito.',
-    name: 'Rafael Moura',
-    role: 'Diretor Criativo',
-    company: 'Agência Forma',
+    quote:
+      "Trabalhar com o estúdio foi diferente de tudo que já fizemos. A metodologia editorial deles garante que cada frame tenha propósito.",
+    name: "Rafael Moura",
+    role: "Diretor Criativo",
+    company: "Agência Forma",
   },
   {
-    quote: 'Entregaram antes do prazo, dentro do budget, e o conteúdo ainda gera engajamento seis meses depois da campanha. Parceria contínua garantida.',
-    name: 'Beatriz Lemos',
-    role: 'CEO',
-    company: 'Marca Premium Ltda.',
+    quote:
+      "Entregaram antes do prazo, dentro do budget, e o conteúdo ainda gera engajamento seis meses depois da campanha. Parceria contínua garantida.",
+    name: "Beatriz Lemos",
+    role: "CEO",
+    company: "Marca Premium Ltda.",
   },
-]
+];
 
 function TestimonialsSection() {
-  const [active, setActive] = useState(0)
+  const [active, setActive] = useState(0);
 
   return (
     <section className="ll-h3-testimonials">
@@ -452,10 +660,16 @@ function TestimonialsSection() {
                 className="ll-h3-test-quote"
               >
                 <span className="ll-h3-test-mark">"</span>
-                <blockquote className="ll-h3-test-text">{TESTIMONIALS[active].quote}</blockquote>
+                <blockquote className="ll-h3-test-text">
+                  {TESTIMONIALS[active].quote}
+                </blockquote>
                 <div className="ll-h3-test-author">
-                  <span className="ll-h3-test-name">{TESTIMONIALS[active].name}</span>
-                  <span className="ll-eyebrow muted">{TESTIMONIALS[active].role} · {TESTIMONIALS[active].company}</span>
+                  <span className="ll-h3-test-name">
+                    {TESTIMONIALS[active].name}
+                  </span>
+                  <span className="ll-eyebrow muted">
+                    {TESTIMONIALS[active].role} · {TESTIMONIALS[active].company}
+                  </span>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -466,7 +680,7 @@ function TestimonialsSection() {
             {TESTIMONIALS.map((t, i) => (
               <button
                 key={i}
-                className={`ll-h3-test-item${active === i ? ' is-active' : ''}`}
+                className={`ll-h3-test-item${active === i ? " is-active" : ""}`}
                 onClick={() => setActive(i)}
               >
                 <motion.div
@@ -484,56 +698,71 @@ function TestimonialsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // ─── FAQ ──────────────────────────────────────────────────────
 const FAQ_ITEMS = [
   {
-    q: 'Como funciona o processo de contratação?',
-    a: 'Começamos com uma conversa de descoberta de 30 minutos para entender seu projeto. Em seguida, enviamos uma proposta detalhada com escopo, timeline e investimento. Após aprovação, iniciamos com o briefing editorial.',
+    q: "Como funciona o processo de contratação?",
+    a: "Começamos com uma conversa de descoberta de 30 minutos para entender seu projeto. Em seguida, enviamos uma proposta detalhada com escopo, timeline e investimento. Após aprovação, iniciamos com o briefing editorial.",
   },
   {
-    q: 'Qual o prazo médio de um projeto?',
-    a: 'Projetos de foto editorial levam entre 2 e 4 semanas da aprovação ao entregável final. Produções audiovisuais variam de 4 a 10 semanas, dependendo da complexidade.',
+    q: "Qual o prazo médio de um projeto?",
+    a: "Projetos de foto editorial levam entre 2 e 4 semanas da aprovação ao entregável final. Produções audiovisuais variam de 4 a 10 semanas, dependendo da complexidade.",
   },
   {
-    q: 'O estúdio trabalha com clientes fora de São Paulo?',
-    a: 'Sim. Já produzimos em 8 países e atendemos clientes remotamente em todo o Brasil. Custos de deslocamento são incluídos no orçamento quando aplicável.',
+    q: "O estúdio trabalha com clientes fora de São Paulo?",
+    a: "Sim. Já produzimos em 8 países e atendemos clientes remotamente em todo o Brasil. Custos de deslocamento são incluídos no orçamento quando aplicável.",
   },
   {
-    q: 'É possível contratar apenas fotografia ou apenas audiovisual?',
-    a: 'Sim. Trabalhamos tanto com projetos isolados quanto com contratos mensais de produção de conteúdo. O escopo é sempre definido conforme sua necessidade.',
+    q: "É possível contratar apenas fotografia ou apenas audiovisual?",
+    a: "Sim. Trabalhamos tanto com projetos isolados quanto com contratos mensais de produção de conteúdo. O escopo é sempre definido conforme sua necessidade.",
   },
   {
-    q: 'Como vocês garantem que o resultado vai refletir nossa marca?',
-    a: 'A metodologia editorial começa por imersão na marca antes de qualquer câmera ser acionada. Desenvolvemos um moodboard e brief visual aprovado por você antes do início da produção.',
+    q: "Como vocês garantem que o resultado vai refletir nossa marca?",
+    a: "A metodologia editorial começa por imersão na marca antes de qualquer câmera ser acionada. Desenvolvemos um moodboard e brief visual aprovado por você antes do início da produção.",
   },
-]
+];
 
-function FaqItem({ item, index }: { item: typeof FAQ_ITEMS[0]; index: number }) {
-  const [open, setOpen] = useState(false)
+function FaqItem({
+  item,
+  index,
+}: {
+  item: (typeof FAQ_ITEMS)[0];
+  index: number;
+}) {
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="ll-h3-faq-item">
       <button className="ll-h3-faq-trigger" onClick={() => setOpen(!open)}>
-        <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>{String(index + 1).padStart(2, '0')}</span>
+        <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>
+          {String(index + 1).padStart(2, "0")}
+        </span>
         <span className="ll-h3-faq-question">{item.q}</span>
         <motion.span
           className="ll-h3-faq-icon"
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ duration: 0.25, ease: EASE_OUT }}
-        >+</motion.span>
+        >
+          +
+        </motion.span>
       </button>
 
       {/* Grid row trick — animates height without page jump */}
-      <div className={`ll-h3-faq-body${open ? ' is-open' : ''}`}>
+      <div className={`ll-h3-faq-body${open ? " is-open" : ""}`}>
         <div className="ll-h3-faq-answer">
-          <p className="ll-body" style={{ padding: '16px 0 24px', maxWidth: 640 }}>{item.a}</p>
+          <p
+            className="ll-body"
+            style={{ padding: "16px 0 24px", maxWidth: 640 }}
+          >
+            {item.a}
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function FaqSection() {
@@ -548,7 +777,12 @@ function FaqSection() {
             </div>
           </Reveal>
           <Reveal y={24} delay={60}>
-            <TextReveal text="Tudo o que você precisa saber." as="h2" className="ll-h3-faq-title" stagger={0.03} />
+            <TextReveal
+              text="Tudo o que você precisa saber."
+              as="h2"
+              className="ll-h3-faq-title"
+              stagger={0.03}
+            />
           </Reveal>
         </div>
 
@@ -561,29 +795,35 @@ function FaqSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 // ─── CLIENTS ──────────────────────────────────────────────────
 const CLIENTS = [
-  { name: 'Studio Branding Co.', category: 'Branding' },
-  { name: 'Agência Forma', category: 'Publicidade' },
-  { name: 'Marca Premium', category: 'Moda' },
-  { name: 'Coletivo Visual', category: 'Arte' },
-  { name: 'Grupo Mídia SP', category: 'Entretenimento' },
-  { name: 'Tech Forward', category: 'Tecnologia' },
-]
+  { name: "Studio Branding Co.", category: "Branding" },
+  { name: "Agência Forma", category: "Publicidade" },
+  { name: "Marca Premium", category: "Moda" },
+  { name: "Coletivo Visual", category: "Arte" },
+  { name: "Grupo Mídia SP", category: "Entretenimento" },
+  { name: "Tech Forward", category: "Tecnologia" },
+];
 
-function ClientRow({ client, index }: { client: typeof CLIENTS[0]; index: number }) {
-  const [hovered, setHovered] = useState(false)
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-  const rowRef = useRef<HTMLDivElement>(null)
+function ClientRow({
+  client,
+  index,
+}: {
+  client: (typeof CLIENTS)[0];
+  index: number;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const rowRef = useRef<HTMLDivElement>(null);
 
   const handleMove = (e: React.MouseEvent) => {
-    const rect = rowRef.current?.getBoundingClientRect()
-    if (!rect) return
-    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
-  }
+    const rect = rowRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
 
   return (
     <Reveal y={16} delay={index * 50}>
@@ -594,7 +834,9 @@ function ClientRow({ client, index }: { client: typeof CLIENTS[0]; index: number
         onMouseLeave={() => setHovered(false)}
         onMouseMove={handleMove}
       >
-        <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>{String(index + 1).padStart(2, '0')}</span>
+        <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>
+          {String(index + 1).padStart(2, "0")}
+        </span>
         <span className="ll-h3-client-name">{client.name}</span>
         <span className="ll-eyebrow muted">{client.category}</span>
         <AnimatePresence>
@@ -613,7 +855,7 @@ function ClientRow({ client, index }: { client: typeof CLIENTS[0]; index: number
         </AnimatePresence>
       </div>
     </Reveal>
-  )
+  );
 }
 
 function ClientsSection() {
@@ -639,70 +881,134 @@ function ClientsSection() {
           <div className="ll-h3-clients-cta">
             <div>
               <p className="ll-body" style={{ maxWidth: 400 }}>
-                Disponível para novos projetos. Conversas abertas para início imediato.
+                Disponível para novos projetos. Conversas abertas para início
+                imediato.
               </p>
             </div>
-            <Link href="/contact" className="ll-btn-outline ll-btn-outline--dark">
+            <Link
+              href="/contact"
+              className="ll-btn-outline ll-btn-outline--dark"
+            >
               Book a call →
             </Link>
           </div>
         </Reveal>
       </div>
     </section>
-  )
+  );
 }
 
 // ─── JOURNAL · sticky scroll ──────────────────────────────────
-type JournalEntry = { title: string; date: string; readTime: string; excerpt: string; tone: 'light' | 'mid' | 'dark'; slug: string }
+type JournalEntry = {
+  title: string;
+  date: string;
+  readTime: string;
+  excerpt: string;
+  tone: "light" | "mid" | "dark";
+  slug: string;
+};
 
 const JOURNAL_ENTRIES = [
-  { title: 'Sobre o caderno que precede a câmera', date: 'Mar 2026', readTime: '4 min', excerpt: 'Toda imagem boa tem um peso antes de ter uma forma. O planejamento editorial define tudo.', tone: 'light' as const, slug: 'sobre-o-caderno' },
-  { title: 'O que a luz natural de inverno ensina', date: 'Fev 2026', readTime: '3 min', excerpt: 'A qualidade da luz muda a percepção do produto. Fotografar no inverno paulistano tem nuances que nenhum estúdio replica.', tone: 'mid' as const, slug: 'luz-natural-inverno' },
-  { title: 'Por que todo projeto começa por um briefing editorial', date: 'Jan 2026', readTime: '6 min', excerpt: 'Antes de qualquer câmera ligada, o projeto precisa existir em palavras. A metodologia que usamos para cada cliente.', tone: 'dark' as const, slug: 'metodo-editorial' },
-]
+  {
+    title: "Sobre o caderno que precede a câmera",
+    date: "Mar 2026",
+    readTime: "4 min",
+    excerpt:
+      "Toda imagem boa tem um peso antes de ter uma forma. O planejamento editorial define tudo.",
+    tone: "light" as const,
+    slug: "sobre-o-caderno",
+  },
+  {
+    title: "O que a luz natural de inverno ensina",
+    date: "Fev 2026",
+    readTime: "3 min",
+    excerpt:
+      "A qualidade da luz muda a percepção do produto. Fotografar no inverno paulistano tem nuances que nenhum estúdio replica.",
+    tone: "mid" as const,
+    slug: "luz-natural-inverno",
+  },
+  {
+    title: "Por que todo projeto começa por um briefing editorial",
+    date: "Jan 2026",
+    readTime: "6 min",
+    excerpt:
+      "Antes de qualquer câmera ligada, o projeto precisa existir em palavras. A metodologia que usamos para cada cliente.",
+    tone: "dark" as const,
+    slug: "metodo-editorial",
+  },
+];
 
-function JournalTextItem({ entry, index, total, scrollYProgress }: {
-  entry: JournalEntry; index: number; total: number; scrollYProgress: MotionValue<number>
+function JournalCard({
+  entry,
+  index,
+  total,
+  scrollYProgress,
+}: {
+  entry: JournalEntry;
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
 }) {
-  const start = index / total
-  const end = (index + 1) / total
-  const opacity = useTransform(scrollYProgress, [Math.max(0, start - 0.05), start + 0.05, end - 0.05, Math.min(1, end + 0.05)], [0, 1, 1, 0])
-  const y = useTransform(scrollYProgress, [start, start + 0.1, end - 0.1, end], [24, 0, 0, -24])
-  return (
-    <motion.div className="ll-h3-journal-text-item" style={{ opacity, y }}>
-      <div className="ll-h3-journal-entry-meta">
-        <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>{String(index + 1).padStart(2, '0')}</span>
-        <span className="ll-eyebrow muted">{entry.date} · {entry.readTime} leitura</span>
-      </div>
-      <h3 className="ll-h3-journal-entry-title">{entry.title}</h3>
-      <p className="ll-body ll-h3-journal-entry-excerpt">{entry.excerpt}</p>
-      <Link href={`/journal/${entry.slug}`} className="ll-link-rule" style={{ marginTop: 24, display: 'inline-flex' }}>
-        Ler entrada <span>→</span>
-      </Link>
-    </motion.div>
-  )
-}
+  const slotStart = index / total;
+  const entryStart = index === 0 ? 0 : slotStart - 0.12;
+  const entryEnd = index === 0 ? 0 : slotStart;
 
-function JournalImageItem({ entry, index, total, scrollYProgress }: {
-  entry: JournalEntry; index: number; total: number; scrollYProgress: MotionValue<number>
-}) {
-  const start = index / total
-  const end = (index + 1) / total
-  const opacity = useTransform(scrollYProgress, [Math.max(0, start - 0.04), start + 0.06, end - 0.06, Math.min(1, end + 0.04)], [0, 1, 1, 0])
-  const y = useTransform(scrollYProgress, [end - 0.08, end + 0.08], ['0%', '-8%'])
+  const y = useTransform(
+    scrollYProgress,
+    [entryStart, Math.max(entryStart + 0.001, entryEnd)],
+    index === 0 ? ["0%", "0%"] : ["100%", "0%"],
+  );
+
   return (
-    <motion.div className="ll-h3-journal-image-item" style={{ opacity, y }}>
-      <div className="ll-h3-journal-image-inner">
-        <ImageBlock tone={entry.tone} ratio="3/4" />
+    <motion.div
+      className="ll-h3-journal-stack-card"
+      style={{ y, zIndex: index + 1 }}
+    >
+      {/* Top depth gradient — visible as card enters */}
+      <div className="ll-h3-jsc-depth" aria-hidden />
+
+      <div className="ll-h3-jsc-topbar">
+        <span className="ll-eyebrow">
+          {entry.date}&nbsp;·&nbsp;{entry.readTime} leitura
+        </span>
+        <span className="ll-h3-jsc-num">
+          /{String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
+
+      <div className="ll-h3-jsc-rule" />
+
+      <div className="ll-h3-jsc-body">
+        <div className="ll-h3-jsc-text">
+          <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <h3 className="ll-h3-jsc-title">{entry.title}</h3>
+          <p className="ll-body ll-h3-jsc-excerpt">{entry.excerpt}</p>
+          <Link
+            href={`/journal/${entry.slug}`}
+            className="ll-link-rule"
+            style={{ marginTop: 32, display: "inline-flex" }}
+          >
+            Ler entrada <span>→</span>
+          </Link>
+        </div>
+
+        <div className="ll-h3-jsc-image">
+          <ImageBlock tone={entry.tone} ratio="3/4" />
+        </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 function JournalSection() {
-  const trackRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: trackRef, offset: ['start start', 'end end'] })
-  const total = JOURNAL_ENTRIES.length
+  const trackRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end start"],
+  });
+  const total = JOURNAL_ENTRIES.length;
 
   return (
     <section className="ll-h3-journal-section">
@@ -713,26 +1019,20 @@ function JournalSection() {
             <span className="ll-eyebrow">Diário · Processo</span>
           </div>
         </Reveal>
-        <TextReveal text="Bastidores." as="h2" className="ll-h3-journal-headline" stagger={0.06} delay={60} />
       </div>
 
-      {/* Sticky scroll track */}
-      <div ref={trackRef} className="ll-h3-journal-track">
-        <div className="ll-h3-journal-sticky">
-
-          {/* Left: text entries */}
-          <div className="ll-h3-journal-texts">
-            {JOURNAL_ENTRIES.map((entry, i) => (
-              <JournalTextItem key={i} entry={entry} index={i} total={total} scrollYProgress={scrollYProgress} />
-            ))}
-          </div>
-
-          {/* Right: images */}
-          <div className="ll-h3-journal-images">
-            {JOURNAL_ENTRIES.map((entry, i) => (
-              <JournalImageItem key={i} entry={entry} index={i} total={total} scrollYProgress={scrollYProgress} />
-            ))}
-          </div>
+      {/* Tall track — 100vh per entry */}
+      <div ref={trackRef} className="ll-h3-journal-stack-track">
+        <div className="ll-h3-journal-sticky-container">
+          {JOURNAL_ENTRIES.map((entry, i) => (
+            <JournalCard
+              key={i}
+              entry={entry}
+              index={i}
+              total={total}
+              scrollYProgress={scrollYProgress}
+            />
+          ))}
         </div>
       </div>
 
@@ -744,7 +1044,7 @@ function JournalSection() {
         </div>
       </Reveal>
     </section>
-  )
+  );
 }
 
 // ─── MARQUEE ──────────────────────────────────────────────────
@@ -752,12 +1052,30 @@ function MarqueeSection() {
   return (
     <div className="ll-h3-marquee">
       <Marquee speed={40}>
-        {['LOBEU', '·', 'DIREÇÃO', '·', 'FOTOGRAFIA', '·', 'SP', '·', 'LOBEU', '·', '2019—', '·'].map((w, i) => (
-          <span key={i} className={w === '·' ? 'll-marquee-sep' : 'll-marquee-word'}>{w}</span>
+        {[
+          "LOBEU",
+          "·",
+          "DIREÇÃO",
+          "·",
+          "FOTOGRAFIA",
+          "·",
+          "SP",
+          "·",
+          "LOBEU",
+          "·",
+          "2019—",
+          "·",
+        ].map((w, i) => (
+          <span
+            key={i}
+            className={w === "·" ? "ll-marquee-sep" : "ll-marquee-word"}
+          >
+            {w}
+          </span>
         ))}
       </Marquee>
     </div>
-  )
+  );
 }
 
 // ─── CTA ──────────────────────────────────────────────────────
@@ -767,9 +1085,20 @@ function CtaSection({ headline, sub }: { headline: string; sub: string }) {
       <div className="ll-h3-cta-inner">
         <div className="ll-section-marker ll-section-marker--light">
           <span className="ll-accent-dot" />
-          <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.5)' }}>Próximo passo</span>
+          <span
+            className="ll-eyebrow"
+            style={{ color: "rgba(244,241,234,.5)" }}
+          >
+            Próximo passo
+          </span>
         </div>
-        <TextReveal text={headline} as="h2" className="ll-h3-cta-title" stagger={0.055} delay={60} />
+        <TextReveal
+          text={headline}
+          as="h2"
+          className="ll-h3-cta-title"
+          stagger={0.055}
+          delay={60}
+        />
         <Reveal y={20} delay={200}>
           <p className="ll-h3-cta-sub">{sub}</p>
         </Reveal>
@@ -790,18 +1119,81 @@ function CtaSection({ headline, sub }: { headline: string; sub: string }) {
       <span className="ll-crosshair ll-crosshair--bl" aria-hidden />
       <span className="ll-crosshair ll-crosshair--br" aria-hidden />
     </section>
-  )
+  );
+}
+
+// ─── SHOWCASE INTRO · scroll-scale + SHOW/CASE split title ───
+function ShowcaseIntroSection() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Video: grows from a small centered box to full-screen
+  const videoScale = useTransform(scrollYProgress, [0, 0.82], [0.15, 1]);
+  const videoBorderRadius = useTransform(scrollYProgress, [0, 0.7], [10, 0]);
+
+  // SHOW: comes from left → natural left position (no crossing)
+  const showX = useTransform(scrollYProgress, [0.06, 0.88], ["-120vw", "0vw"]);
+  // CASE: comes from right → natural right position (no crossing)
+  const caseX = useTransform(scrollYProgress, [0.06, 0.88], ["120vw", "0vw"]);
+  // Words fade in early
+  const wordOpacity = useTransform(scrollYProgress, [0.04, 0.18], [0, 1]);
+
+  return (
+    <div ref={trackRef} className="ll-sc-track">
+      <div className="ll-sc-sticky">
+        {/* Expanding media behind the words */}
+        <motion.div
+          className="ll-sc-media"
+          style={{ scale: videoScale, borderRadius: videoBorderRadius }}
+        >
+          <ImageBlock tone="dark" ratio="16/9" style={{ height: "100%" }} />
+        </motion.div>
+
+        {/* SHOW   CASE split title */}
+        <div className="ll-sc-words" aria-label="Showcase">
+          <motion.span
+            className="ll-sc-word"
+            style={{ x: showX, opacity: wordOpacity }}
+            aria-hidden
+          >
+            SHOW
+          </motion.span>
+          <motion.span
+            className="ll-sc-word"
+            style={{ x: caseX, opacity: wordOpacity }}
+            aria-hidden
+          >
+            CASE
+          </motion.span>
+        </div>
+
+        {/* crosshair corners */}
+        <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
+        <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
+        <span className="ll-crosshair ll-crosshair--bl" aria-hidden />
+        <span className="ll-crosshair ll-crosshair--br" aria-hidden />
+      </div>
+    </div>
+  );
 }
 
 // ─── ROOT ─────────────────────────────────────────────────────
-export default function HomeClient({ projects, manifestoText, ctaHeadline, ctaSub }: Props) {
+export default function HomeClient({
+  projects,
+  manifestoText,
+  ctaHeadline,
+  ctaSub,
+}: Props) {
   return (
     <>
       <HeroSection />
       <AboutSection />
       <StatsSection />
-      <HorizontalProjects projects={projects} />
-      <ShowcaseSection projects={projects} />
+      <ShowcaseIntroSection />
+      <SelectedWorksSection projects={projects} />
       <TestimonialsSection />
       <FaqSection />
       <ClientsSection />
@@ -809,5 +1201,5 @@ export default function HomeClient({ projects, manifestoText, ctaHeadline, ctaSu
       <MarqueeSection />
       <CtaSection headline={ctaHeadline} sub={ctaSub} />
     </>
-  )
+  );
 }

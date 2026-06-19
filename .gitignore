@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# claude
+/.claude
+/.claude**
+
+# sqlite — databases and WAL/SHM files are runtime state, never source
+*.db
+*.db-shm
+*.db-wal
+
+# user uploads — runtime content, not source code
+/public/uploads/
