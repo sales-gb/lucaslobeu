@@ -559,18 +559,17 @@ export default function ProjectEditorPage({
   const coverAspect = COVER_KINDS.find((k) => k.value === project.coverKind)?.ratio ?? '3/4'
 
   return (
-    <>
+    <AdminShell
+      breadcrumbs={[
+        { label: 'Projetos', href: '/admin/projects' },
+        { label: isNew ? 'Novo projeto' : project.title || '…' },
+      ]}
+    >
       {pickerOpen && (
         <MediaPicker onSelect={handlePickerSelect} onClose={() => setPickerOpen(false)} />
       )}
 
-      <AdminShell
-        breadcrumbs={[
-          { label: 'Projetos', href: '/admin/projects' },
-          { label: isNew ? 'Novo projeto' : project.title || '…' },
-        ]}
-      >
-        <div className="adm-page">
+      <div className="adm-page">
           {/* ── Header ── */}
           <div className="adm-page-head">
             <div>
@@ -866,7 +865,6 @@ export default function ProjectEditorPage({
             </div>
           </div>
         </div>
-      </AdminShell>
-    </>
+    </AdminShell>
   )
 }

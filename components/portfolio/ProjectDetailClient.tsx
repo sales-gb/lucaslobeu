@@ -101,22 +101,24 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
   const coverRatio = coverRatioMap[project.coverKind ?? 'tall'] ?? '3/4'
 
   return (
-    <>
+    <div className="ll-pd-page">
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="ll-pd-hero">
         <div className="ll-pd-hero-inner">
           <Reveal y={0}>
             <div className="ll-section-marker">
               <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Case studies</span>
+              <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Case studies</span>
             </div>
           </Reveal>
 
           <div className="ll-pd-hero-layout">
             <TextReveal text={project.title} as="h1" className="ll-pd-title" delay={60} stagger={0.04} />
-            <Reveal y={20} delay={300} className="ll-pd-hero-desc">
-              <p className="ll-pd-summary">{project.summary}</p>
-            </Reveal>
+            {project.summary && (
+              <Reveal y={0} delay={300} className="ll-pd-hero-desc">
+                <p className="ll-pd-summary">{project.summary}</p>
+              </Reveal>
+            )}
           </div>
         </div>
 
@@ -128,37 +130,8 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
 
       {/* ── COVER ────────────────────────────────────────────── */}
       <div className="ll-pd-cover">
-        <Reveal y={0}>
-          <ImageBlock tone={tone} ratio={coverRatio} src={coverImageUrl} />
-        </Reveal>
+        <ImageBlock tone={tone} ratio={coverRatio} src={coverImageUrl} />
       </div>
-
-      {/* ── METADATA ─────────────────────────────────────────── */}
-      <section className="ll-pd-meta-section">
-        <div className="ll-pd-meta-grid">
-          {[
-            { label: 'Data', value: project.year },
-            { label: 'Cliente', value: project.client },
-            { label: 'Categoria', value: project.category },
-            { label: 'Serviços', value: project.role },
-          ].map((item, i) => (
-            <Reveal key={item.label} y={16} delay={i * 50}>
-              <div className="ll-pd-meta-row">
-                <span className="ll-pd-meta-label ll-mono small-cap">{item.label}</span>
-                <span className="ll-pd-meta-value">{item.value}</span>
-              </div>
-            </Reveal>
-          ))}
-          {credits.map(([role, name], i) => (
-            <Reveal key={role} y={16} delay={(i + 4) * 50}>
-              <div className="ll-pd-meta-row">
-                <span className="ll-pd-meta-label ll-mono small-cap">{role}</span>
-                <span className="ll-pd-meta-value">{name}</span>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
 
       {/* ── BODY CONTENT ─────────────────────────────────────── */}
       {blocks.length > 0 && (
@@ -171,13 +144,40 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
         </section>
       )}
 
+      {/* ── METADATA ─────────────────────────────────────────── */}
+      <section className="ll-pd-meta-section">
+        <div className="ll-pd-meta-grid">
+          {[
+            { label: 'Data', value: project.year },
+            { label: 'Cliente', value: project.client },
+            { label: 'Categoria', value: project.category },
+            { label: 'Serviços', value: project.role },
+          ].filter(item => item.value).map((item, i) => (
+            <Reveal key={item.label} y={16} delay={i * 50}>
+              <div className="ll-pd-meta-row">
+                <span className="ll-pd-meta-label">{item.label}:</span>
+                <span className="ll-pd-meta-value">{item.value}</span>
+              </div>
+            </Reveal>
+          ))}
+          {credits.map(([role, name], i) => (
+            <Reveal key={role} y={16} delay={(i + 4) * 50}>
+              <div className="ll-pd-meta-row">
+                <span className="ll-pd-meta-label">{role}:</span>
+                <span className="ll-pd-meta-value">{name}</span>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* ── NEXT PROJECT ─────────────────────────────────────── */}
       {nextProject && (
-        <section className="ll-pd-next">
+        <section className="ll-pd-next" style={{ borderTop: '.5px solid var(--rule)' }}>
           <Reveal y={0}>
             <div className="ll-section-marker">
               <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Próximo projeto</span>
+              <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Próximo projeto</span>
             </div>
           </Reveal>
 
@@ -188,7 +188,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
             </div>
             <div className="ll-pd-next-meta">
               <TextReveal text={nextProject.title} as="h2" className="ll-pd-next-title" stagger={0.04} />
-              <span className="ll-mono small-cap muted ll-pd-next-cat">
+              <span className="ll-mono small-cap ll-pd-next-cat">
                 {nextProject.category} · {nextProject.year}
               </span>
             </div>
@@ -201,15 +201,15 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
 
       {/* ── NAVIGATION ───────────────────────────────────────── */}
       <div className="ll-pd-nav">
-        <Link href="/projects" className="ll-link-rule muted">
+        <Link href="/projects" className="ll-link-rule" style={{ color: 'rgba(244,241,234,.5)' }}>
           ← Todos os projetos
         </Link>
         {prevProject && (
-          <Link href={`/projects/${prevProject.slug}`} className="ll-link-rule muted">
+          <Link href={`/projects/${prevProject.slug}`} className="ll-link-rule" style={{ color: 'rgba(244,241,234,.5)' }}>
             ← {prevProject.title}
           </Link>
         )}
       </div>
-    </>
+    </div>
   )
 }

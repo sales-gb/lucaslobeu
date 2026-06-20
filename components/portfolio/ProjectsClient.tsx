@@ -8,8 +8,6 @@ import Reveal from './Reveal';
 import TextReveal from './TextReveal';
 import type { Project } from '@/lib/db/schema';
 
-// The tone revealed "behind" the cover on hover — the opposite end of the
-// tonal range so the reveal reads as a distinct second frame.
 const REVEAL_TONE: Record<'light' | 'mid' | 'dark', 'light' | 'mid' | 'dark'> = {
   light: 'dark',
   mid: 'dark',
@@ -17,37 +15,41 @@ const REVEAL_TONE: Record<'light' | 'mid' | 'dark', 'light' | 'mid' | 'dark'> = 
 };
 
 type Filter = 'Todos' | 'Filme' | 'Foto' | 'Social';
-
 const FILTERS: Filter[] = ['Todos', 'Filme', 'Foto', 'Social'];
-
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
-// ─── Hero section (dark) ──────────────────────────────────────
+// ─── Hero ─────────────────────────────────────────────────────
 function ProjectsHero({ sub }: { sub: string }) {
+  const desc = sub || 'Um conjunto de projetos que demonstra pensamento claro, execução forte e design que realmente funciona.'
+
   return (
     <section className="ll-projects-hero">
       <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
       <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
+      <span className="ll-crosshair ll-crosshair--bl" aria-hidden />
+      <span className="ll-crosshair ll-crosshair--br" aria-hidden />
+
       <div className="ll-projects-hero-inner">
-        <Reveal y={8} delay={0}>
-          <div className="ll-section-marker" style={{ marginBottom: 24 }}>
+        <Reveal y={0} delay={0}>
+          <div className="ll-section-marker">
             <span className="ll-accent-dot" />
-            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.5)' }}>Portfolio</span>
+            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Portfolio</span>
           </div>
         </Reveal>
-        <TextReveal
-          text="Projetos"
-          as="h1"
-          className="ll-projects-hero-title"
-          delay={80}
-          stagger={0.06}
-          splitBy="char"
-        />
-        {sub && (
-          <Reveal y={12} delay={500}>
-            <p className="ll-projects-hero-sub">{sub}</p>
+
+        <div className="ll-projects-hero-body">
+          <TextReveal
+            text="Projetos"
+            as="h1"
+            className="ll-projects-hero-title"
+            delay={80}
+            stagger={0.06}
+            splitBy="char"
+          />
+          <Reveal y={0} delay={600} className="ll-projects-hero-desc-wrap">
+            <p className="ll-projects-hero-desc">{desc}</p>
           </Reveal>
-        )}
+        </div>
       </div>
     </section>
   );
@@ -78,12 +80,11 @@ function ManifestoWord({
   );
 }
 
-// ─── Manifesto section (image left + scroll text right) ───────
+// ─── Manifesto section ────────────────────────────────────────
 function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start 1', 'end 0'] });
   const words = (text || 'Cada projeto começa por uma conversa. A maior parte acontece antes da câmera ser acionada.').split(' ');
-
   const hasImage = !!imageUrl;
 
   return (
@@ -132,8 +133,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   const imgRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Expanding circular clip-path, centred on the cursor, reveals the frame
-  // sitting "behind" the cover image. Driven imperatively to avoid re-renders.
   const getPercent = (e: React.MouseEvent) => {
     const rect = imgRef.current?.getBoundingClientRect();
     if (!rect) return { x: 50, y: 50 };
@@ -149,7 +148,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
     if (!p) return;
     p.style.transition = 'none';
     p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-    void p.offsetWidth; // force reflow so the transition runs
+    void p.offsetWidth;
     p.style.transition = 'clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
     p.style.clipPath = `circle(150% at ${x}% ${y}%)`;
   };
@@ -177,7 +176,6 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           >
             <ImageBlock tone={tone} ratio={ratio} />
           </motion.div>
-          {/* Frame revealed "behind" the cover on hover */}
           <div ref={previewRef} className="ll-projectcard-preview" aria-hidden>
             <ImageBlock tone={REVEAL_TONE[tone]} ratio={ratio} style={{ height: '100%' }} />
           </div>
@@ -197,13 +195,12 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             >→</motion.span>
           </motion.div>
         </div>
+
         <div className="ll-projectcard-meta">
-          <span className="ll-projectcard-num ll-mono small-cap" style={{ fontSize: 10 }}>
-            {String(index + 1).padStart(2, '0')}
-          </span>
-          <div className="ll-projectcard-title">
-            <span className="ll-projectcard-name">{project.title}</span>
-            <span className="muted" style={{ fontSize: 14 }}>{project.client} · {project.year}</span>
+          <span className="ll-projectcard-name">{project.title}</span>
+          <div className="ll-projectcard-tags">
+            {project.role && <span className="ll-projectcard-tag">{project.role}</span>}
+            <span className="ll-projectcard-tag">{project.category}</span>
           </div>
         </div>
       </Link>
@@ -236,16 +233,27 @@ export default function ProjectsClient({
     Social: projects.filter((p) => p.category === 'Social').length,
   };
 
-  // Distribute into 3 masonry columns round-robin
-  const cols: Project[][] = [[], [], []];
-  filtered.forEach((p, i) => cols[i % 3].push(p));
+  // Fibonacci layout: alternating A (2 items: col1 + col3) and B (1 item: col2)
+  const groups: Array<{ type: 'A' | 'B'; items: Project[] }> = [];
+  let i = 0;
+  while (i < filtered.length) {
+    if (groups.length % 2 === 0) {
+      const items = filtered.slice(i, Math.min(i + 2, filtered.length));
+      groups.push({ type: 'A', items });
+      i += items.length;
+    } else {
+      groups.push({ type: 'B', items: [filtered[i]] });
+      i += 1;
+    }
+  }
 
   return (
-    <>
-      <ProjectsHero sub={heroSub || 'Direção audiovisual, fotografia e social media.'} />
+    <div className="ll-projects-page">
+      <ProjectsHero sub={heroSub} />
 
-      <div className="ll-projects-filterbar" style={{ padding: '24px var(--page-x)' }}>
-        <div className="ll-filter">
+      {/* Filter bar */}
+      <div className="ll-projects-filterbar" style={{ padding: '20px var(--page-x)' }}>
+        <div className="ll-filter ll-filter--dark">
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -258,28 +266,54 @@ export default function ProjectsClient({
             </button>
           ))}
           <div className="ll-filter-grow" />
-          <span className="ll-eyebrow">{filtered.length} resultados</span>
+          <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)', fontSize: 11 }}>
+            {filtered.length} resultados
+          </span>
         </div>
       </div>
 
-      <div className="ll-masonry" style={{ padding: '60px var(--page-x)' }}>
-        {cols.map((col, ci) => (
-          <div key={ci} className="ll-masonry-col">
-            {col.map((project, pi) => (
-              <ProjectCard key={project.id} project={project} index={pi * 3 + ci} />
-            ))}
-          </div>
-        ))}
+      {/* Fibonacci grid */}
+      <div className="ll-projects-fib" style={{ padding: '80px var(--page-x) 120px' }}>
+        {groups.length === 0 && (
+          <p style={{ color: 'rgba(244,241,234,.4)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '.14em', textTransform: 'uppercase' }}>
+            Nenhum projeto encontrado.
+          </p>
+        )}
+        {groups.map((group, gi) => {
+          const baseIdx = groups.slice(0, gi).reduce((sum, g) => sum + g.items.length, 0);
+          if (group.type === 'A') {
+            return (
+              <div key={gi} className="ll-fib-row ll-fib-row--a">
+                <ProjectCard project={group.items[0]} index={baseIdx} />
+                <div className="ll-fib-gap" aria-hidden />
+                {group.items[1]
+                  ? <ProjectCard project={group.items[1]} index={baseIdx + 1} />
+                  : <div className="ll-fib-gap" aria-hidden />
+                }
+              </div>
+            );
+          } else {
+            return (
+              <div key={gi} className="ll-fib-row ll-fib-row--b">
+                <div className="ll-fib-gap" aria-hidden />
+                <ProjectCard project={group.items[0]} index={baseIdx} />
+                <div className="ll-fib-gap" aria-hidden />
+              </div>
+            );
+          }
+        })}
       </div>
 
-      <div className="ll-projects-foot">
-        <span className="ll-eyebrow muted">{filtered.length} de {projects.length} projetos</span>
-        <Link href="/contact" className="ll-link-rule">
+      <div className="ll-projects-foot ll-projects-foot--dark">
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(244,241,234,.4)' }}>
+          {filtered.length} de {projects.length} projetos
+        </span>
+        <Link href="/contact" className="ll-link-rule" style={{ color: 'rgba(244,241,234,.75)' }}>
           Iniciar um projeto <span>→</span>
         </Link>
       </div>
 
       <ManifestoSection text={manifestoText} imageUrl={manifestoImageUrl} />
-    </>
+    </div>
   );
 }
