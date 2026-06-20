@@ -106,6 +106,7 @@ export const aboutContent = sqliteTable('about_content', {
   trajectory: text('trajectory').notNull().default('[]'),   // JSON: [year, txt][]
   contactBlurb: text('contact_blurb').notNull().default(''),
   portraitImageId: text('portrait_image_id'),
+  portraitImageUrl: text('portrait_image_url').notNull().default(''),
   numbers: text('numbers').notNull().default('[]'), // JSON: [val, label][]
   updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });

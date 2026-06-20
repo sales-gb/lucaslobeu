@@ -66,6 +66,7 @@ export default async function AboutPage() {
   const displayRecognition = recognition.length > 0 ? recognition : DEFAULT_RECOGNITION;
   const displayTrajectory = trajectory.length > 0 ? trajectory : DEFAULT_TRAJECTORY;
   const displayNumbers = numbers.length > 0 ? numbers : DEFAULT_NUMBERS;
+  const portraitUrl = about?.portraitImageUrl || '';
 
   return (
     <>
@@ -92,7 +93,16 @@ export default async function AboutPage() {
       <div className="ll-section" style={{ paddingTop: 0 }}>
         <div className="ll-about-intro">
           <div className="ll-about-portrait">
-            <ImageBlock tone="mid" ratio="3/4" />
+            {portraitUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={portraitUrl}
+                alt="Lucas Lobeu"
+                style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 2 }}
+              />
+            ) : (
+              <ImageBlock tone="mid" ratio="3/4" />
+            )}
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
               <span className="ll-eyebrow">Lucas Lobeu</span>
               <span className="muted" style={{ fontFamily: 'var(--sans)', fontSize: 14 }}>
