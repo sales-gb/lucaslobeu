@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminShell from '@/components/admin/AdminShell'
 
@@ -37,43 +37,61 @@ const PLATFORMS: { id: SocialPlatform; label: string; icon: string; placeholder:
 
 const PLATFORM_MAP = Object.fromEntries(PLATFORMS.map((p) => [p.id, p]))
 
-// ─── Toggle switch ────────────────────────────────────────────────
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label className="adm-toggle">
-      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <div className="adm-toggle-track">
-        <div className="adm-toggle-thumb" />
-      </div>
-    </label>
-  )
-}
-
 // ─── Platform picker ──────────────────────────────────────────────
 
+const PICKER_HEIGHT = 340
+const PICKER_WIDTH  = 300
+const PICKER_GAP    = 8
+
 function PlatformPicker({
+  anchorRef,
   available,
   onPick,
   onClose,
 }: {
+  anchorRef: React.RefObject<HTMLButtonElement | null>
   available: typeof PLATFORMS
   onPick: (id: SocialPlatform) => void
   onClose: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
+  // Calculate smart position: open upward if not enough space below
+  const rect = anchorRef.current?.getBoundingClientRect()
+  const spaceBelow = rect ? window.innerHeight - rect.bottom : 0
+  const openUp     = spaceBelow < PICKER_HEIGHT + PICKER_GAP * 2
+
+  const style: React.CSSProperties = {
+    position: 'fixed',
+    zIndex: 200,
+    left: rect ? Math.min(rect.left, window.innerWidth - PICKER_WIDTH - 8) : 0,
+    ...(openUp
+      ? { bottom: rect ? window.innerHeight - rect.top + PICKER_GAP : 0 }
+      : { top:    rect ? rect.bottom + PICKER_GAP : 0 }),
+  }
+
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+    let handler: ((e: MouseEvent) => void) | null = null
+    const timer = setTimeout(() => {
+      handler = (e: MouseEvent) => {
+        if (!ref.current?.contains(e.target as Node)) onClose()
+      }
+      document.addEventListener('click', handler)
+    }, 0)
+    return () => {
+      clearTimeout(timer)
+      if (handler) document.removeEventListener('click', handler)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
   }, [onClose])
 
   return (
-    <div className="adm-social-picker" ref={ref}>
-      <p className="adm-mono adm-muted" style={{ fontSize: 10, letterSpacing: '.1em', padding: '0 0 8px', textTransform: 'uppercase' }}>
+    <div
+      ref={ref}
+      className="adm-social-picker"
+      style={style}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <p className="adm-mono adm-muted" style={{ fontSize: 10, letterSpacing: '.1em', marginBottom: 10, textTransform: 'uppercase' }}>
         Escolher rede
       </p>
       <div className="adm-social-picker-grid">
@@ -90,6 +108,19 @@ function PlatformPicker({
         ))}
       </div>
     </div>
+  )
+}
+
+// ─── Toggle switch ────────────────────────────────────────────────
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="adm-toggle">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <div className="adm-toggle-track">
+        <div className="adm-toggle-thumb" />
+      </div>
+    </label>
   )
 }
 
@@ -113,6 +144,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
+  const addBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     fetch('/api/settings').then((r) => r.json()).then((d) => {
@@ -140,6 +172,7 @@ export default function SettingsPage() {
   }
 
   const addLink = (platform: SocialPlatform) => {
+    if (!platform) return
     setSocialLinks((prev) => [...prev, { platform, url: '', enabled: true }])
     setSaved(false)
   }
@@ -253,10 +286,12 @@ export default function SettingsPage() {
                         checked={link.enabled}
                         onChange={(v) => updateLink(link.platform, { enabled: v })}
                       />
-                      {link.url && (
+                      {link.url ? (
                         <a href={link.url} target="_blank" rel="noopener noreferrer" className="adm-social-preview" title="Abrir">
                           ↗
                         </a>
+                      ) : (
+                        <span />
                       )}
                       <button
                         type="button"
@@ -276,15 +311,17 @@ export default function SettingsPage() {
             <div className="adm-social-footer">
               <div style={{ position: 'relative' }}>
                 <button
+                  ref={addBtnRef}
                   type="button"
                   className="adm-btn adm-btn--sm"
-                  onClick={() => setPickerOpen((v) => !v)}
                   disabled={available.length === 0}
+                  onClick={() => setPickerOpen((v) => !v)}
                 >
-                  + Adicionar rede
+                  {available.length === 0 ? 'Todas adicionadas' : '+ Adicionar rede'}
                 </button>
                 {pickerOpen && available.length > 0 && (
                   <PlatformPicker
+                    anchorRef={addBtnRef}
                     available={available}
                     onPick={addLink}
                     onClose={() => setPickerOpen(false)}

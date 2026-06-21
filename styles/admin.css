@@ -521,12 +521,16 @@
   border-top: 1px solid var(--border);
 }
 
-/* Platform picker popup */
+/* Platform picker — position:fixed via JS, escapes card overflow:hidden */
 .adm-social-picker {
-  position: absolute; top: calc(100% + 8px); left: 0;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.1);
-  padding: 14px; width: 280px; z-index: 50;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12);
+  padding: 14px;
+  width: 300px;
+  max-height: 340px;
+  overflow-y: auto;
   animation: adm-menu-in .15s cubic-bezier(.22,1,.36,1);
 }
 .adm-social-picker-grid {
@@ -534,13 +538,15 @@
 }
 .adm-social-picker-item {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 6px; border-radius: 8px; border: 1px solid var(--border);
+  padding: 10px 6px; border-radius: 8px;
+  border: 1px solid var(--border);
   background: var(--surface); cursor: pointer;
   font-size: 12px; color: var(--fg);
   transition: background .12s ease, border-color .12s ease;
 }
 .adm-social-picker-item:hover { background: var(--surface-2); border-color: var(--border-strong); }
 .adm-social-picker-icon { font-size: 16px; color: var(--fg-muted); }
+
 
 /* ─── Project editor layout ──────────────────────────── */
 .adm-editor-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
