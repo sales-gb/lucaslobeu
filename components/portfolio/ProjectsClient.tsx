@@ -7,6 +7,7 @@ import ImageBlock from './ImageBlock';
 import Reveal from './Reveal';
 import TextReveal from './TextReveal';
 import type { Project } from '@/lib/db/schema';
+import type { ProjectWithUrls } from '@/app/(portfolio)/projects/page';
 
 const REVEAL_TONE: Record<'light' | 'mid' | 'dark', 'light' | 'mid' | 'dark'> = {
   light: 'dark',
@@ -125,7 +126,7 @@ function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }
 }
 
 // ─── Project card ─────────────────────────────────────────────
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project, index }: { project: ProjectWithUrls; index: number }) {
   const tone = (project.coverTone as 'light' | 'mid' | 'dark') ?? 'mid';
   const ratioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' };
   const ratio = ratioMap[project.coverKind ?? 'tall'] ?? '3/4';
@@ -174,10 +175,15 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             animate={{ scale: hovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: EASE_OUT }}
           >
-            <ImageBlock tone={tone} ratio={ratio} />
+            <ImageBlock tone={tone} ratio={ratio} src={project.coverImageUrl} />
           </motion.div>
           <div ref={previewRef} className="ll-projectcard-preview" aria-hidden>
-            <ImageBlock tone={REVEAL_TONE[tone]} ratio={ratio} style={{ height: '100%' }} />
+            <ImageBlock
+              tone={project.coverHoverImageUrl ? tone : REVEAL_TONE[tone]}
+              ratio={ratio}
+              src={project.coverHoverImageUrl ?? project.coverImageUrl}
+              style={{ height: '100%' }}
+            />
           </div>
           <motion.div
             className="ll-projectcard-overlay"
@@ -215,7 +221,7 @@ export default function ProjectsClient({
   manifestoText = '',
   manifestoImageUrl = '',
 }: {
-  projects: Project[];
+  projects: ProjectWithUrls[];
   heroSub?: string;
   manifestoText?: string;
   manifestoImageUrl?: string;

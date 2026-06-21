@@ -14,6 +14,7 @@ export const users = sqliteTable('users', {
   instagram: text('instagram').default('@lucaslobeu'),
   vimeo: text('vimeo').default('vimeo.com/lucaslobeu'),
   behance: text('behance').default('behance.net/lucaslobeu'),
+  socialLinks: text('social_links').notNull().default('[]'),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
@@ -30,6 +31,7 @@ export const projects = sqliteTable('projects', {
   body: text('body').notNull().default('[]'),        // JSON: ContentBlock[]
   credits: text('credits').notNull().default('[]'),  // JSON: [role, name][]
   coverImageId: text('cover_image_id'),
+  coverHoverImageId: text('cover_hover_image_id'),
   coverTone: text('cover_tone').notNull().default('mid'), // light | mid | dark
   coverKind: text('cover_kind').notNull().default('tall'), // tall | wide | square
   template: text('template').notNull().default('editorial'), // editorial | gallery | longform

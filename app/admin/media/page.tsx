@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminShell from '@/components/admin/AdminShell'
 import type { Media } from '@/lib/db/schema'
@@ -13,26 +13,71 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function MediaThumb({ media, onCopy }: { media: MediaWithUrl; onCopy: (url: string) => void }) {
+function MediaCard({
+  item,
+  copied,
+  onCopy,
+  onDelete,
+}: {
+  item: MediaWithUrl
+  copied: string
+  onCopy: (url: string) => void
+  onDelete: (id: string) => void
+}) {
+  const isCopied = copied === item.url
+  const isVideo = item.mimeType?.startsWith('video/')
+
   return (
-    <div
-      className="adm-media-thumb"
-      title="Clique para copiar URL"
-      onClick={() => onCopy(media.url)}
-      style={{
-        aspectRatio: '1',
-        background: 'var(--surface-2)',
-        overflow: 'hidden',
-        cursor: 'pointer',
-        position: 'relative',
-      }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={media.url}
-        alt={media.alt || media.originalName}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-      />
+    <div className="adm-gallery-card">
+      <div className="adm-gallery-thumb">
+        {isVideo ? (
+          <>
+            <video
+              src={item.url}
+              preload="metadata"
+              muted
+              playsInline
+              className="adm-gallery-video"
+            />
+            <div className="adm-gallery-play-badge">▶</div>
+          </>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.url} alt={item.alt || item.originalName} />
+        )}
+
+        <div className="adm-gallery-overlay">
+          <button
+            className={`adm-gallery-action${isCopied ? ' is-copied' : ''}`}
+            onClick={() => onCopy(item.url)}
+            title="Copiar URL"
+          >
+            {isCopied ? '✓ Copiada' : 'Copiar URL'}
+          </button>
+          <button
+            className="adm-gallery-action adm-gallery-action--danger"
+            onClick={() => onDelete(item.id)}
+            title="Excluir"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+
+      <div className="adm-gallery-meta">
+        <span className="adm-gallery-name" title={item.originalName}>{item.originalName}</span>
+        <div className="adm-gallery-sub">
+          <span>{item.mimeType.split('/')[1]?.toUpperCase()}</span>
+          <span>·</span>
+          <span>{formatBytes(item.size)}</span>
+          {item.width && item.height && (
+            <>
+              <span>·</span>
+              <span>{item.width}×{item.height}</span>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -42,8 +87,10 @@ export default function MediaPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [media, setMedia] = useState<MediaWithUrl[]>([])
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState('')
+  const [dragging, setDragging] = useState(false)
 
   const load = async () => {
     const res = await fetch('/api/media')
@@ -53,33 +100,46 @@ export default function MediaPage() {
   useEffect(() => { load() }, [])
 
   const handleCopy = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(window.location.origin + url).then(() => {
       setCopied(url)
       setTimeout(() => setCopied(''), 2000)
     })
   }
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? [])
+  const uploadFiles = async (files: File[]) => {
     if (!files.length) return
     setUploading(true)
     setError('')
+    setUploadProgress(0)
 
-    for (const file of files) {
+    for (let i = 0; i < files.length; i++) {
       const form = new FormData()
-      form.append('file', file)
+      form.append('file', files[i])
       const res = await fetch('/api/media', { method: 'POST', body: form })
       if (!res.ok) {
         const data = await res.json()
         setError(data.error ?? 'Erro ao enviar arquivo.')
         break
       }
+      setUploadProgress(Math.round(((i + 1) / files.length) * 100))
     }
 
     setUploading(false)
+    setUploadProgress(0)
     if (fileRef.current) fileRef.current.value = ''
     load()
   }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    uploadFiles(Array.from(e.target.files ?? []))
+  }
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'))
+    uploadFiles(files)
+  }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Excluir arquivo permanentemente?')) return
@@ -93,6 +153,7 @@ export default function MediaPage() {
   return (
     <AdminShell breadcrumbs={[{ label: 'Mídia' }]}>
       <div className="adm-page">
+        {/* Header */}
         <div className="adm-page-head">
           <div>
             <p className="adm-mono adm-muted">Biblioteca</p>
@@ -100,58 +161,76 @@ export default function MediaPage() {
             <p className="adm-sub">{media.length} arquivo{media.length !== 1 ? 's' : ''}</p>
           </div>
           <div className="adm-page-head-actions">
-            {copied && <span className="adm-mono adm-muted" style={{ fontSize: 11 }}>URL copiada!</span>}
+            {copied && (
+              <span className="adm-status adm-status--saved">
+                <span className="adm-status-dot" />URL copiada
+              </span>
+            )}
             {error && <span className="adm-err">{error}</span>}
-            <button className="adm-btn adm-btn--primary" onClick={() => fileRef.current?.click()} disabled={uploading}>
-              {uploading ? 'Enviando...' : '+ Upload'}
+            <button
+              className="adm-btn adm-btn--primary"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? `Enviando… ${uploadProgress}%` : '+ Upload'}
             </button>
             <input
               ref={fileRef}
               type="file"
-              accept="image/jpeg,image/png,image/webp,image/avif"
+              accept="image/jpeg,image/png,image/webp,image/avif,video/mp4,video/webm"
               multiple
-              style={{ display: 'none' }}
-              onChange={handleUpload}
+              hidden
+              onChange={handleFileChange}
             />
           </div>
         </div>
 
-        <div className="adm-media-grid">
-          {media.map((item) => (
-            <div key={item.id} className="adm-media-cell">
-              <MediaThumb media={item} onCopy={handleCopy} />
-              <div className="adm-media-info">
-                <span className="adm-h6" style={{ fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {item.originalName}
-                </span>
-                <span className="adm-mono adm-muted" style={{ fontSize: 10 }}>{item.mimeType.split('/')[1].toUpperCase()} · {formatBytes(item.size)}</span>
-                {item.width && item.height && (
-                  <span className="adm-muted" style={{ fontSize: 10 }}>{item.width} × {item.height}</span>
-                )}
-                <span
-                  className="adm-mono adm-muted"
-                  style={{ fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer' }}
-                  title="Clique para copiar URL"
-                  onClick={() => handleCopy(item.url)}
-                >
-                  {copied === item.url ? '✓ copiada' : item.url}
-                </span>
-              </div>
-              <button className="adm-btn adm-btn--xs adm-btn--danger" onClick={() => handleDelete(item.id)}>
-                Excluir
-              </button>
-            </div>
-          ))}
-
-          {media.length === 0 && !uploading && (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 0' }}>
-              <p className="adm-muted">Nenhum arquivo na biblioteca.</p>
-              <button className="adm-btn adm-btn--primary" style={{ marginTop: 16 }} onClick={() => fileRef.current?.click()}>
-                Enviar primeira imagem
-              </button>
-            </div>
-          )}
+        {/* Drop zone */}
+        <div
+          className={`adm-gallery-dropzone${dragging ? ' is-dragging' : ''}`}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileRef.current?.click()}
+        >
+          <span className="adm-gallery-dropzone-icon">⊕</span>
+          <span className="adm-gallery-dropzone-label">
+            {dragging ? 'Solte para enviar' : 'Arraste arquivos ou clique para fazer upload'}
+          </span>
         </div>
+
+        {/* Upload progress bar */}
+        {uploading && (
+          <div className="adm-gallery-progress">
+            <div className="adm-gallery-progress-bar" style={{ width: `${uploadProgress}%` }} />
+          </div>
+        )}
+
+        {/* Gallery grid */}
+        {media.length === 0 && !uploading ? (
+          <div className="adm-gallery-empty">
+            <p className="adm-muted" style={{ fontSize: 14 }}>Nenhum arquivo na biblioteca ainda.</p>
+            <button
+              className="adm-btn adm-btn--primary"
+              style={{ marginTop: 16 }}
+              onClick={() => fileRef.current?.click()}
+            >
+              Enviar primeira imagem
+            </button>
+          </div>
+        ) : (
+          <div className="adm-gallery-grid">
+            {media.map((item) => (
+              <MediaCard
+                key={item.id}
+                item={item}
+                copied={copied}
+                onCopy={handleCopy}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </AdminShell>
   )

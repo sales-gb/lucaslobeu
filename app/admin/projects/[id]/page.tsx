@@ -416,6 +416,7 @@ export default function ProjectEditorPage({
   const [error, setError] = useState('')
   const [dragOverBlock, setDragOverBlock] = useState<number | null>(null)
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
+  const [coverHoverImageUrl, setCoverHoverImageUrl] = useState<string>('')
   const [pickerOpen, setPickerOpen] = useState(false)
   const pickerCb = useRef<((id: string, url: string) => void) | null>(null)
 
@@ -442,13 +443,16 @@ export default function ProjectEditorPage({
         } catch {
           setBlocks([])
         }
-        if (data.coverImageId) {
+        const hoverImageId = (data as Project & { coverHoverImageId?: string | null }).coverHoverImageId
+        if (data.coverImageId || hoverImageId) {
           fetch('/api/media')
             .then((r) => (r.ok ? r.json() : []))
             .then((media: MediaItem[]) => {
               if (!Array.isArray(media)) return
-              const found = media.find((m) => m.id === data.coverImageId)
-              if (found) setCoverImageUrl(found.url)
+              const foundCover = media.find((m) => m.id === data.coverImageId)
+              if (foundCover) setCoverImageUrl(foundCover.url)
+              const foundHover = media.find((m) => m.id === hoverImageId)
+              if (foundHover) setCoverHoverImageUrl(foundHover.url)
             })
             .catch(() => {})
         }
@@ -819,6 +823,50 @@ export default function ProjectEditorPage({
                       }}
                     >
                       Remover capa
+                    </button>
+                  )}
+
+                  {/* Hover cover */}
+                  <p className="adm-label" style={{ marginTop: 20, marginBottom: 8 }}>Capa hover</p>
+                  <button
+                    type="button"
+                    className="adm-cover-picker"
+                    style={{ aspectRatio: coverAspect }}
+                    onClick={() =>
+                      openPicker((imgId, url) => {
+                        update('coverHoverImageId', imgId)
+                        setCoverHoverImageUrl(url)
+                      })
+                    }
+                  >
+                    {coverHoverImageUrl ? (
+                      <Image
+                        src={coverHoverImageUrl}
+                        alt="Capa hover"
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="360px"
+                      />
+                    ) : (
+                      <div className="adm-cover-picker-empty">
+                        <span style={{ fontSize: 22 }}>⊕</span>
+                        <span className="adm-mono adm-muted" style={{ fontSize: 10 }}>
+                          Capa no hover
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                  {coverHoverImageUrl && (
+                    <button
+                      type="button"
+                      className="adm-btn adm-btn--xs adm-btn--ghost"
+                      style={{ marginTop: 8, width: '100%' }}
+                      onClick={() => {
+                        update('coverHoverImageId', null)
+                        setCoverHoverImageUrl('')
+                      }}
+                    >
+                      Remover hover
                     </button>
                   )}
 

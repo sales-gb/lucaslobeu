@@ -98,12 +98,15 @@ export default async function ProjectPage({
     getCoverImageUrl(project.coverImageId),
   ])
 
+  const nextCoverImageUrl = next ? await getCoverImageUrl(next.coverImageId) : undefined
+
   return (
     <ProjectDetailClient
       project={project}
       nextProject={next}
       prevProject={prev}
       coverImageUrl={coverImageUrl}
+      nextCoverImageUrl={nextCoverImageUrl}
     />
   )
 }

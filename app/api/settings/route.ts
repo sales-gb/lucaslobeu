@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const userFields = ['name', 'city', 'bio', 'phone', 'instagram', 'vimeo', 'behance', 'email'] as const
+  const userFields = ['name', 'city', 'bio', 'phone', 'instagram', 'vimeo', 'behance', 'email', 'socialLinks'] as const
   const userUpdates: Record<string, unknown> = {}
   for (const field of userFields) {
     if (field in body) userUpdates[field] = body[field]

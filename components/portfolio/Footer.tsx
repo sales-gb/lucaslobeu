@@ -1,4 +1,6 @@
-import Link from 'next/link';
+import Link from 'next/link'
+import { getDb, schema } from '@/lib/db'
+import type { SocialLink } from '@/app/admin/settings/page'
 
 const BrandMark = () => (
   <svg width="22" height="22" viewBox="0 0 200 200" fill="none">
@@ -6,10 +8,46 @@ const BrandMark = () => (
     <path d="M 162 168 L 162 32 L 90 32" stroke="currentColor" strokeWidth="11" strokeLinecap="square" />
     <circle cx="100" cy="100" r="6" fill="var(--accent)" />
   </svg>
-);
+)
 
-export default function Footer() {
-  const year = new Date().getFullYear();
+const PLATFORM_LABELS: Record<string, string> = {
+  instagram: 'Instagram',
+  vimeo: 'Vimeo',
+  behance: 'Behance',
+  linkedin: 'LinkedIn',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  twitter: 'X / Twitter',
+  pinterest: 'Pinterest',
+  dribbble: 'Dribbble',
+  github: 'GitHub',
+}
+
+async function getSocialLinks(): Promise<SocialLink[]> {
+  try {
+    const db = getDb()
+    const [user] = await db.select().from(schema.users)
+    if (!user?.socialLinks) return []
+    const parsed = JSON.parse(user.socialLinks) as SocialLink[]
+    return Array.isArray(parsed) ? parsed.filter((l) => l.enabled && l.url) : []
+  } catch {
+    return []
+  }
+}
+
+async function getUserInfo() {
+  try {
+    const db = getDb()
+    const [user] = await db.select({ email: schema.users.email, city: schema.users.city, phone: schema.users.phone, bio: schema.users.bio }).from(schema.users)
+    return user ?? null
+  } catch {
+    return null
+  }
+}
+
+export default async function Footer() {
+  const year = new Date().getFullYear()
+  const [socials, user] = await Promise.all([getSocialLinks(), getUserInfo()])
 
   return (
     <footer className="ll-footer">
@@ -21,32 +59,34 @@ export default function Footer() {
               Lobeu
             </span>
           </div>
-          <p className="muted" style={{ fontFamily: 'var(--sans)', fontSize: 14, lineHeight: 1.55, maxWidth: 220 }}>
-            Estúdio de direção audiovisual e fotografia. São Paulo, Brasil.
-          </p>
+          {user?.bio && (
+            <p className="muted" style={{ fontFamily: 'var(--sans)', fontSize: 14, lineHeight: 1.55, maxWidth: 220 }}>
+              {user.bio}
+            </p>
+          )}
         </div>
 
         <div className="ll-footer-col">
           <span className="small-cap muted">Contato</span>
           <div className="ll-footer-body">
-            <a href="mailto:lucas@lobeu.studio">lucas@lobeu.studio</a>
-            <a href="tel:+5511984720418">+55 11 9 8472-0418</a>
-            <span className="muted" style={{ fontSize: 14 }}>São Paulo, BR</span>
+            {user?.email && <a href={`mailto:${user.email}`}>{user.email}</a>}
+            {user?.phone && <a href={`tel:${user.phone.replace(/\D/g, '')}`}>{user.phone}</a>}
+            {user?.city && <span className="muted" style={{ fontSize: 14 }}>{user.city}</span>}
           </div>
         </div>
 
         <div className="ll-footer-col">
           <span className="small-cap muted">Redes</span>
           <div className="ll-footer-body">
-            <a href="https://instagram.com/lucaslobeu" target="_blank" rel="noopener noreferrer">
-              Instagram
-            </a>
-            <a href="https://vimeo.com/lucaslobeu" target="_blank" rel="noopener noreferrer">
-              Vimeo
-            </a>
-            <a href="https://behance.net/lucaslobeu" target="_blank" rel="noopener noreferrer">
-              Behance
-            </a>
+            {socials.length > 0 ? (
+              socials.map((s) => (
+                <a key={s.platform} href={s.url} target="_blank" rel="noopener noreferrer">
+                  {PLATFORM_LABELS[s.platform] ?? s.platform}
+                </a>
+              ))
+            ) : (
+              <span className="muted" style={{ fontSize: 13 }}>—</span>
+            )}
           </div>
         </div>
 
@@ -56,7 +96,6 @@ export default function Footer() {
             <Link href="/">Index</Link>
             <Link href="/projects">Projetos</Link>
             <Link href="/about">Sobre</Link>
-            <Link href="/journal">Diário</Link>
             <Link href="/contact">Contato</Link>
             <Link href="/links">Links</Link>
           </div>
@@ -76,5 +115,5 @@ export default function Footer() {
         </Link>
       </div>
     </footer>
-  );
+  )
 }

@@ -3,10 +3,10 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { ReactNode } from 'react'
+import { ReactNode, useState, useRef, useEffect } from 'react'
 
-const Logo = () => (
-  <svg width="22" height="22" viewBox="0 0 200 200" fill="none">
+const Logo = ({ size = 22 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 200 200" fill="none">
     <path d="M 38 32 L 38 168 L 110 168" stroke="currentColor" strokeWidth="11" strokeLinecap="square"/>
     <path d="M 162 168 L 162 32 L 90 32" stroke="currentColor" strokeWidth="11" strokeLinecap="square"/>
     <circle cx="100" cy="100" r="6" fill="var(--accent)"/>
@@ -43,6 +43,8 @@ interface AdminShellProps {
 export default function AdminShell({ children, breadcrumbs }: AdminShellProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const isActive = (href: string) => {
     if (href === '/admin/dashboard') return pathname === '/admin/dashboard'
@@ -53,6 +55,18 @@ export default function AdminShell({ children, breadcrumbs }: AdminShellProps) {
     await signOut({ redirect: false })
     router.push('/admin/login')
   }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [userMenuOpen])
 
   return (
     <div className="ll-admin">
@@ -99,20 +113,44 @@ export default function AdminShell({ children, breadcrumbs }: AdminShellProps) {
           </div>
         </nav>
 
-        <div className="adm-sidebar-foot">
-          <div className="adm-sidebar-user">
-            <div className="adm-sidebar-avatar">LL</div>
-            <div className="adm-sidebar-label">
-              <span className="adm-h6">Lucas Lobeu</span>
-              <span className="adm-muted" style={{ fontSize: 11 }}>Admin</span>
+        {/* ── User menu ── */}
+        <div className="adm-sidebar-foot" ref={menuRef}>
+          {userMenuOpen && (
+            <div className="adm-user-menu">
+              <Link
+                href="/"
+                target="_blank"
+                className="adm-user-menu-item"
+                onClick={() => setUserMenuOpen(false)}
+              >
+                <span>↗</span> Ver site
+              </Link>
+              <Link
+                href="/admin/settings"
+                className="adm-user-menu-item"
+                onClick={() => setUserMenuOpen(false)}
+              >
+                <span>⚙</span> Configurações
+              </Link>
+              <div className="adm-user-menu-sep" />
+              <button className="adm-user-menu-item adm-user-menu-item--danger" onClick={handleSignOut}>
+                <span>→</span> Sair
+              </button>
             </div>
-          </div>
+          )}
+
           <button
-            className="adm-btn adm-btn--ghost adm-btn--sm"
-            onClick={handleSignOut}
-            style={{ justifyContent: 'flex-start', paddingLeft: 4 }}
+            className={`adm-sidebar-user-btn${userMenuOpen ? ' is-open' : ''}`}
+            onClick={() => setUserMenuOpen((v) => !v)}
           >
-            Sair
+            <div className="adm-sidebar-avatar">
+              <Logo size={14} />
+            </div>
+            <div className="adm-sidebar-label">
+              <span style={{ fontWeight: 500, fontSize: 13 }}>Lucas Lobeu</span>
+              <span className="adm-muted" style={{ fontSize: 10 }}>Admin</span>
+            </div>
+            <span className="adm-user-chevron">{userMenuOpen ? '▲' : '▼'}</span>
           </button>
         </div>
       </aside>

@@ -88,9 +88,10 @@ interface Props {
   nextProject: Project | null
   prevProject?: Project | null
   coverImageUrl?: string
+  nextCoverImageUrl?: string
 }
 
-export default function ProjectDetailClient({ project, nextProject, prevProject, coverImageUrl }: Props) {
+export default function ProjectDetailClient({ project, nextProject, prevProject, coverImageUrl, nextCoverImageUrl }: Props) {
   let blocks: ContentBlock[] = []
   let credits: CreditRow[] = []
   try { blocks = JSON.parse(project.body) as ContentBlock[] } catch {}
@@ -100,8 +101,22 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
   const coverRatioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' }
   const coverRatio = coverRatioMap[project.coverKind ?? 'tall'] ?? '3/4'
 
+  // Separate text blocks (paragraphs) from media blocks
+  const paragraphBlocks = blocks.filter(b => b.kind === 'paragraph')
+  const mediaBlocks = blocks.filter(b => b.kind !== 'paragraph')
+
+  // Metadata rows for the info section
+  const metaRows = [
+    { label: 'Data', value: project.year },
+    { label: 'Cliente', value: project.client },
+    { label: 'Categoria', value: project.category },
+    { label: 'Serviços', value: project.role },
+    ...credits.map(([role, name]) => ({ label: role, value: name })),
+  ].filter(item => item.value)
+
   return (
     <div className="ll-pd-page">
+
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="ll-pd-hero">
         <div className="ll-pd-hero-inner">
@@ -133,43 +148,64 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
         <ImageBlock tone={tone} ratio={coverRatio} src={coverImageUrl} />
       </div>
 
-      {/* ── BODY CONTENT ─────────────────────────────────────── */}
-      {blocks.length > 0 && (
+      {/* ── INFO SECTION: image left / text+meta right ───────── */}
+      <section className="ll-pd-info">
+        {/* Left: cover image at portrait crop */}
+        <Reveal y={20} className="ll-pd-info-img">
+          <ImageBlock tone={tone} ratio="3/4" src={coverImageUrl} />
+        </Reveal>
+
+        {/* Right: overview text + metadata */}
+        <div className="ll-pd-info-right">
+          {/* Overview paragraphs */}
+          {(paragraphBlocks.length > 0 || project.summary) && (
+            <div className="ll-pd-overview">
+              <Reveal y={0}>
+                <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.35)' }}>Overview</span>
+              </Reveal>
+              {paragraphBlocks.length > 0
+                ? paragraphBlocks.map((block, i) => (
+                    block.kind === 'paragraph' && (
+                      <Reveal key={i} y={16} delay={i * 60}>
+                        <p className="ll-pd-overview-text">{block.text}</p>
+                      </Reveal>
+                    )
+                  ))
+                : (
+                  <Reveal y={16} delay={60}>
+                    <p className="ll-pd-overview-text">{project.summary}</p>
+                  </Reveal>
+                )
+              }
+            </div>
+          )}
+
+          {/* Metadata list */}
+          {metaRows.length > 0 && (
+            <Reveal y={0} delay={120}>
+              <div className="ll-pd-metalist">
+                {metaRows.map((item, i) => (
+                  <div key={item.label} className="ll-pd-metalist-row">
+                    <span className="ll-pd-metalist-label">{item.label}</span>
+                    <span className="ll-pd-metalist-value">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          )}
+        </div>
+      </section>
+
+      {/* ── MEDIA BLOCKS (images, quotes, pairs, etc.) ───────── */}
+      {mediaBlocks.length > 0 && (
         <section className="ll-pd-body">
-          {blocks.map((block, i) => (
+          {mediaBlocks.map((block, i) => (
             <Reveal key={i} y={24} delay={0}>
               <BodyBlock block={block} />
             </Reveal>
           ))}
         </section>
       )}
-
-      {/* ── METADATA ─────────────────────────────────────────── */}
-      <section className="ll-pd-meta-section">
-        <div className="ll-pd-meta-grid">
-          {[
-            { label: 'Data', value: project.year },
-            { label: 'Cliente', value: project.client },
-            { label: 'Categoria', value: project.category },
-            { label: 'Serviços', value: project.role },
-          ].filter(item => item.value).map((item, i) => (
-            <Reveal key={item.label} y={16} delay={i * 50}>
-              <div className="ll-pd-meta-row">
-                <span className="ll-pd-meta-label">{item.label}:</span>
-                <span className="ll-pd-meta-value">{item.value}</span>
-              </div>
-            </Reveal>
-          ))}
-          {credits.map(([role, name], i) => (
-            <Reveal key={role} y={16} delay={(i + 4) * 50}>
-              <div className="ll-pd-meta-row">
-                <span className="ll-pd-meta-label">{role}:</span>
-                <span className="ll-pd-meta-value">{name}</span>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
 
       {/* ── NEXT PROJECT ─────────────────────────────────────── */}
       {nextProject && (
@@ -183,7 +219,12 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
 
           <Link href={`/projects/${nextProject.slug}`} className="ll-pd-next-link">
             <div className="ll-pd-next-image">
-              <ImageBlock tone={safeTone(nextProject.coverTone)} ratio="16/9" style={{ height: '100%' }} />
+              <ImageBlock
+                tone={safeTone(nextProject.coverTone)}
+                ratio="16/9"
+                src={nextCoverImageUrl}
+                style={{ height: '100%' }}
+              />
               <div className="ll-pd-next-overlay" />
             </div>
             <div className="ll-pd-next-meta">
@@ -210,6 +251,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
           </Link>
         )}
       </div>
+
     </div>
   )
 }

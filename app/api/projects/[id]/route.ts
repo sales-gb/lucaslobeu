@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const allowedFields = [
     'slug', 'title', 'client', 'year', 'category', 'role', 'summary',
-    'body', 'credits', 'coverImageId', 'coverTone', 'coverKind',
+    'body', 'credits', 'coverImageId', 'coverHoverImageId', 'coverTone', 'coverKind',
     'template', 'status', 'sortOrder', 'metaTitle', 'metaDescription',
   ] as const
 
