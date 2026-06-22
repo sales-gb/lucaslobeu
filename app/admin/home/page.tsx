@@ -279,8 +279,8 @@ function ClientsEditor({ value, onChange }: { value: ClientItem[]; onChange: (v:
             <input className="adm-input" value={item.name} onChange={e => update(i, 'name', e.target.value)} placeholder="Nome do cliente" />
           </div>
           <div className="adm-field">
-            {i === 0 && <label className="adm-label">Categoria</label>}
-            <input className="adm-input" value={item.category} onChange={e => update(i, 'category', e.target.value)} placeholder="Branding" />
+            {i === 0 && <label className="adm-label">Ano</label>}
+            <input className="adm-input" value={item.category} onChange={e => update(i, 'category', e.target.value)} placeholder="2025/" />
           </div>
           <button className="adm-btn adm-btn--xs adm-btn--danger" style={{ marginBottom: 1 }} onClick={() => remove(i)}>✕</button>
         </div>
