@@ -8,10 +8,11 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from '../src/lib/db/schema';
 import bcrypt from 'bcryptjs';
-import { eq, desc } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { UPLOAD_LIMITS } from '../src/lib/storage/interface';
 import path from 'path';
 import fs from 'fs/promises';
+import { unlinkSync } from 'fs';
 
 // ─── Test DB setup ──────────────────────────────────────────────
 const TEST_DB_PATH = path.join(process.cwd(), '__test_api.db');
@@ -29,7 +30,7 @@ function setupDb() {
 let sqlite: ReturnType<typeof Database>;
 beforeEach(() => {
   // Fresh DB per test group
-  try { require('fs').unlinkSync(TEST_DB_PATH); } catch {}
+  try { unlinkSync(TEST_DB_PATH); } catch {}
   sqlite = setupDb();
 });
 
@@ -37,7 +38,7 @@ beforeEach(() => {
 import { afterAll } from 'vitest';
 afterAll(() => {
   try { sqlite?.close(); } catch {}
-  try { require('fs').unlinkSync(TEST_DB_PATH); } catch {}
+  try { unlinkSync(TEST_DB_PATH); } catch {}
 });
 
 // ─── Upload Limits ─────────────────────────────────────────────
@@ -185,7 +186,9 @@ describe('Projects entity — field by field', () => {
   it('validates all required fields are present', () => {
     // Missing required fields should throw
     expect(() => {
-      (db.insert(schema.projects) as any).values({ id: 'bad' }).run();
+      db.insert(schema.projects)
+        .values({ id: 'bad' } as typeof schema.projects.$inferInsert)
+        .run();
     }).toThrow();
   });
 });
@@ -282,7 +285,7 @@ describe('Media entity', () => {
   it('validates mime type against UPLOAD_LIMITS', () => {
     const badTypes = ['application/pdf', 'text/html'];
     for (const t of badTypes) {
-      expect(UPLOAD_LIMITS.allowedMimeTypes.includes(t as any)).toBe(false);
+      expect(UPLOAD_LIMITS.allowedMimeTypes.includes(t as (typeof UPLOAD_LIMITS.allowedMimeTypes)[number])).toBe(false);
     }
   });
 
