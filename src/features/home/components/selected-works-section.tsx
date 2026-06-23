@@ -5,6 +5,8 @@ import Link from "next/link";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
 import { buttonVariants } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { cn } from "@/lib/utils/cn";
 import type { Project } from "@/lib/db/schema";
 
@@ -73,9 +75,9 @@ function SwCard({
           />
         </div>
         <div className="ll-sw-card-meta">
-          <span className="ll-eyebrow muted">
+          <Eyebrow>
             {project.category} · {project.year}
-          </span>
+          </Eyebrow>
           <h3 className="ll-sw-card-name">{project.title}</h3>
           <span className="ll-mono small-cap muted" style={{ fontSize: 11 }}>
             {project.client}
@@ -95,10 +97,9 @@ export function SelectedWorksSection({ projects }: { projects: Project[] }) {
       <div className="ll-sw-header">
         <div className="ll-sw-header-title">
           <Reveal y={0}>
-            <div className="ll-section-marker" style={{ marginBottom: 24 }}>
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Trabalhos selecionados</span>
-            </div>
+            <SectionMarker style={{ marginBottom: 24 }}>
+              Trabalhos selecionados
+            </SectionMarker>
           </Reveal>
           <Reveal y={20} delay={60}>
             <h2 className="ll-sw-title">

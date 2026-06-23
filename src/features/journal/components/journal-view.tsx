@@ -6,6 +6,8 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import Reveal from '@/components/ui/reveal'
 import TextReveal from '@/components/ui/text-reveal'
 import ImageBlock from '@/components/ui/image-block'
+import { Eyebrow } from '@/components/ui/eyebrow'
+import { SectionMarker } from '@/components/ui/section-marker'
 import type { JournalEntry } from '@/lib/db/schema'
 
 function formatDate(dateStr: string): string {
@@ -45,9 +47,9 @@ function JournalEntry({ entry, index }: { entry: JournalEntry; index: number }) 
           <Reveal y={0}>
             <div className="ll-journal-entry-date">
               <span className="ll-mono small-cap muted">{String(index + 1).padStart(2, '0')}</span>
-              <span className="ll-eyebrow muted">{formatDate(entry.publishedAt)}</span>
+              <Eyebrow>{formatDate(entry.publishedAt)}</Eyebrow>
               {entry.readTime && (
-                <span className="ll-eyebrow muted">· {entry.readTime} leitura</span>
+                <Eyebrow>· {entry.readTime} leitura</Eyebrow>
               )}
             </div>
           </Reveal>
@@ -91,10 +93,7 @@ export default function JournalClient({ entries }: Props) {
       <section className="ll-journal-hero">
         <div className="ll-journal-hero-inner">
           <Reveal y={0}>
-            <div className="ll-section-marker">
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Diário · Processo</span>
-            </div>
+            <SectionMarker>Diário · Processo</SectionMarker>
           </Reveal>
 
           <TextReveal

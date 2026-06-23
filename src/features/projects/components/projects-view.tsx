@@ -6,6 +6,8 @@ import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion
 import ImageBlock from '@/components/ui/image-block';
 import Reveal from '@/components/ui/reveal';
 import TextReveal from '@/components/ui/text-reveal';
+import { Eyebrow } from '@/components/ui/eyebrow';
+import { SectionMarker } from '@/components/ui/section-marker';
 import type { Project } from '@/lib/db/schema';
 import type { ProjectWithUrls } from '@/features/projects/types';
 
@@ -32,10 +34,7 @@ function ProjectsHero({ sub }: { sub: string }) {
 
       <div className="ll-projects-hero-inner">
         <Reveal y={0} delay={0}>
-          <div className="ll-section-marker">
-            <span className="ll-accent-dot" />
-            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Portfolio</span>
-          </div>
+          <SectionMarker eyebrowClassName="text-paper/40">Portfolio</SectionMarker>
         </Reveal>
 
         <div className="ll-projects-hero-body">
@@ -99,10 +98,9 @@ function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }
           </div>
         )}
         <div className="ll-projects-manifesto-text-col">
-          <div className="ll-section-marker" style={{ marginBottom: 32 }}>
-            <span className="ll-accent-dot" />
-            <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.5)' }}>Manifesto</span>
-          </div>
+          <SectionMarker tone="light" style={{ marginBottom: 32 }}>
+            Manifesto
+          </SectionMarker>
           <p className="ll-projects-manifesto-statement">
             {words.map((word, i) => (
               <ManifestoWord
@@ -272,9 +270,9 @@ export default function ProjectsClient({
             </button>
           ))}
           <div className="ll-filter-grow" />
-          <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)', fontSize: 11 }}>
+          <Eyebrow style={{ color: 'rgba(244,241,234,.4)', fontSize: 11 }}>
             {filtered.length} resultados
-          </span>
+          </Eyebrow>
         </div>
       </div>
 

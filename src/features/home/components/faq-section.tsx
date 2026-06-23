@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import TextReveal from "@/components/ui/text-reveal";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { DEFAULT_FAQ } from "@/features/home/data/fallbacks";
 import { EASE_OUT } from "@/features/home/constants";
 import type { FaqItem } from "@/features/home/types";
@@ -49,10 +50,9 @@ export function FaqSection({ faqItems }: { faqItems: FaqItem[] }) {
       <div className="ll-h3-faq-inner">
         <div className="ll-h3-faq-head">
           <Reveal y={0}>
-            <div className="ll-section-marker" style={{ marginBottom: 16 }}>
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">Perguntas frequentes</span>
-            </div>
+            <SectionMarker style={{ marginBottom: 16 }}>
+              Perguntas frequentes
+            </SectionMarker>
           </Reveal>
           <Reveal y={24} delay={60}>
             <TextReveal

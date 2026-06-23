@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import ImageBlock from "@/components/ui/image-block";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { SectionMarker } from "@/components/ui/section-marker";
 
 function AboutWord({
   word,
@@ -57,15 +59,9 @@ export function AboutSection({
       {/* 4-col grid: text cols 1-2, col 3 empty, portrait col 4 */}
       <div className="ll-ek-about-inner">
         <div className="ll-ek-about-text">
-          <div className="ll-section-marker" style={{ marginBottom: 40 }}>
-            <span className="ll-accent-dot" />
-            <span
-              className="ll-eyebrow"
-              style={{ color: "rgba(244,241,234,.5)" }}
-            >
-              Sobre
-            </span>
-          </div>
+          <SectionMarker tone="light" style={{ marginBottom: 40 }}>
+            Sobre
+          </SectionMarker>
           <p className="ll-ek-about-statement">
             {words.map((word, i) => (
               <AboutWord
@@ -90,8 +86,7 @@ export function AboutSection({
             />
           </div>
           <div className="ll-ek-about-portrait-caption">
-            <span
-              className="ll-eyebrow"
+            <Eyebrow
               style={{
                 display: "block",
                 marginBottom: 6,
@@ -99,7 +94,7 @@ export function AboutSection({
               }}
             >
               Lucas Lobeu
-            </span>
+            </Eyebrow>
             <span
               className="ll-mono small-cap"
               style={{ fontSize: 10, color: "rgba(244,241,234,.38)" }}
@@ -121,15 +116,9 @@ export function AboutSection({
           />
         </div>
         <div className="ll-ek-about-footer-copy">
-          <div className="ll-section-marker" style={{ marginBottom: 24 }}>
-            <span className="ll-accent-dot" />
-            <span
-              className="ll-eyebrow"
-              style={{ color: "rgba(244,241,234,.5)" }}
-            >
-              Resultado
-            </span>
-          </div>
+          <SectionMarker tone="light" style={{ marginBottom: 24 }}>
+            Resultado
+          </SectionMarker>
           <p className="ll-ek-about-footer-headline">{footerHeadline}</p>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { Eyebrow } from '@/components/ui/eyebrow';
 
 type FormState = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -52,13 +53,13 @@ export default function ContactForm() {
         <p className="ll-body">
           Obrigado pelo contato. Retornarei em até 48h úteis para darmos sequência à conversa.
         </p>
-        <button
-          className="ll-eyebrow"
+        <Eyebrow
+          as="button"
           style={{ marginTop: 16, textDecoration: 'underline', cursor: 'pointer' }}
           onClick={() => setState('idle')}
         >
           Enviar nova mensagem
-        </button>
+        </Eyebrow>
       </div>
     );
   }
@@ -66,7 +67,7 @@ export default function ContactForm() {
   return (
     <form className="ll-contact-form" onSubmit={handleSubmit} noValidate>
       <div className="ll-contact-field">
-        <label className="ll-eyebrow" htmlFor="nome">Nome</label>
+        <Eyebrow as="label" htmlFor="nome">Nome</Eyebrow>
         <input
           id="nome"
           type="text"
@@ -78,7 +79,7 @@ export default function ContactForm() {
       </div>
 
       <div className="ll-contact-field">
-        <label className="ll-eyebrow" htmlFor="email">Email</label>
+        <Eyebrow as="label" htmlFor="email">Email</Eyebrow>
         <input
           id="email"
           type="email"
@@ -90,7 +91,7 @@ export default function ContactForm() {
       </div>
 
       <div className="ll-contact-field">
-        <label className="ll-eyebrow" htmlFor="empresa">Empresa</label>
+        <Eyebrow as="label" htmlFor="empresa">Empresa</Eyebrow>
         <input
           id="empresa"
           type="text"
@@ -101,7 +102,7 @@ export default function ContactForm() {
       </div>
 
       <div className="ll-contact-field">
-        <span className="ll-eyebrow">Tipo de projeto</span>
+        <Eyebrow>Tipo de projeto</Eyebrow>
         <div className="ll-contact-chips">
           {TIPOS.map((tipo) => (
             <label key={tipo} className="ll-contact-chip">
@@ -117,7 +118,7 @@ export default function ContactForm() {
       </div>
 
       <div className="ll-contact-field">
-        <label className="ll-eyebrow" htmlFor="sobre">Sobre o projeto</label>
+        <Eyebrow as="label" htmlFor="sobre">Sobre o projeto</Eyebrow>
         <textarea
           id="sobre"
           rows={5}

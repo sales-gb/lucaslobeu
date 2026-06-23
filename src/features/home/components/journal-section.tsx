@@ -5,6 +5,9 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { SectionMarker } from "@/components/ui/section-marker";
+import { LinkRule } from "@/components/ui/link-rule";
 import { FALLBACK_JOURNAL } from "@/features/home/data/fallbacks";
 import type { JournalEntry } from "@/features/home/types";
 
@@ -56,10 +59,10 @@ function JournalCard({
       <div className="ll-h3-jsc-depth" aria-hidden />
 
       <div className="ll-h3-jsc-topbar">
-        <span className="ll-eyebrow">
+        <Eyebrow>
           {formatMonth(entry.publishedAt)}&nbsp;·&nbsp;
           {entry.readTime ?? "3 min"} leitura
-        </span>
+        </Eyebrow>
         <span className="ll-h3-jsc-num">
           /{String(index + 1).padStart(2, "0")}
         </span>
@@ -74,13 +77,12 @@ function JournalCard({
           </span>
           <h3 className="ll-h3-jsc-title">{entry.title}</h3>
           <p className="ll-body ll-h3-jsc-excerpt">{entry.excerpt}</p>
-          <Link
+          <LinkRule
             href={`/journal/${entry.slug}`}
-            className="ll-link-rule"
             style={{ marginTop: 32, display: "inline-flex" }}
           >
-            Ler entrada <span>→</span>
-          </Link>
+            Ler entrada
+          </LinkRule>
         </div>
 
         <div className="ll-h3-jsc-image">
@@ -114,10 +116,7 @@ export function JournalSection({
     <section className="ll-h3-journal-section">
       <div className="ll-h3-journal-header">
         <Reveal y={0}>
-          <div className="ll-section-marker">
-            <span className="ll-accent-dot" />
-            <span className="ll-eyebrow">Diário · Processo</span>
-          </div>
+          <SectionMarker>Diário · Processo</SectionMarker>
         </Reveal>
       </div>
 
@@ -137,9 +136,7 @@ export function JournalSection({
 
       <Reveal y={12}>
         <div className="ll-h3-journal-footer">
-          <Link href="/journal" className="ll-link-rule">
-            Ler todos os diários <span>→</span>
-          </Link>
+          <LinkRule href="/journal">Ler todos os diários</LinkRule>
         </div>
       </Reveal>
     </section>

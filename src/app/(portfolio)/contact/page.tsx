@@ -1,4 +1,5 @@
 import Reveal from '@/components/ui/reveal';
+import { Eyebrow } from '@/components/ui/eyebrow';
 import ContactForm from '@/features/contact/components/contact-form';
 import type { Metadata } from 'next';
 
@@ -12,7 +13,7 @@ export default function ContactPage() {
     <>
       <div className="ll-contact-header">
         <Reveal y={20}>
-          <span className="ll-eyebrow">Contato · Projeto</span>
+          <Eyebrow>Contato · Projeto</Eyebrow>
         </Reveal>
         <Reveal y={40} delay={60}>
           <h1 className="ll-contact-title">Contato</h1>
@@ -25,7 +26,7 @@ export default function ContactPage() {
           <div className="ll-contact-left">
             <Reveal y={20}>
               <div>
-                <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 12 }}>Email principal</span>
+                <Eyebrow style={{ display: 'block', marginBottom: 12 }}>Email principal</Eyebrow>
                 <a href="mailto:lucas@lobeu.studio" className="ll-contact-mail ll-sweep">
                   lucas@lobeu.studio
                 </a>
@@ -35,13 +36,13 @@ export default function ContactPage() {
             <Reveal y={16} delay={60}>
               <div className="ll-contact-info">
                 <div>
-                  <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Telefone</span>
+                  <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Telefone</Eyebrow>
                   <a href="tel:+5511984720418" className="ll-sweep" style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>
                     +55 11 9 8472-0418
                   </a>
                 </div>
                 <div>
-                  <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Localização</span>
+                  <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Localização</Eyebrow>
                   <span style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>São Paulo, BR</span>
                 </div>
               </div>
@@ -49,7 +50,7 @@ export default function ContactPage() {
 
             <Reveal y={16} delay={100}>
               <div>
-                <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 12 }}>Redes</span>
+                <Eyebrow style={{ display: 'block', marginBottom: 12 }}>Redes</Eyebrow>
                 <div className="ll-contact-socials">
                   <a href="https://instagram.com/lucaslobeu" target="_blank" rel="noopener noreferrer" className="ll-sweep">
                     Instagram
@@ -66,7 +67,7 @@ export default function ContactPage() {
 
             <Reveal y={10} delay={140}>
               <div style={{ padding: '28px 0', borderTop: '.5px solid var(--rule)' }}>
-                <span className="ll-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Disponibilidade</span>
+                <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Disponibilidade</Eyebrow>
                 <p className="ll-body">
                   O estúdio aceita três a quatro projetos por trimestre. Atualmente com agenda aberta para o segundo semestre de 2026.
                 </p>

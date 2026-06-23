@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import Link from 'next/link';
 import Reveal from '@/components/ui/reveal';
 import ImageBlock from '@/components/ui/image-block';
+import { Eyebrow } from '@/components/ui/eyebrow';
 import type { AboutContent } from '@/lib/db/schema';
 import type { Metadata } from 'next';
 
@@ -73,7 +74,7 @@ export default async function AboutPage() {
       {/* ── Header ─────────────────────────────────────── */}
       <div className="ll-about-header">
         <Reveal y={20}>
-          <span className="ll-eyebrow">Sobre o estúdio</span>
+          <Eyebrow>Sobre o estúdio</Eyebrow>
         </Reveal>
         <div className="ll-about-display">
           <div className="ll-about-meta">
@@ -104,7 +105,7 @@ export default async function AboutPage() {
               <ImageBlock tone="mid" ratio="3/4" />
             )}
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <span className="ll-eyebrow">Lucas Lobeu</span>
+              <Eyebrow>Lucas Lobeu</Eyebrow>
               <span className="muted" style={{ fontFamily: 'var(--sans)', fontSize: 14 }}>
                 São Paulo, Brasil · 2019—
               </span>
@@ -142,7 +143,7 @@ export default async function AboutPage() {
                 {displayNumbers.map(([val, label]) => (
                   <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ fontFamily: 'var(--serif)', fontSize: 48, fontWeight: 300, lineHeight: 1 }}>{val}</span>
-                    <span className="ll-eyebrow">{label}</span>
+                    <Eyebrow>{label}</Eyebrow>
                   </div>
                 ))}
               </div>
@@ -175,7 +176,7 @@ export default async function AboutPage() {
       <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
         <Reveal y={20}>
           <div className="ll-about-clients-head">
-            <span className="ll-eyebrow">Clientes selecionados</span>
+            <Eyebrow>Clientes selecionados</Eyebrow>
             <h2 className="ll-section-title ll-section-title--sm">Marcas com quem trabalhamos</h2>
           </div>
         </Reveal>
@@ -196,7 +197,7 @@ export default async function AboutPage() {
       <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
         <Reveal y={20}>
           <div className="ll-about-recognition-head">
-            <span className="ll-eyebrow">Reconhecimento</span>
+            <Eyebrow>Reconhecimento</Eyebrow>
             <h2 className="ll-section-title ll-section-title--sm">Prêmios e destaques</h2>
           </div>
         </Reveal>

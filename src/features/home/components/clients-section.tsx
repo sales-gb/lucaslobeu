@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { DEFAULT_CLIENTS } from "@/features/home/data/fallbacks";
 import { EASE_OUT } from "@/features/home/constants";
 import type { ClientItem } from "@/features/home/types";
@@ -30,12 +32,9 @@ export function ClientsSection({ clients }: { clients: ClientItem[] }) {
       <div className="ll-h3-clients-header">
         <div className="ll-h3-clients-title-block">
           <Reveal y={0}>
-            <div className="ll-section-marker" style={{ marginBottom: 40 }}>
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow">
-                Clientes ({String(CLIENTS.length).padStart(2, "0")})
-              </span>
-            </div>
+            <SectionMarker style={{ marginBottom: 40 }}>
+              Clientes ({String(CLIENTS.length).padStart(2, "0")})
+            </SectionMarker>
           </Reveal>
           <Reveal y={24} delay={60}>
             <h2 className="ll-h3-clients-headline">

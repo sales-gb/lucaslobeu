@@ -27,6 +27,10 @@
   --color-accent: #b08d57;
   --color-accent-soft: #c9ae82;
 
+  /* Tons "muted" sobre paper (base #0a0a0a, não --ink) — espelham portfolio.css */
+  --color-muted: rgba(10, 10, 10, 0.55);
+  --color-muted-soft: rgba(10, 10, 10, 0.38);
+
   /* ── Tipografia ── aponta para as variáveis do next/font (layout.tsx) ── */
   --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
+import { Eyebrow } from "@/components/ui/eyebrow";
+import { SectionMarker } from "@/components/ui/section-marker";
 import { DEFAULT_TESTIMONIALS } from "@/features/home/data/fallbacks";
 import { EASE_OUT } from "@/features/home/constants";
 import type { TestimonialItem } from "@/features/home/types";
@@ -20,10 +22,7 @@ export function TestimonialsSection({
     <section className="ll-h3-testimonials">
       <div className="ll-h3-testimonials-inner">
         <Reveal y={0}>
-          <div className="ll-section-marker" style={{ marginBottom: 48 }}>
-            <span className="ll-accent-dot" />
-            <span className="ll-eyebrow">O que dizem</span>
-          </div>
+          <SectionMarker style={{ marginBottom: 48 }}>O que dizem</SectionMarker>
         </Reveal>
 
         <div className="ll-h3-test-layout">
@@ -46,9 +45,9 @@ export function TestimonialsSection({
                   <span className="ll-h3-test-name">
                     {TESTIMONIALS[active].name}
                   </span>
-                  <span className="ll-eyebrow muted">
+                  <Eyebrow>
                     {TESTIMONIALS[active].role} · {TESTIMONIALS[active].company}
-                  </span>
+                  </Eyebrow>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -69,7 +68,7 @@ export function TestimonialsSection({
                 />
                 <div className="ll-h3-test-item-info">
                   <span className="ll-h3-test-item-name">{t.name}</span>
-                  <span className="ll-eyebrow muted">{t.company}</span>
+                  <Eyebrow>{t.company}</Eyebrow>
                 </div>
               </button>
             ))}

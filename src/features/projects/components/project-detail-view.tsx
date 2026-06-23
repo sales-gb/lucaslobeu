@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Reveal from '@/components/ui/reveal'
 import TextReveal from '@/components/ui/text-reveal'
 import ImageBlock from '@/components/ui/image-block'
+import { Eyebrow } from '@/components/ui/eyebrow'
+import { SectionMarker } from '@/components/ui/section-marker'
 import type { Project } from '@/lib/db/schema'
 
 // Block types use `kind` (matching admin editor output)
@@ -40,7 +42,7 @@ function BodyBlock({ block }: { block: ContentBlock }) {
       return (
         <div className="ll-pd-block ll-pd-quote">
           <blockquote className="ll-quote">{block.text}</blockquote>
-          {block.attribution && <cite className="ll-eyebrow">{block.attribution}</cite>}
+          {block.attribution && <Eyebrow as="cite">{block.attribution}</Eyebrow>}
         </div>
       )
     case 'image':
@@ -121,10 +123,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
       <section className="ll-pd-hero">
         <div className="ll-pd-hero-inner">
           <Reveal y={0}>
-            <div className="ll-section-marker">
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Case studies</span>
-            </div>
+            <SectionMarker eyebrowClassName="text-paper/40">Case studies</SectionMarker>
           </Reveal>
 
           <div className="ll-pd-hero-layout">
@@ -161,7 +160,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
           {(paragraphBlocks.length > 0 || project.summary) && (
             <div className="ll-pd-overview">
               <Reveal y={0}>
-                <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.35)' }}>Overview</span>
+                <Eyebrow style={{ color: 'rgba(244,241,234,.35)' }}>Overview</Eyebrow>
               </Reveal>
               {paragraphBlocks.length > 0
                 ? paragraphBlocks.map((block, i) => (
@@ -211,10 +210,7 @@ export default function ProjectDetailClient({ project, nextProject, prevProject,
       {nextProject && (
         <section className="ll-pd-next" style={{ borderTop: '.5px solid var(--rule)' }}>
           <Reveal y={0}>
-            <div className="ll-section-marker">
-              <span className="ll-accent-dot" />
-              <span className="ll-eyebrow" style={{ color: 'rgba(244,241,234,.4)' }}>Próximo projeto</span>
-            </div>
+            <SectionMarker eyebrowClassName="text-paper/40">Próximo projeto</SectionMarker>
           </Reveal>
 
           <Link href={`/projects/${nextProject.slug}`} className="ll-pd-next-link">

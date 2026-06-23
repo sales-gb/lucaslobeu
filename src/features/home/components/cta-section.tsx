@@ -2,20 +2,13 @@ import Link from "next/link";
 import Reveal from "@/components/ui/reveal";
 import TextReveal from "@/components/ui/text-reveal";
 import { buttonVariants } from "@/components/ui/button";
+import { SectionMarker } from "@/components/ui/section-marker";
 
 export function CtaSection({ headline, sub }: { headline: string; sub: string }) {
   return (
     <section className="ll-h3-cta">
       <div className="ll-h3-cta-inner">
-        <div className="ll-section-marker ll-section-marker--light">
-          <span className="ll-accent-dot" />
-          <span
-            className="ll-eyebrow"
-            style={{ color: "rgba(244,241,234,.5)" }}
-          >
-            Próximo passo
-          </span>
-        </div>
+        <SectionMarker tone="light">Próximo passo</SectionMarker>
         <TextReveal
           text={headline}
           as="h2"

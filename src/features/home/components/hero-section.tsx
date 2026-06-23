@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import TextReveal from "@/components/ui/text-reveal";
 import { buttonVariants } from "@/components/ui/button";
+import { LinkRule } from "@/components/ui/link-rule";
 import { EASE_OUT } from "@/features/home/constants";
 
 export function HeroSection({
@@ -55,9 +56,7 @@ export function HeroSection({
             <Link href="/projects" className={buttonVariants({ variant: "outline" })}>
               Ver projetos
             </Link>
-            <Link href="/contact" className="ll-link-rule">
-              Falar sobre um projeto <span>→</span>
-            </Link>
+            <LinkRule href="/contact">Falar sobre um projeto</LinkRule>
           </div>
         </Reveal>
       </div>

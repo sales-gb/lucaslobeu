@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Eyebrow } from '@/components/ui/eyebrow'
 
 const BrandMark = () => (
   <Link href="/" className="ll-brandmark">
@@ -146,7 +147,7 @@ export default function Nav() {
                 animate={{ opacity: 1, transition: { delay: 0.45, duration: 0.4 } }}
               >
                 <div className="ll-ham-rule" />
-                <span className="ll-eyebrow">São Paulo · Brasil · 2026</span>
+                <Eyebrow>São Paulo · Brasil · 2026</Eyebrow>
                 <a href="mailto:lucas@lobeu.studio" className="ll-sweep ll-mono small-cap">
                   lucas@lobeu.studio
                 </a>
