@@ -2,7 +2,7 @@ import { getDb, schema } from '@/lib/db';
 import { eq, asc } from 'drizzle-orm';
 import type { Link as LinkRow } from '@/lib/db/schema';
 import type { Metadata } from 'next';
-import NextLink from 'next/link';
+import { cn } from '@/lib/utils/cn';
 
 export const metadata: Metadata = {
   title: 'Links — Lucas Lobeu',
@@ -43,44 +43,48 @@ export default async function LinksPage() {
   const display = links.length > 0 ? links : FALLBACK_LINKS;
 
   return (
-    <div className="ll-links-page">
-      <div className="ll-links-card">
-        <div className="ll-links-brand">
+    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-paper px-6 pt-20 pb-10">
+      <div className="z-[2] flex w-full max-w-[460px] flex-col items-center">
+        <div className="mb-7 text-ink">
           <BrandMarkLarge />
         </div>
 
-        <h1 className="ll-links-title">Lucas Lobeu</h1>
-        <p className="ll-links-sub ll-mono small-cap muted">
+        <h1 className="text-center font-serif text-[56px] font-light leading-none tracking-[-0.015em]">
+          Lucas Lobeu
+        </h1>
+        <p className="ll-mono small-cap muted mt-3 text-center">
           Diretor · Fotógrafo · SP
         </p>
 
-        <div className="ll-links-list">
+        <div className="mt-12 flex w-full flex-col gap-3">
           {display.map((link, i) => (
             <a
               key={link.id}
               href={link.href}
               target={link.href.startsWith('http') ? '_blank' : undefined}
               rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className={`ll-links-link ll-links-link--${link.kind}`}
+              className="group grid grid-cols-[32px_1fr_24px] items-center gap-[14px] rounded-[2px] border-[0.5px] border-ink bg-transparent px-6 py-[18px] transition-[background-color,color,padding] duration-[250ms] hover:bg-ink hover:pl-[30px] hover:pr-[18px] hover:text-paper"
             >
-              <span className="ll-links-num ll-mono" style={{ fontSize: 12 }}>
+              <span className="ll-mono text-muted group-hover:text-paper/55" style={{ fontSize: 12 }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <span className="ll-links-label">{link.label}</span>
-              <span className="ll-links-arrow ll-mono">↗</span>
+              <span className={cn('font-sans font-normal', link.kind === 'primary' ? 'text-[22px]' : 'text-[20px]')}>
+                {link.label}
+              </span>
+              <span className="ll-mono text-right">↗</span>
             </a>
           ))}
         </div>
 
-        <div className="ll-links-foot">
+        <div className="mt-10 w-full border-t-[0.5px] border-rule pt-6 text-center">
           <span className="ll-mono small-cap muted" style={{ fontSize: 10 }}>
             © 2026 Lucas Lobeu · São Paulo, BR
           </span>
         </div>
       </div>
 
-      <div className="ll-links-watermark" aria-hidden="true">
-        <span>LOBEU</span>
+      <div className="pointer-events-none absolute inset-x-0 bottom-[-40px] z-0 text-center text-ink opacity-[0.04]" aria-hidden="true">
+        <span className="font-sans text-[32vw] font-light leading-none tracking-[-0.04em]">LOBEU</span>
       </div>
     </div>
   );

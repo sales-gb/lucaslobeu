@@ -1823,112 +1823,6 @@ body:has(.ll-nav--side) .ll-main {
 /* ─── About ──────────────────────────────────────────────── */
 /* .ll-about-* (página Sobre) migrado para src/app/(portfolio)/about/page.tsx */
 
-/* ─── Links page ─────────────────────────────────────────── */
-.ll-links-page {
-  min-height: 100vh;
-  background: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 80px 24px 40px;
-  position: relative;
-  overflow: hidden;
-}
-.ll-links-card {
-  max-width: 460px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
-}
-.ll-links-brand {
-  color: var(--ink);
-  margin-bottom: 28px;
-}
-.ll-links-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: 56px;
-  letter-spacing: -0.015em;
-  line-height: 1;
-  text-align: center;
-}
-.ll-links-sub {
-  margin-top: 12px;
-  text-align: center;
-}
-.ll-links-list {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 48px;
-}
-.ll-links-link {
-  display: grid;
-  grid-template-columns: 32px 1fr 24px;
-  gap: 14px;
-  align-items: center;
-  padding: 18px 24px;
-  border: 0.5px solid var(--ink);
-  background: transparent;
-  transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    padding 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  border-radius: 2px;
-}
-.ll-links-link:hover {
-  background: var(--ink);
-  color: var(--paper);
-  padding-left: 30px;
-  padding-right: 18px;
-}
-.ll-links-link:hover .ll-links-num {
-  color: var(--paper);
-  opacity: 0.55;
-}
-.ll-links-num {
-  color: var(--muted);
-}
-.ll-links-label {
-  font-family: var(--serif);
-  font-size: 20px;
-  font-weight: 400;
-}
-.ll-links-link--primary .ll-links-label {
-  font-size: 22px;
-}
-.ll-links-arrow {
-  text-align: right;
-}
-.ll-links-foot {
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 0.5px solid var(--rule);
-  width: 100%;
-  text-align: center;
-}
-.ll-links-watermark {
-  position: absolute;
-  bottom: -40px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: var(--ink);
-  opacity: 0.04;
-  z-index: 0;
-  pointer-events: none;
-}
-.ll-links-watermark span {
-  font-family: var(--serif);
-  font-size: 32vw;
-  font-weight: 300;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-
 /* ─── Contact ────────────────────────────────────────────── */
 /* .ll-contact-* migrado para a página de contato + features/contact/components/contact-form.tsx */
 
@@ -1978,29 +1872,7 @@ body:has(.ll-nav--side) .ll-main {
   margin: 8px 0 12px;
 }
 
-/* ─── 404 ──────────────────────────────────────────────── */
-.ll-404 {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  align-items: start;
-  min-height: 60vh;
-  justify-content: center;
-  padding-top: 120px;
-  padding-bottom: 120px;
-}
-.ll-404-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(96px, 14vw, 240px);
-  line-height: 0.88;
-  letter-spacing: -0.03em;
-}
-.ll-404-actions {
-  display: flex;
-  gap: 32px;
-  margin-top: 12px;
-}
+/* .ll-404* migrado para src/app/not-found.tsx */
 
 /* ─── Footer ─────────────────────────────────────────────── */
 .ll-footer {
@@ -3494,8 +3366,6 @@ body:has(.ll-nav--side) .ll-main {
 .ll-project-info-bar > div > div:last-child,
 .ll-project-aside-block > div:last-child,
 .ll-project-credits-row > div:last-child,
-.ll-links-label,
-.ll-links-watermark span,
 .ll-footer-watermark span,
 .ll-stat-val,
 .ll-manifesto-step-label {

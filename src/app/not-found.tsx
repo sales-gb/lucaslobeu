@@ -7,14 +7,16 @@ export default function NotFound() {
   return (
     <>
       <Nav />
-      <main className="ll-main">
-        <div className="ll-section ll-404" style={{ padding: '0 var(--page-x)' }}>
+      <main className="min-h-screen pt-[72px]">
+        <div className="flex min-h-[60vh] flex-col items-start justify-center gap-6 px-[var(--page-x)]">
           <Eyebrow>Erro 404</Eyebrow>
-          <h1 className="ll-404-title">Quadro<br />sem imagem.</h1>
-          <p className="ll-body" style={{ maxWidth: 480 }}>
+          <h1 className="font-serif font-light text-[clamp(96px,14vw,240px)] leading-[0.88] tracking-[-0.03em]">
+            Quadro<br />sem imagem.
+          </h1>
+          <p className="ll-body max-w-[480px]">
             A página que você procura não existe ou foi removida. Navegue pelos projetos ou volte ao início.
           </p>
-          <div className="ll-404-actions">
+          <div className="mt-3 flex gap-8">
             <LinkRule href="/">Voltar ao início</LinkRule>
             <LinkRule href="/projects" muted>Ver projetos</LinkRule>
           </div>
