@@ -26,7 +26,7 @@ function AboutWord({
     [0, 1],
   );
   return (
-    <motion.span className="ll-ek-word" style={{ opacity }}>
+    <motion.span className="inline text-paper" style={{ opacity }}>
       {word}{" "}
     </motion.span>
   );
@@ -52,17 +52,20 @@ export function AboutSection({
   const words = statement.split(" ");
 
   return (
-    <section className="ll-ek-about" ref={ref}>
+    <section
+      className="relative bg-ink px-[var(--page-x)] pt-20 text-paper"
+      ref={ref}
+    >
       <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
       <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
 
       {/* 4-col grid: text cols 1-2, col 3 empty, portrait col 4 */}
-      <div className="ll-ek-about-inner">
-        <div className="ll-ek-about-text">
+      <div className="grid grid-cols-4 items-start gap-x-8 max-[900px]:grid-cols-1">
+        <div className="pr-4 pb-[100px] [grid-column:1/3] [grid-row:1] max-[900px]:[grid-column:1] max-[900px]:pr-0">
           <SectionMarker tone="light" style={{ marginBottom: 40 }}>
             Sobre
           </SectionMarker>
-          <p className="ll-ek-about-statement">
+          <p className="font-sans font-light text-[clamp(20px,2.8vw,42px)] leading-[1.18] tracking-[-0.01em] text-paper max-[1024px]:text-[clamp(18px,2.6vw,32px)]">
             {words.map((word, i) => (
               <AboutWord
                 key={i}
@@ -76,8 +79,8 @@ export function AboutSection({
         </div>
 
         {/* Col 4: sticky portrait + caption text below */}
-        <div className="ll-ek-about-col4">
-          <div className="ll-ek-about-portrait">
+        <div className="sticky top-[100px] flex flex-col gap-5 self-start [grid-column:4/5] [grid-row:1] max-[900px]:static max-[900px]:flex-row max-[900px]:items-start max-[900px]:gap-4 max-[900px]:[grid-column:1] max-[900px]:[grid-row:2]">
+          <div className="h-[58vh] max-h-[520px] overflow-hidden rounded-[2px] [&>*]:!h-full max-[900px]:h-[52vw] max-[900px]:max-h-[320px] max-[900px]:flex-1">
             <ImageBlock
               tone="dark"
               ratio="3/4"
@@ -85,7 +88,7 @@ export function AboutSection({
               src={portraitUrl || undefined}
             />
           </div>
-          <div className="ll-ek-about-portrait-caption">
+          <div className="text-left">
             <Eyebrow
               style={{
                 display: "block",
@@ -106,8 +109,8 @@ export function AboutSection({
       </div>
 
       {/* Footer: cols 1-2 image, cols 3-4 tagline */}
-      <div className="ll-ek-about-footer">
-        <div className="ll-ek-about-footer-img">
+      <div className="mt-20 grid grid-cols-4 gap-x-8 border-t-[0.5px] border-paper/8 max-[900px]:grid-cols-1">
+        <div className="h-[60vh] min-h-[420px] overflow-hidden [grid-column:1/3] [&>*]:!h-full max-[900px]:h-[55vw] max-[900px]:min-h-[300px] max-[900px]:[grid-column:1]">
           <ImageBlock
             tone="mid"
             ratio="4/5"
@@ -115,11 +118,13 @@ export function AboutSection({
             src={footerImageUrl || undefined}
           />
         </div>
-        <div className="ll-ek-about-footer-copy">
+        <div className="flex flex-col justify-center pb-20 pl-12 [grid-column:3/5] max-[900px]:px-0 max-[900px]:pt-12 max-[900px]:pb-16 max-[900px]:[grid-column:1]">
           <SectionMarker tone="light" style={{ marginBottom: 24 }}>
             Resultado
           </SectionMarker>
-          <p className="ll-ek-about-footer-headline">{footerHeadline}</p>
+          <p className="mt-4 font-sans font-light text-[clamp(24px,3vw,48px)] leading-[1.15] tracking-[-0.015em] text-paper">
+            {footerHeadline}
+          </p>
         </div>
       </div>
     </section>
