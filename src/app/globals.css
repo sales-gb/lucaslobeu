@@ -1,15 +1,19 @@
 /**
  * Tailwind entry — design tokens + utilities.
  *
- * Preflight (o reset base do Tailwind) é OMITIDO de propósito: styles/portfolio.css
- * já traz seu próprio reset, e pular o Preflight garante que o visual hand-authored
- * existente nunca seja alterado enquanto migramos para o Tailwind de forma incremental.
- * Como CSS sem @layer sempre vence o CSS em layer no Tailwind v4, as regras legadas
- * continuam tendo prioridade durante a transição.
+ * Preflight (reset do Tailwind) fica em `base`: reseta os defaults do user-agent
+ * (ex.: margens de <h1>) E permite que utilitárias de spacing (p-*, m-*) o
+ * sobrescrevam. Substitui o antigo `* { margin:0; padding:0 }` unlayered do
+ * portfolio.css, que — por ser unlayered — bloqueava as utilitárias do Tailwind.
+ *
+ * Ordem das layers: as regras LEGADAS de portfolio.css são unlayered e, no
+ * Tailwind v4, unlayered vence layered — então continuam tendo prioridade
+ * (component styles) até serem convertidas, mesmo com o Preflight ativo.
  */
-@layer theme, components, utilities;
+@layer theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 
 /* Garante que o scan de classes alcance todo o código-fonte da app. */
@@ -30,6 +34,10 @@
   /* Tons "muted" sobre paper (base #0a0a0a, não --ink) — espelham portfolio.css */
   --color-muted: rgba(10, 10, 10, 0.55);
   --color-muted-soft: rgba(10, 10, 10, 0.38);
+
+  /* Réguas/bordas finas */
+  --color-rule: rgba(10, 10, 10, 0.12);
+  --color-rule-strong: rgba(10, 10, 10, 0.22);
 
   /* ── Tipografia ── aponta para as variáveis do next/font (layout.tsx) ── */
   --font-serif: var(--font-instrument-serif), "Times New Roman", serif;

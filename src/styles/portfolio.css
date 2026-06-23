@@ -24,11 +24,7 @@
   --section-y: 140px;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* reset universal movido para app/globals.css (@layer base) */
 html {
   scroll-behavior: smooth;
 }
@@ -3654,79 +3650,7 @@ body:has(.ll-nav--side) .ll-main {
 /* ─── h3 · Buttons ───────────────────────────────────────────
  * Migrado para src/components/ui/button.tsx (cva). Ver buttonVariants. */
 
-/* ─── h3 · HERO ──────────────────────────────────────────── */
-.ll-h3-hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  padding: 0 var(--page-x);
-  position: relative;
-  overflow: hidden;
-  border-bottom: 0.5px solid var(--rule);
-}
-.ll-h3-hero-title-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  padding: 120px 0 48px;
-}
-.ll-h3-hero-roles {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--muted-soft);
-  margin-bottom: 32px;
-}
-.ll-h3-hero-name {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(100px, 16vw, 260px);
-  line-height: 0.86;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-.ll-h3-hero-name--first {
-  font-style: italic;
-}
-.ll-h3-hero-desc {
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: clamp(15px, 1.4vw, 17px);
-  line-height: 1.65;
-  color: var(--muted);
-  max-width: 420px;
-  margin-top: 36px;
-  text-align: center;
-}
-.ll-h3-hero-bottom {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 28px 0 48px;
-  gap: 40px;
-  border-top: 0.5px solid var(--rule);
-}
-.ll-h3-hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  flex-shrink: 0;
-}
-.ll-h3-scroll-line {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 0.5px;
-  height: 80px;
-  background: var(--rule);
-  transform-origin: top;
-}
-.ll-h3-hero-rule {
-  display: none;
-}
+/* ─── h3 · HERO ── migrado para features/home/components/hero-section.tsx ── */
 
 /* ─── h3 · ABOUT ─────────────────────────────────────────── */
 .ll-h3-about {
