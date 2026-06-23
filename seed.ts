@@ -7,7 +7,7 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import * as schema from './lib/db/schema';
+import * as schema from './src/lib/db/schema';
 import bcrypt from 'bcryptjs';
 import path from 'path';
 
@@ -18,7 +18,7 @@ sqlite.pragma('foreign_keys = ON');
 const db = drizzle(sqlite, { schema });
 
 // Run migrations first
-migrate(db, { migrationsFolder: './lib/db/migrations' });
+migrate(db, { migrationsFolder: './src/lib/db/migrations' });
 
 // ─── Users ─────────────────────────────────────────────────────
 const passwordHash = bcrypt.hashSync('lobeu2026', 12);

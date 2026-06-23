@@ -1,0 +1,46 @@
+/**
+ * Tailwind entry — design tokens + utilities.
+ *
+ * Preflight (reset do Tailwind) fica em `base`: reseta os defaults do user-agent
+ * (ex.: margens de <h1>) E permite que utilitárias de spacing (p-*, m-*) o
+ * sobrescrevam. Substitui o antigo `* { margin:0; padding:0 }` unlayered do
+ * portfolio.css, que — por ser unlayered — bloqueava as utilitárias do Tailwind.
+ *
+ * Ordem das layers: as regras LEGADAS de portfolio.css são unlayered e, no
+ * Tailwind v4, unlayered vence layered — então continuam tendo prioridade
+ * (component styles) até serem convertidas, mesmo com o Preflight ativo.
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Garante que o scan de classes alcance todo o código-fonte da app. */
+@source "../";
+
+@theme {
+  /* ── Cores ── espelham os tokens de styles/portfolio.css ──────────
+     Use modificadores de opacidade para os tons "muted":
+     text-ink/55 (= --muted), text-ink/38 (= --muted-soft), etc. */
+  --color-ink: #181818;
+  --color-ink-soft: #242424;
+  --color-paper: #f4f1ea;
+  --color-paper-warm: #ede7da;
+  --color-paper-cool: #f8f6f1;
+  --color-accent: #b08d57;
+  --color-accent-soft: #c9ae82;
+
+  /* Tons "muted" sobre paper (base #0a0a0a, não --ink) — espelham portfolio.css */
+  --color-muted: rgba(10, 10, 10, 0.55);
+  --color-muted-soft: rgba(10, 10, 10, 0.38);
+
+  /* Réguas/bordas finas */
+  --color-rule: rgba(10, 10, 10, 0.12);
+  --color-rule-strong: rgba(10, 10, 10, 0.22);
+
+  /* ── Tipografia ── aponta para as variáveis do next/font (layout.tsx) ── */
+  --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
