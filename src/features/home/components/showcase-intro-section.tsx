@@ -25,11 +25,11 @@ export function ShowcaseIntroSection({ imageUrl }: { imageUrl?: string }) {
   const wordOpacity = useTransform(scrollYProgress, [0.04, 0.18], [0, 1]);
 
   return (
-    <div ref={trackRef} className="ll-sc-track">
-      <div className="ll-sc-sticky">
+    <div ref={trackRef} className="relative h-[250vh] bg-ink">
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden bg-ink">
         {/* Expanding media behind the words */}
         <motion.div
-          className="ll-sc-media"
+          className="absolute inset-0 origin-center will-change-transform [&>*]:!h-full [&>*]:!w-full [&>*]:block"
           style={{ scale: videoScale, borderRadius: videoBorderRadius }}
         >
           {isVideo ? (
@@ -58,16 +58,19 @@ export function ShowcaseIntroSection({ imageUrl }: { imageUrl?: string }) {
         </motion.div>
 
         {/* SHOW   CASE split title */}
-        <div className="ll-sc-words" aria-label="Showcase">
+        <div
+          className="pointer-events-none absolute z-[2] flex w-full select-none items-center justify-center gap-[0.06em]"
+          aria-label="Showcase"
+        >
           <motion.span
-            className="ll-sc-word"
+            className="font-serif font-light italic text-[clamp(80px,16vw,240px)] uppercase leading-none tracking-[-0.025em] text-paper [mix-blend-mode:difference] will-change-transform"
             style={{ x: showX, opacity: wordOpacity }}
             aria-hidden
           >
             SHOW
           </motion.span>
           <motion.span
-            className="ll-sc-word"
+            className="font-serif font-light italic text-[clamp(80px,16vw,240px)] uppercase leading-none tracking-[-0.025em] text-paper [mix-blend-mode:difference] will-change-transform"
             style={{ x: caseX, opacity: wordOpacity }}
             aria-hidden
           >
