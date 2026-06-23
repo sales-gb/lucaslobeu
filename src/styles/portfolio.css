@@ -1875,72 +1875,6 @@ body:has(.ll-nav--side) .ll-main {
 /* .ll-404* migrado para src/app/not-found.tsx */
 
 /* ─── Footer ─────────────────────────────────────────────── */
-.ll-footer {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 80px var(--page-x) 0;
-  position: relative;
-  overflow: hidden;
-}
-.ll-footer-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 48px;
-  position: relative;
-  z-index: 2;
-  padding-bottom: 60px;
-  border-bottom: 0.5px solid rgba(244, 241, 234, 0.12);
-}
-.ll-footer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.ll-footer-col .muted {
-  color: rgba(244, 241, 234, 0.45);
-}
-.ll-footer-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-family: var(--serif);
-  font-size: 20px;
-  font-weight: 400;
-}
-.ll-footer-body a:hover {
-  color: var(--accent-soft);
-}
-
-.ll-footer-watermark {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 0 0;
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-}
-.ll-footer-watermark span {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(180px, 28vw, 460px);
-  line-height: 0.82;
-  letter-spacing: -0.04em;
-  color: var(--paper);
-  opacity: 0.92;
-}
-
-.ll-footer-base {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 32px 0;
-  position: relative;
-  z-index: 3;
-  border-top: 0.5px solid rgba(244, 241, 234, 0.12);
-  margin-top: 0;
-  color: rgba(244, 241, 234, 0.55);
-}
 
 /* ═══════════════════════════════════════════════════════════
  * NEW UI v2 — eliankent-inspired, Lucas palette
@@ -3083,10 +3017,6 @@ body:has(.ll-nav--side) .ll-main {
   .ll-featured-year {
     display: none;
   }
-  .ll-footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
-  }
   .ll-project-info-bar {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -3172,9 +3102,6 @@ body:has(.ll-nav--side) .ll-main {
   }
   .ll-tile:nth-child(n) {
     grid-column: auto;
-  }
-  .ll-footer-grid {
-    grid-template-columns: 1fr;
   }
   .ll-pageheader {
     flex-wrap: wrap;
@@ -3366,7 +3293,6 @@ body:has(.ll-nav--side) .ll-main {
 .ll-project-info-bar > div > div:last-child,
 .ll-project-aside-block > div:last-child,
 .ll-project-credits-row > div:last-child,
-.ll-footer-watermark span,
 .ll-stat-val,
 .ll-manifesto-step-label {
   font-family: var(--sans);
