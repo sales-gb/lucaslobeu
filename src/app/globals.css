@@ -1,0 +1,34 @@
+/**
+ * Tailwind entry — design tokens + utilities.
+ *
+ * Preflight (o reset base do Tailwind) é OMITIDO de propósito: styles/portfolio.css
+ * já traz seu próprio reset, e pular o Preflight garante que o visual hand-authored
+ * existente nunca seja alterado enquanto migramos para o Tailwind de forma incremental.
+ * Como CSS sem @layer sempre vence o CSS em layer no Tailwind v4, as regras legadas
+ * continuam tendo prioridade durante a transição.
+ */
+@layer theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Garante que o scan de classes alcance todo o código-fonte da app. */
+@source "../";
+
+@theme {
+  /* ── Cores ── espelham os tokens de styles/portfolio.css ──────────
+     Use modificadores de opacidade para os tons "muted":
+     text-ink/55 (= --muted), text-ink/38 (= --muted-soft), etc. */
+  --color-ink: #181818;
+  --color-ink-soft: #242424;
+  --color-paper: #f4f1ea;
+  --color-paper-warm: #ede7da;
+  --color-paper-cool: #f8f6f1;
+  --color-accent: #b08d57;
+  --color-accent-soft: #c9ae82;
+
+  /* ── Tipografia ── aponta para as variáveis do next/font (layout.tsx) ── */
+  --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}

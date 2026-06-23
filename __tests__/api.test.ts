@@ -6,10 +6,10 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import * as schema from '../lib/db/schema';
+import * as schema from '../src/lib/db/schema';
 import bcrypt from 'bcryptjs';
 import { eq, desc } from 'drizzle-orm';
-import { UPLOAD_LIMITS } from '../lib/storage/interface';
+import { UPLOAD_LIMITS } from '../src/lib/storage/interface';
 import path from 'path';
 import fs from 'fs/promises';
 
