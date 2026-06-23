@@ -11,63 +11,74 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <div className="ll-contact-header">
+      <div className="px-[var(--page-x)] pt-[120px] pb-[60px]">
         <Reveal y={20}>
           <Eyebrow>Contato · Projeto</Eyebrow>
         </Reveal>
         <Reveal y={40} delay={60}>
-          <h1 className="ll-contact-title">Contato</h1>
+          <h1 className="mt-12 font-serif font-light text-[clamp(80px,12vw,192px)] leading-[0.9] tracking-[-0.03em]">
+            Contato
+          </h1>
         </Reveal>
       </div>
 
-      <div className="ll-section" style={{ paddingTop: 0 }}>
-        <div className="ll-contact-grid">
+      <div className="px-[var(--page-x)] pb-[var(--section-y)]">
+        <div className="grid grid-cols-2 gap-24 max-lg:grid-cols-1 max-lg:gap-10">
           {/* Left: info */}
-          <div className="ll-contact-left">
+          <div className="flex flex-col gap-6">
             <Reveal y={20}>
               <div>
-                <Eyebrow style={{ display: 'block', marginBottom: 12 }}>Email principal</Eyebrow>
-                <a href="mailto:lucas@lobeu.studio" className="ll-contact-mail ll-sweep">
+                <Eyebrow className="mb-3 block">Email principal</Eyebrow>
+                <a
+                  href="mailto:lucas@lobeu.studio"
+                  className="ll-sweep border-b-[0.5px] border-ink pb-1 font-sans text-[26px]"
+                >
                   lucas@lobeu.studio
                 </a>
               </div>
             </Reveal>
 
             <Reveal y={16} delay={60}>
-              <div className="ll-contact-info">
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Telefone</Eyebrow>
-                  <a href="tel:+5511984720418" className="ll-sweep" style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>
+                  <Eyebrow className="mb-2 block">Telefone</Eyebrow>
+                  <a href="tel:+5511984720418" className="ll-sweep font-serif text-[20px]">
                     +55 11 9 8472-0418
                   </a>
                 </div>
                 <div>
-                  <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Localização</Eyebrow>
-                  <span style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>São Paulo, BR</span>
+                  <Eyebrow className="mb-2 block">Localização</Eyebrow>
+                  <span className="font-serif text-[20px]">São Paulo, BR</span>
                 </div>
               </div>
             </Reveal>
 
             <Reveal y={16} delay={100}>
               <div>
-                <Eyebrow style={{ display: 'block', marginBottom: 12 }}>Redes</Eyebrow>
-                <div className="ll-contact-socials">
-                  <a href="https://instagram.com/lucaslobeu" target="_blank" rel="noopener noreferrer" className="ll-sweep">
-                    Instagram
-                  </a>
-                  <a href="https://vimeo.com/lucaslobeu" target="_blank" rel="noopener noreferrer" className="ll-sweep">
-                    Vimeo
-                  </a>
-                  <a href="https://behance.net/lucaslobeu" target="_blank" rel="noopener noreferrer" className="ll-sweep">
-                    Behance
-                  </a>
+                <Eyebrow className="mb-3 block">Redes</Eyebrow>
+                <div className="flex flex-wrap gap-4">
+                  {[
+                    { href: 'https://instagram.com/lucaslobeu', label: 'Instagram' },
+                    { href: 'https://vimeo.com/lucaslobeu', label: 'Vimeo' },
+                    { href: 'https://behance.net/lucaslobeu', label: 'Behance' },
+                  ].map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ll-sweep border-b-[0.5px] border-rule font-sans text-[20px]"
+                    >
+                      {s.label}
+                    </a>
+                  ))}
                 </div>
               </div>
             </Reveal>
 
             <Reveal y={10} delay={140}>
-              <div style={{ padding: '28px 0', borderTop: '.5px solid var(--rule)' }}>
-                <Eyebrow style={{ display: 'block', marginBottom: 8 }}>Disponibilidade</Eyebrow>
+              <div className="border-t-[0.5px] border-rule py-7">
+                <Eyebrow className="mb-2 block">Disponibilidade</Eyebrow>
                 <p className="ll-body">
                   O estúdio aceita três a quatro projetos por trimestre. Atualmente com agenda aberta para o segundo semestre de 2026.
                 </p>

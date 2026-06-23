@@ -16,6 +16,10 @@ interface FormData {
   sobre: string;
 }
 
+// Campo de input: sans (respeita o override de fonte do design); o textarea usa serif.
+const FIELD =
+  'w-full border-b-[0.5px] border-ink bg-transparent py-2 text-[22px] font-normal placeholder:font-light placeholder:italic placeholder:text-muted-soft';
+
 export default function ContactForm() {
   const [state, setState] = useState<FormState>('idle');
   const [form, setForm] = useState<FormData>({
@@ -45,17 +49,15 @@ export default function ContactForm() {
 
   if (state === 'sent') {
     return (
-      <div className="ll-contact-sent">
+      <div className="flex flex-col gap-4 pt-[60px]">
         <span className="ll-dot" />
-        <h3 style={{ fontFamily: 'var(--serif)', fontSize: 36, fontWeight: 300 }}>
-          Mensagem recebida.
-        </h3>
+        <h3 className="font-serif text-[36px] font-light">Mensagem recebida.</h3>
         <p className="ll-body">
           Obrigado pelo contato. Retornarei em até 48h úteis para darmos sequência à conversa.
         </p>
         <Eyebrow
           as="button"
-          style={{ marginTop: 16, textDecoration: 'underline', cursor: 'pointer' }}
+          className="mt-4 cursor-pointer underline"
           onClick={() => setState('idle')}
         >
           Enviar nova mensagem
@@ -65,49 +67,56 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="ll-contact-form" onSubmit={handleSubmit} noValidate>
-      <div className="ll-contact-field">
+    <form className="flex flex-col gap-7" onSubmit={handleSubmit} noValidate>
+      <div className="flex flex-col gap-2">
         <Eyebrow as="label" htmlFor="nome">Nome</Eyebrow>
         <input
           id="nome"
           type="text"
           placeholder="Seu nome completo"
           required
+          className={`${FIELD} font-sans`}
           value={form.nome}
           onChange={(e) => setForm({ ...form, nome: e.target.value })}
         />
       </div>
 
-      <div className="ll-contact-field">
+      <div className="flex flex-col gap-2">
         <Eyebrow as="label" htmlFor="email">Email</Eyebrow>
         <input
           id="email"
           type="email"
           placeholder="seu@email.com"
           required
+          className={`${FIELD} font-sans`}
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
       </div>
 
-      <div className="ll-contact-field">
+      <div className="flex flex-col gap-2">
         <Eyebrow as="label" htmlFor="empresa">Empresa</Eyebrow>
         <input
           id="empresa"
           type="text"
           placeholder="Nome da empresa ou projeto"
+          className={`${FIELD} font-sans`}
           value={form.empresa}
           onChange={(e) => setForm({ ...form, empresa: e.target.value })}
         />
       </div>
 
-      <div className="ll-contact-field">
+      <div className="flex flex-col gap-2">
         <Eyebrow>Tipo de projeto</Eyebrow>
-        <div className="ll-contact-chips">
+        <div className="flex flex-wrap gap-2 pt-1">
           {TIPOS.map((tipo) => (
-            <label key={tipo} className="ll-contact-chip">
+            <label
+              key={tipo}
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full border-[0.5px] border-ink px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] has-[:checked]:bg-ink has-[:checked]:text-paper"
+            >
               <input
                 type="checkbox"
+                className="hidden"
                 checked={form.tipos.includes(tipo)}
                 onChange={() => toggleTipo(tipo)}
               />
@@ -117,28 +126,22 @@ export default function ContactForm() {
         </div>
       </div>
 
-      <div className="ll-contact-field">
+      <div className="flex flex-col gap-2">
         <Eyebrow as="label" htmlFor="sobre">Sobre o projeto</Eyebrow>
         <textarea
           id="sobre"
           rows={5}
           placeholder="Descreva brevemente o projeto, escopo e prazo estimado"
           required
+          className={`${FIELD} resize-y font-serif`}
           value={form.sobre}
           onChange={(e) => setForm({ ...form, sobre: e.target.value })}
-          style={{
-            resize: 'vertical',
-            fontFamily: 'var(--serif)',
-            fontSize: 22,
-            borderBottom: '.5px solid var(--ink)',
-            padding: '8px 0',
-          }}
         />
       </div>
 
       <button
         type="submit"
-        className="ll-contact-submit"
+        className="inline-flex items-center justify-between gap-[14px] bg-ink px-6 py-[18px] font-mono text-[13px] uppercase tracking-[0.2em] text-paper transition-[gap] duration-300 hover:gap-7"
         disabled={state === 'sending'}
       >
         <span>{state === 'sending' ? 'Enviando…' : 'Enviar mensagem'}</span>
