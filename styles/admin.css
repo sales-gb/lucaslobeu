@@ -1281,3 +1281,7 @@
   .adm-dash-stats { grid-template-columns: repeat(2, 1fr); }
   .adm-dash-media-strip { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ─── Admin: sans for body/input/supporting text ─────────── */
+.adm-login-side-meta > div > div:last-child,
+.adm-input--lg { font-family: var(--sans); }

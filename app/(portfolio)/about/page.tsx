@@ -163,7 +163,7 @@ export default async function AboutPage() {
             <Reveal key={year} y={16} delay={i * 50}>
               <div className="ll-about-recognition-row">
                 <span className="ll-mono small-cap" style={{ fontSize: 13, color: 'var(--muted)' }}>{year}</span>
-                <span style={{ fontFamily: 'var(--serif)', fontSize: 22 }}>{text}</span>
+                <span style={{ fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 300 }}>{text}</span>
                 <div className="ll-about-recognition-dot" />
               </div>
             </Reveal>

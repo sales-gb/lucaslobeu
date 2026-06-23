@@ -1,19 +1,20 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Inter, JetBrains_Mono } from 'next/font/google';
+import { Instrument_Serif, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import '@/styles/portfolio.css';
 import ScrollProgressBar from '@/components/portfolio/ScrollProgressBar';
 
-const cormorant = Cormorant_Garamond({
+const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
-  weight: ['300', '400'],
-  variable: '--font-cormorant',
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument-serif',
   display: 'swap',
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['300', '400', '800'],
-  variable: '--font-inter',
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-dm-sans',
   display: 'swap',
 });
 
@@ -38,7 +39,7 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       data-scroll-behavior="smooth"
-      className={`${cormorant.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${instrumentSerif.variable} ${dmSans.variable} ${jetbrains.variable}`}
     >
       <body>
         <ScrollProgressBar />
