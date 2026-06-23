@@ -3913,108 +3913,8 @@ body:has(.ll-nav--side) .ll-main {
 /* .ll-h3-clients* migrado para features/home/components/clients-section.tsx */
 
 /* ─── h3 · JOURNAL sticky stack (createstudio-style) ────── */
-.ll-h3-journal-section {
-  border-bottom: 0.5px solid var(--rule);
-}
-.ll-h3-journal-header {
-  padding: 80px var(--page-x) 48px;
-  border-bottom: 0.5px solid var(--rule);
-}
-.ll-h3-journal-stack-track {
-  height: 300vh; /* 100vh scroll budget per entry */
-  position: relative;
-}
-.ll-h3-journal-sticky-container {
-  position: sticky;
-  top: 0;
-  height: 100dvh;
-  overflow: hidden;
-}
-.ll-h3-journal-stack-card {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--paper);
-  display: flex;
-  flex-direction: column;
-  border-bottom: 0.5px solid var(--rule);
-}
-/* subtle shadow at top edge of each card — creates depth as card slides in */
-.ll-h3-jsc-depth {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 24px;
-  background: linear-gradient(to bottom, rgba(10, 10, 10, 0.06), transparent);
-  pointer-events: none;
-  z-index: 10;
-}
-.ll-h3-jsc-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 80px var(--page-x) 20px;
-  flex-shrink: 0;
-}
-.ll-h3-jsc-num {
-  font-family: var(--mono);
-  font-weight: 300;
-  font-size: clamp(40px, 5vw, 72px);
-  color: rgba(10, 10, 10, 0.1);
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.ll-h3-jsc-rule {
-  width: 100%;
-  height: 0.5px;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-.ll-h3-jsc-body {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 0 var(--page-x);
-}
-.ll-h3-jsc-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-  padding: 48px 56px 48px 0;
-  border-right: 0.5px solid var(--rule);
-}
-.ll-h3-jsc-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(28px, 3.6vw, 58px);
-  line-height: 1;
-  letter-spacing: -0.025em;
-}
-.ll-h3-jsc-excerpt {
-  max-width: 460px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-.ll-h3-jsc-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 0 48px 56px;
-  overflow: hidden;
-}
-.ll-h3-jsc-image > * {
-  width: 100%;
-  max-width: 300px;
-}
-.ll-h3-journal-footer {
-  padding: 40px var(--page-x);
-  border-top: 0.5px solid var(--rule);
-}
+/* .ll-h3-journal* / .ll-h3-jsc-* migrados para
+   features/home/components/journal-section.tsx */
 
 /* ─── h3 · MARQUEE ───────────────────────────────────────── */
 /* .ll-h3-marquee migrado para marquee-section.tsx */
@@ -4164,25 +4064,6 @@ body:has(.ll-nav--side) .ll-main {
     padding: 60px var(--page-x);
   }
 
-  /* journal sticky stack responsive */
-  .ll-h3-jsc-topbar {
-    padding-top: 72px;
-  }
-  .ll-h3-jsc-body {
-    grid-template-columns: 1fr;
-  }
-  .ll-h3-jsc-text {
-    padding: 32px 0;
-    border-right: none;
-    border-bottom: 0.5px solid var(--rule);
-  }
-  .ll-h3-jsc-image {
-    padding: 32px 0;
-    justify-content: flex-start;
-  }
-  .ll-h3-jsc-image > * {
-    max-width: 240px;
-  }
 }
 @media (max-width: 640px) {
   .ll-masonry,
