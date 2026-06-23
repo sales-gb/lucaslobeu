@@ -8,6 +8,7 @@ import Reveal from '@/components/ui/reveal';
 import TextReveal from '@/components/ui/text-reveal';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { SectionMarker } from '@/components/ui/section-marker';
+import { cn } from '@/lib/utils/cn';
 import type { Project } from '@/lib/db/schema';
 import type { ProjectWithUrls } from '@/features/projects/types';
 
@@ -26,28 +27,30 @@ function ProjectsHero({ sub }: { sub: string }) {
   const desc = sub || 'Um conjunto de projetos que demonstra pensamento claro, execução forte e design que realmente funciona.'
 
   return (
-    <section className="ll-projects-hero">
+    <section className="relative -mt-[72px] border-b-[0.5px] border-paper/8 px-[var(--page-x)] pt-[192px] pb-20 max-md:pt-[152px] max-md:pb-12">
       <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
       <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
       <span className="ll-crosshair ll-crosshair--bl" aria-hidden />
       <span className="ll-crosshair ll-crosshair--br" aria-hidden />
 
-      <div className="ll-projects-hero-inner">
+      <div className="flex flex-col gap-5">
         <Reveal y={0} delay={0}>
           <SectionMarker eyebrowClassName="text-paper/40">Portfolio</SectionMarker>
         </Reveal>
 
-        <div className="ll-projects-hero-body">
+        <div className="grid grid-cols-2 items-end gap-10 pb-1 max-md:grid-cols-1 max-md:gap-6">
           <TextReveal
             text="Projetos"
             as="h1"
-            className="ll-projects-hero-title"
+            className="font-serif font-light text-[clamp(80px,14vw,220px)] leading-[0.88] tracking-[-0.03em] text-paper/[0.82]"
             delay={80}
             stagger={0.06}
             splitBy="char"
           />
-          <Reveal y={0} delay={600} className="ll-projects-hero-desc-wrap">
-            <p className="ll-projects-hero-desc">{desc}</p>
+          <Reveal y={0} delay={600} className="flex items-end max-md:hidden">
+            <p className="ml-auto max-w-[300px] text-right font-mono text-[11px] uppercase leading-[2] tracking-[0.18em] text-paper/[0.42]">
+              {desc}
+            </p>
           </Reveal>
         </div>
       </div>
@@ -74,7 +77,7 @@ function ManifestoWord({
     [0.12, 1],
   );
   return (
-    <motion.span className="ll-projects-manifesto-word" style={{ opacity }}>
+    <motion.span className="inline text-paper" style={{ opacity }}>
       {word}{' '}
     </motion.span>
   );
@@ -88,20 +91,27 @@ function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }
   const hasImage = !!imageUrl;
 
   return (
-    <section className="ll-projects-manifesto" ref={ref}>
-      <div className={`ll-projects-manifesto-grid${!hasImage ? ' ll-projects-manifesto-grid--noimg' : ''}`}>
+    <section className="relative bg-ink px-[var(--page-x)] text-paper" ref={ref}>
+      <div
+        className={cn(
+          'grid items-start gap-20 max-[900px]:gap-0',
+          hasImage
+            ? 'grid-cols-[1fr_1.4fr] max-[900px]:grid-cols-1'
+            : 'max-w-[900px] grid-cols-1 py-[var(--section-y)]',
+        )}
+      >
         {hasImage && (
-          <div className="ll-projects-manifesto-img-col">
-            <div className="ll-projects-manifesto-img">
+          <div className="sticky top-[15vh] py-[var(--section-y)] max-[900px]:static max-[900px]:pt-[var(--section-y)] max-[900px]:pb-0">
+            <div className="h-[65vh] max-h-[560px] overflow-hidden rounded-[2px] [&>*]:!h-full">
               <ImageBlock tone="dark" ratio="3/4" style={{ height: '100%' }} src={imageUrl} />
             </div>
           </div>
         )}
-        <div className="ll-projects-manifesto-text-col">
+        <div className="py-[var(--section-y)] pb-[240px]">
           <SectionMarker tone="light" style={{ marginBottom: 32 }}>
             Manifesto
           </SectionMarker>
-          <p className="ll-projects-manifesto-statement">
+          <p className="mt-5 font-serif font-light text-[clamp(22px,3vw,48px)] leading-[1.22] tracking-[-0.01em] text-paper">
             {words.map((word, i) => (
               <ManifestoWord
                 key={i}
@@ -112,8 +122,8 @@ function ManifestoSection({ text, imageUrl }: { text: string; imageUrl: string }
               />
             ))}
           </p>
-          <div className="ll-projects-manifesto-foot">
-            <Link href="/contact" className="ll-link-rule" style={{ color: 'rgba(244,241,234,.75)' }}>
+          <div className="mt-14 border-t-[0.5px] border-paper/[0.12] pt-8">
+            <Link href="/contact" className="ll-link-rule text-paper/75">
               Falar sobre um projeto <span>→</span>
             </Link>
           </div>
@@ -164,18 +174,23 @@ function ProjectCard({ project, index }: { project: ProjectWithUrls; index: numb
     <Reveal y={20} delay={index * 40}>
       <Link
         href={`/projects/${project.slug}`}
-        className="ll-projectcard"
+        className="group flex flex-col gap-4"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div className="ll-projectcard-imgwrap" ref={imgRef} onMouseEnter={reveal} onMouseLeave={conceal}>
+        <div className="relative overflow-hidden" ref={imgRef} onMouseEnter={reveal} onMouseLeave={conceal}>
           <motion.div
+            className="transition-[filter] duration-500 group-hover:brightness-[0.92]"
             animate={{ scale: hovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease: EASE_OUT }}
           >
             <ImageBlock tone={tone} ratio={ratio} src={project.coverImageUrl} />
           </motion.div>
-          <div ref={previewRef} className="ll-projectcard-preview" aria-hidden>
+          <div
+            ref={previewRef}
+            className="pointer-events-none absolute inset-0 z-[2] [clip-path:circle(0%_at_50%_50%)] [&>figure]:h-full [&>figure>div]:h-full"
+            aria-hidden
+          >
             <ImageBlock
               tone={project.coverHoverImageUrl ? tone : REVEAL_TONE[tone]}
               ratio={ratio}
@@ -184,27 +199,29 @@ function ProjectCard({ project, index }: { project: ProjectWithUrls; index: numb
             />
           </div>
           <motion.div
-            className="ll-projectcard-overlay"
+            className="absolute inset-x-4 bottom-4 z-[3] flex items-end justify-between text-paper [mix-blend-mode:difference]"
             animate={{ opacity: hovered ? 1 : 0 }}
             transition={{ duration: 0.35, ease: EASE_OUT }}
           >
             <div>
               <div className="ll-mono small-cap" style={{ fontSize: 10 }}>{project.category}</div>
-              <div style={{ fontFamily: 'var(--serif)', fontSize: 18 }}>{project.client}</div>
+              <div className="font-serif text-[18px]">{project.client}</div>
             </div>
             <motion.span
-              className="ll-projectcard-arrow"
+              className="text-[22px]"
               animate={{ x: hovered ? 0 : -8, opacity: hovered ? 1 : 0 }}
               transition={{ duration: 0.3, ease: EASE_OUT }}
             >→</motion.span>
           </motion.div>
         </div>
 
-        <div className="ll-projectcard-meta">
-          <span className="ll-projectcard-name">{project.title}</span>
-          <div className="ll-projectcard-tags">
-            {project.role && <span className="ll-projectcard-tag">{project.role}</span>}
-            <span className="ll-projectcard-tag">{project.category}</span>
+        <div className="flex flex-row items-start justify-between gap-4 pt-[14px]">
+          <span className="font-serif text-[22px] font-normal tracking-[-0.01em] text-paper/[0.88]">
+            {project.title}
+          </span>
+          <div className="flex shrink-0 flex-col items-end gap-[3px] pt-1">
+            {project.role && <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-paper/[0.38]">{project.role}</span>}
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-paper/[0.38]">{project.category}</span>
           </div>
         </div>
       </Link>
@@ -252,67 +269,70 @@ export default function ProjectsClient({
   }
 
   return (
-    <div className="ll-projects-page">
+    <div className="min-h-screen bg-ink text-paper">
       <ProjectsHero sub={heroSub} />
 
       {/* Filter bar */}
-      <div className="ll-projects-filterbar" style={{ padding: '20px var(--page-x)' }}>
-        <div className="ll-filter ll-filter--dark">
+      <div className="border-y-[0.5px] border-paper/8 px-[var(--page-x)] py-5">
+        <div className="flex flex-wrap items-center gap-1">
           {FILTERS.map((f) => (
             <button
               key={f}
-              className={`ll-filter-btn${active === f ? ' is-active' : ''}`}
+              className={cn(
+                'inline-flex items-center gap-2.5 rounded-full border-[0.5px] border-transparent px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] text-paper/45 transition-all duration-[250ms] hover:border-paper/[0.18] hover:text-paper/80',
+                active === f && 'border-paper/[0.12] bg-paper/10 !text-paper',
+              )}
               onClick={() => setActive(f)}
             >
-              {active === f && <span className="ll-filter-dot" />}
+              {active === f && <span className="inline-block size-[5px] rounded-full bg-accent" />}
               {f}
-              <span className="muted">{counts[f]}</span>
+              <span className={active === f ? 'text-paper/45' : 'text-muted'}>{counts[f]}</span>
             </button>
           ))}
-          <div className="ll-filter-grow" />
-          <Eyebrow style={{ color: 'rgba(244,241,234,.4)', fontSize: 11 }}>
+          <div className="flex-1" />
+          <Eyebrow className="text-[11px] text-paper/40">
             {filtered.length} resultados
           </Eyebrow>
         </div>
       </div>
 
       {/* Fibonacci grid */}
-      <div className="ll-projects-fib" style={{ padding: '80px var(--page-x) 120px' }}>
+      <div className="flex flex-col gap-20 px-[var(--page-x)] pt-20 pb-[120px]">
         {groups.length === 0 && (
-          <p style={{ color: 'rgba(244,241,234,.4)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '.14em', textTransform: 'uppercase' }}>
+          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-paper/40">
             Nenhum projeto encontrado.
           </p>
         )}
         {groups.map((group, gi) => {
           const baseIdx = groups.slice(0, gi).reduce((sum, g) => sum + g.items.length, 0);
+          const rowBase = 'grid grid-cols-3 items-start gap-7 max-[900px]:grid-cols-2 max-[900px]:gap-5 max-md:grid-cols-1';
+          const gap = <div className="max-[900px]:hidden" aria-hidden />;
           if (group.type === 'A') {
             return (
-              <div key={gi} className="ll-fib-row ll-fib-row--a">
+              <div key={gi} className={rowBase}>
                 <ProjectCard project={group.items[0]} index={baseIdx} />
-                <div className="ll-fib-gap" aria-hidden />
+                {gap}
                 {group.items[1]
                   ? <ProjectCard project={group.items[1]} index={baseIdx + 1} />
-                  : <div className="ll-fib-gap" aria-hidden />
-                }
-              </div>
-            );
-          } else {
-            return (
-              <div key={gi} className="ll-fib-row ll-fib-row--b">
-                <div className="ll-fib-gap" aria-hidden />
-                <ProjectCard project={group.items[0]} index={baseIdx} />
-                <div className="ll-fib-gap" aria-hidden />
+                  : gap}
               </div>
             );
           }
+          return (
+            <div key={gi} className={cn(rowBase, 'max-[900px]:grid-cols-1')}>
+              {gap}
+              <ProjectCard project={group.items[0]} index={baseIdx} />
+              {gap}
+            </div>
+          );
         })}
       </div>
 
-      <div className="ll-projects-foot ll-projects-foot--dark">
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', color: 'rgba(244,241,234,.4)' }}>
+      <div className="flex items-center justify-between border-t-[0.5px] border-paper/8 px-[var(--page-x)] pt-10 pb-20">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/40">
           {filtered.length} de {projects.length} projetos
         </span>
-        <Link href="/contact" className="ll-link-rule" style={{ color: 'rgba(244,241,234,.75)' }}>
+        <Link href="/contact" className="ll-link-rule text-paper/75">
           Iniciar um projeto <span>→</span>
         </Link>
       </div>
