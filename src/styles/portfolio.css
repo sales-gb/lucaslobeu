@@ -1951,156 +1951,7 @@ body:has(.ll-nav--side) .ll-main {
 }
 
 /* ─── About ──────────────────────────────────────────────── */
-.ll-about-header {
-  padding: 120px var(--page-x) 0;
-}
-.ll-about-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(80px, 12vw, 192px);
-  line-height: 0.9;
-  letter-spacing: -0.025em;
-  margin-top: 48px;
-}
-.ll-about-display {
-  padding: 60px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-.ll-about-meta {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.ll-about-meta-sep {
-  opacity: 0.35;
-}
-.ll-about-intro {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 80px;
-  align-items: start;
-}
-.ll-about-portrait {
-  position: sticky;
-  top: 120px;
-}
-.ll-about-intro-body {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-.ll-about-lede {
-  font-family: var(--sans);
-  font-size: clamp(22px, 2.2vw, 30px);
-  line-height: 1.4;
-  font-weight: 300;
-}
-
-.ll-about-clients-head,
-.ll-about-recognition-head {
-  margin-bottom: 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.ll-about-clients-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px 48px;
-}
-.ll-about-client-cell {
-  display: grid;
-  grid-template-columns: 28px 1fr 16px;
-  gap: 14px;
-  align-items: baseline;
-  padding: 16px 0;
-  border-bottom: 0.5px solid var(--rule);
-  position: relative;
-  transition: padding 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  cursor: default;
-}
-.ll-about-client-cell:hover {
-  padding-left: 8px;
-}
-.ll-about-client-cell::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.5px;
-  height: 0.5px;
-  background: var(--ink);
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition: transform 0.45s cubic-bezier(0.7, 0, 0.3, 1);
-}
-.ll-about-client-cell:hover::after {
-  animation: ll-link-sweep 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-}
-.ll-about-client-name {
-  font-family: var(--sans);
-  font-size: 20px;
-  font-weight: 400;
-}
-.ll-about-client-arrow {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--muted);
-  opacity: 0;
-  transform: translateX(-6px);
-  transition:
-    opacity 0.3s ease,
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.ll-about-client-cell:hover .ll-about-client-arrow {
-  opacity: 1;
-  transform: translateX(0);
-  color: var(--accent);
-}
-
-.ll-about-recognition-list {
-  display: flex;
-  flex-direction: column;
-}
-.ll-about-recognition-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 12px;
-  gap: 32px;
-  padding: 28px 0;
-  border-bottom: 0.5px solid var(--rule);
-  font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 400;
-  align-items: center;
-  position: relative;
-  transition: padding 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.ll-about-recognition-row:hover {
-  padding-left: 12px;
-}
-.ll-about-recognition-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--rule);
-  transition:
-    background 0.35s ease,
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.ll-about-recognition-row:hover .ll-about-recognition-dot {
-  background: var(--accent);
-  transform: scale(1.6);
-}
-
-.ll-about-cta {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  align-items: start;
-}
+/* .ll-about-* (página Sobre) migrado para src/app/(portfolio)/about/page.tsx */
 
 /* ─── Links page ─────────────────────────────────────────── */
 .ll-links-page {
@@ -3701,16 +3552,11 @@ body:has(.ll-nav--side) .ll-main {
   .ll-hero--mosaic,
   .ll-sticky-grid,
   .ll-cta-grid,
-  .ll-about-intro,
-  .ll-about-clients-grid,
   .ll-project-credits,
   .ll-project-longform-grid,
   .ll-project-gallery-text {
     grid-template-columns: 1fr;
     gap: 40px;
-  }
-  .ll-about-clients-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
   .ll-masonry,
   .ll-broken-grid {
@@ -3843,9 +3689,6 @@ body:has(.ll-nav--side) .ll-main {
   }
   .ll-tile:nth-child(n) {
     grid-column: auto;
-  }
-  .ll-about-clients-grid {
-    grid-template-columns: 1fr;
   }
   .ll-footer-grid {
     grid-template-columns: 1fr;
@@ -4281,8 +4124,6 @@ body:has(.ll-nav--side) .ll-main {
 .ll-project-info-bar > div > div:last-child,
 .ll-project-aside-block > div:last-child,
 .ll-project-credits-row > div:last-child,
-.ll-about-lede,
-.ll-about-client-name,
 .ll-links-label,
 .ll-links-watermark span,
 .ll-footer-watermark span,

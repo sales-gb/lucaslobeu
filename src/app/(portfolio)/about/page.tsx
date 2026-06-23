@@ -43,6 +43,13 @@ const DEFAULT_NUMBERS: [string, string][] = [
   ['3—4', 'Projetos por trimestre'],
 ];
 
+// Seções da página (era .ll-section) + linhas das listas (recognition/trajectory).
+const SECTION = 'px-[var(--page-x)] py-[var(--section-y)]';
+const ROW =
+  'group relative grid grid-cols-[80px_1fr_12px] items-center gap-8 border-b-[0.5px] border-rule py-7 font-serif text-[26px] font-normal transition-[padding] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-3';
+const DOT =
+  'size-1.5 rounded-full bg-rule transition-[background,transform] duration-[400ms] group-hover:scale-[1.6] group-hover:bg-accent';
+
 export default async function AboutPage() {
   const about = await getAbout();
 
@@ -72,49 +79,53 @@ export default async function AboutPage() {
   return (
     <>
       {/* ── Header ─────────────────────────────────────── */}
-      <div className="ll-about-header">
+      <div className="px-[var(--page-x)] pt-[120px]">
         <Reveal y={20}>
           <Eyebrow>Sobre o estúdio</Eyebrow>
         </Reveal>
-        <div className="ll-about-display">
-          <div className="ll-about-meta">
+        <div className="flex flex-col gap-7 py-[60px]">
+          <div className="flex flex-wrap items-center gap-[14px]">
             <span className="ll-mono small-cap">Lucas Lobeu</span>
-            <span className="ll-about-meta-sep ll-mono">/</span>
+            <span className="ll-mono opacity-35">/</span>
             <span className="ll-mono small-cap muted">Direção · Foto · Social</span>
-            <span className="ll-about-meta-sep ll-mono">/</span>
+            <span className="ll-mono opacity-35">/</span>
             <span className="ll-mono small-cap muted">São Paulo, BR</span>
           </div>
           <Reveal y={40} delay={60}>
-            <h1 className="ll-about-title">Sobre</h1>
+            <h1 className="font-serif font-light text-[clamp(80px,12vw,192px)] leading-[0.9] tracking-[-0.025em]">
+              Sobre
+            </h1>
           </Reveal>
         </div>
       </div>
 
       {/* ── Intro + portrait ───────────────────────────── */}
-      <div className="ll-section" style={{ paddingTop: 0 }}>
-        <div className="ll-about-intro">
-          <div className="ll-about-portrait">
+      <div className={`${SECTION} pt-0`}>
+        <div className="grid grid-cols-[1fr_1.4fr] items-start gap-20 max-lg:grid-cols-1 max-lg:gap-10">
+          <div className="sticky top-[120px]">
             {portraitUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={portraitUrl}
                 alt="Lucas Lobeu"
-                style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 2 }}
+                className="aspect-[3/4] w-full rounded-[2px] object-cover"
               />
             ) : (
               <ImageBlock tone="mid" ratio="3/4" />
             )}
-            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div className="mt-4 flex flex-col gap-1.5">
               <Eyebrow>Lucas Lobeu</Eyebrow>
-              <span className="muted" style={{ fontFamily: 'var(--sans)', fontSize: 14 }}>
+              <span className="font-sans text-[14px] text-muted">
                 São Paulo, Brasil · 2019—
               </span>
             </div>
           </div>
 
-          <div className="ll-about-intro-body">
+          <div className="flex flex-col gap-7">
             <Reveal y={20}>
-              <p className="ll-about-lede">{intro}</p>
+              <p className="font-sans font-light text-[clamp(22px,2.2vw,30px)] leading-[1.4]">
+                {intro}
+              </p>
             </Reveal>
 
             {bodyParagraphs.map((para, i) => (
@@ -139,10 +150,10 @@ export default async function AboutPage() {
             )}
 
             <Reveal y={10} delay={180}>
-              <div style={{ display: 'flex', gap: 32, paddingTop: 8 }}>
+              <div className="flex gap-8 pt-2">
                 {displayNumbers.map(([val, label]) => (
-                  <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <span style={{ fontFamily: 'var(--serif)', fontSize: 48, fontWeight: 300, lineHeight: 1 }}>{val}</span>
+                  <div key={label} className="flex flex-col gap-1">
+                    <span className="font-serif text-[48px] font-light leading-none">{val}</span>
                     <Eyebrow>{label}</Eyebrow>
                   </div>
                 ))}
@@ -153,19 +164,19 @@ export default async function AboutPage() {
       </div>
 
       {/* ── Trajectory ─────────────────────────────────── */}
-      <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
+      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
         <Reveal y={20}>
           <div className="ll-section-head">
             <h2 className="ll-section-title ll-section-title--sm">Trajetória</h2>
           </div>
         </Reveal>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div className="flex flex-col">
           {displayTrajectory.map(([year, text], i) => (
             <Reveal key={year} y={16} delay={i * 50}>
-              <div className="ll-about-recognition-row">
-                <span className="ll-mono small-cap" style={{ fontSize: 13, color: 'var(--muted)' }}>{year}</span>
-                <span style={{ fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 300 }}>{text}</span>
-                <div className="ll-about-recognition-dot" />
+              <div className={ROW}>
+                <span className="ll-mono small-cap text-[13px] text-muted">{year}</span>
+                <span className="font-sans text-[18px] font-light">{text}</span>
+                <div className={DOT} />
               </div>
             </Reveal>
           ))}
@@ -173,20 +184,22 @@ export default async function AboutPage() {
       </div>
 
       {/* ── Selected Clients ───────────────────────────── */}
-      <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
+      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
         <Reveal y={20}>
-          <div className="ll-about-clients-head">
+          <div className="mb-12 flex flex-col gap-2">
             <Eyebrow>Clientes selecionados</Eyebrow>
             <h2 className="ll-section-title ll-section-title--sm">Marcas com quem trabalhamos</h2>
           </div>
         </Reveal>
-        <div className="ll-about-clients-grid">
+        <div className="grid grid-cols-4 gap-x-12 gap-y-8 max-lg:grid-cols-2 max-sm:grid-cols-1">
           {displayClients.map((client, i) => (
             <Reveal key={client} y={12} delay={i * 30}>
-              <div className="ll-about-client-cell">
-                <span className="ll-mono muted" style={{ fontSize: 10 }}>{String(i + 1).padStart(2, '0')}</span>
-                <span className="ll-about-client-name">{client}</span>
-                <span className="ll-about-client-arrow">↗</span>
+              <div className="group relative grid cursor-default grid-cols-[28px_1fr_16px] items-baseline gap-[14px] border-b-[0.5px] border-rule py-4 transition-[padding] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-2 after:absolute after:inset-x-0 after:-bottom-px after:h-[0.5px] after:origin-right after:scale-x-0 after:bg-ink after:transition-transform hover:after:animate-[ll-link-sweep_0.9s_cubic-bezier(0.7,0,0.3,1)_forwards]">
+                <span className="ll-mono muted text-[10px]">{String(i + 1).padStart(2, '0')}</span>
+                <span className="font-sans text-[20px] font-normal">{client}</span>
+                <span className="font-mono text-[12px] text-muted opacity-0 -translate-x-[6px] transition-[opacity,transform] duration-300 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100">
+                  ↗
+                </span>
               </div>
             </Reveal>
           ))}
@@ -194,20 +207,20 @@ export default async function AboutPage() {
       </div>
 
       {/* ── Recognition ────────────────────────────────── */}
-      <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
+      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
         <Reveal y={20}>
-          <div className="ll-about-recognition-head">
+          <div className="mb-12 flex flex-col gap-2">
             <Eyebrow>Reconhecimento</Eyebrow>
             <h2 className="ll-section-title ll-section-title--sm">Prêmios e destaques</h2>
           </div>
         </Reveal>
-        <div className="ll-about-recognition-list">
+        <div className="flex flex-col">
           {displayRecognition.map(([year, text], i) => (
             <Reveal key={`${year}-${i}`} y={12} delay={i * 40}>
-              <div className="ll-about-recognition-row">
-                <span className="ll-mono small-cap" style={{ fontSize: 13 }}>{year}</span>
+              <div className={ROW}>
+                <span className="ll-mono small-cap text-[13px]">{year}</span>
                 <span>{text}</span>
-                <div className="ll-about-recognition-dot" />
+                <div className={DOT} />
               </div>
             </Reveal>
           ))}
@@ -215,10 +228,10 @@ export default async function AboutPage() {
       </div>
 
       {/* ── CTA ────────────────────────────────────────── */}
-      <div className="ll-section" style={{ borderTop: '.5px solid var(--rule)' }}>
-        <div className="ll-about-cta">
+      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
+        <div className="flex flex-col items-start gap-7">
           <Reveal y={30}>
-            <p className="ll-body ll-body--large" style={{ maxWidth: 600 }}>
+            <p className="ll-body ll-body--large max-w-[600px]">
               {about?.contactBlurb || 'O estúdio aceita três a quatro projetos por trimestre. Se o seu projeto faz sentido, vamos conversar.'}
             </p>
           </Reveal>
