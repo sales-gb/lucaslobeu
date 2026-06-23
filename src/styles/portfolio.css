@@ -1481,20 +1481,7 @@ body:has(.ll-nav--side) .ll-main {
   border-top: 0.5px solid var(--rule);
   border-bottom: 0.5px solid var(--rule);
 }
-.ll-marquee-word {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(80px, 12vw, 200px);
-  line-height: 1;
-  padding: 0 32px;
-  letter-spacing: -0.03em;
-}
-.ll-marquee-sep {
-  font-family: var(--serif);
-  font-size: clamp(80px, 12vw, 200px);
-  color: var(--accent);
-  padding: 0 8px;
-}
+/* .ll-marquee-word / .ll-marquee-sep migrados para marquee-section.tsx */
 
 /* CTA section */
 .ll-cta-grid {
@@ -4378,51 +4365,8 @@ body:has(.ll-nav--side) .ll-main {
 }
 
 /* ─── h3 · MARQUEE ───────────────────────────────────────── */
-.ll-h3-marquee {
-  border-top: 0.5px solid var(--rule);
-  border-bottom: 0.5px solid var(--rule);
-  overflow: hidden;
-  padding: 20px 0;
-  background: var(--paper);
-}
-
-/* ─── h3 · CTA ───────────────────────────────────────────── */
-.ll-h3-cta {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 120px var(--page-x);
-  position: relative;
-  overflow: hidden;
-}
-.ll-h3-cta-inner {
-  max-width: 900px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-.ll-h3-cta-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-style: italic;
-  font-size: clamp(52px, 8vw, 128px);
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  color: var(--paper);
-}
-.ll-h3-cta-sub {
-  font-family: var(--sans);
-  font-weight: 300;
-  font-size: clamp(16px, 1.8vw, 20px);
-  line-height: 1.6;
-  color: rgba(244, 241, 234, 0.6);
-  max-width: 480px;
-}
-.ll-h3-cta-actions {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  flex-wrap: wrap;
-}
+/* .ll-h3-marquee migrado para marquee-section.tsx */
+/* .ll-h3-cta* migrado para features/home/components/cta-section.tsx */
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1024px) {
@@ -4913,97 +4857,7 @@ body:has(.ll-nav--side) .ll-main {
  * 4-col grid · dark bg · dots + big number + label + desc
  * ════════════════════════════════════════════════════════════ */
 
-.ll-ek-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto auto;
-  padding: 0 var(--page-x);
-  background: var(--ink);
-  color: var(--paper);
-  border-bottom: 0.5px solid rgba(244, 241, 234, 0.08);
-}
-
-/* Stagger: explicit 2×4 grid — items 1,3 top row · 2,4 bottom row */
-.ll-ek-stats > *:nth-child(1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-.ll-ek-stats > *:nth-child(2) {
-  grid-column: 2;
-  grid-row: 2;
-}
-.ll-ek-stats > *:nth-child(3) {
-  grid-column: 3;
-  grid-row: 1;
-}
-.ll-ek-stats > *:nth-child(4) {
-  grid-column: 4;
-  grid-row: 2;
-}
-
-.ll-ek-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 52px 40px 60px;
-  border: 0.5px solid rgba(244, 241, 234, 0.08);
-}
-
-.ll-ek-stat-dots {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  color: rgba(244, 241, 234, 0.35);
-  margin-bottom: 8px;
-}
-
-.ll-ek-stat-val {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: clamp(56px, 8vw, 120px);
-  line-height: 0.9;
-  letter-spacing: -0.02em;
-  color: var(--paper);
-}
-
-.ll-ek-stat-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--paper);
-  margin-top: 4px;
-}
-
-.ll-ek-stat-desc {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(244, 241, 234, 0.4);
-  line-height: 1.6;
-  max-width: 240px;
-}
-
-@media (max-width: 768px) {
-  .ll-ek-stats {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: unset;
-  }
-  .ll-ek-stats > *:nth-child(1),
-  .ll-ek-stats > *:nth-child(2),
-  .ll-ek-stats > *:nth-child(3),
-  .ll-ek-stats > *:nth-child(4) {
-    grid-column: auto;
-    grid-row: auto;
-  }
-  .ll-ek-stat {
-    padding: 36px 24px 44px;
-  }
-  .ll-ek-stat-val {
-    font-size: clamp(44px, 10vw, 72px);
-  }
-}
+/* .ll-ek-stats* migrado para features/home/components/stats-section.tsx */
 
 /* ════════════════════════════════════════════════════════════
  * SHOWCASE INTRO  ·  ll-sc-* namespace
