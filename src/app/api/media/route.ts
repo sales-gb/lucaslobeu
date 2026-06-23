@@ -3,6 +3,7 @@ import { getDb, schema } from '@/lib/db'
 import { desc } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { storage, UPLOAD_LIMITS } from '@/lib/storage'
+import { optimizeImage } from '@/lib/images/optimize'
 import sharp from 'sharp'
 import { randomBytes } from 'crypto'
 
@@ -57,28 +58,41 @@ export async function POST(request: NextRequest) {
 
   const buffer = Buffer.from(await file.arrayBuffer())
 
+  // Bytes efetivamente salvos + metadados (variam após otimização das imagens).
+  let outBuffer: Buffer = buffer
+  let outMime = file.type
+  let outExt = MIME_EXT[file.type] ?? '.bin'
   let width: number | undefined
   let height: number | undefined
 
   if (!isVideo) {
-    // Re-decode with sharp to get dimensions and verify the bytes match the MIME type.
+    // 1) Segurança: verifica que os bytes batem com o MIME declarado.
     const declaredFormat = file.type.split('/')[1] === 'jpeg' ? 'jpeg' : file.type.split('/')[1]
     try {
       const meta = await sharp(buffer).metadata()
-      width = meta.width
-      height = meta.height
       if (!meta.format || meta.format !== declaredFormat) {
         return Response.json({ error: 'Conteúdo do arquivo não corresponde ao tipo declarado' }, { status: 400 })
       }
     } catch {
       return Response.json({ error: 'Não foi possível processar a imagem' }, { status: 400 })
     }
+
+    // 2) Otimização: redimensiona + converte para WebP leve (sempre .webp).
+    try {
+      const optimized = await optimizeImage(buffer)
+      outBuffer = optimized.buffer
+      outMime = optimized.mimeType
+      outExt = optimized.ext
+      width = optimized.width
+      height = optimized.height
+    } catch {
+      return Response.json({ error: 'Falha ao otimizar a imagem' }, { status: 400 })
+    }
   }
 
-  const ext = MIME_EXT[file.type] ?? '.bin'
-  const filename = `${randomBytes(16).toString('hex')}${ext}`
+  const filename = `${randomBytes(16).toString('hex')}${outExt}`
 
-  const storedPath = await storage.save(buffer, filename, file.type)
+  const storedPath = await storage.save(outBuffer, filename, outMime)
 
   const db = getDb()
   const [record] = await db
@@ -86,8 +100,8 @@ export async function POST(request: NextRequest) {
     .values({
       filename,
       originalName: file.name,
-      mimeType: file.type,
-      size: file.size,
+      mimeType: outMime,
+      size: outBuffer.length,
       width: width ?? null,
       height: height ?? null,
       path: storedPath,
