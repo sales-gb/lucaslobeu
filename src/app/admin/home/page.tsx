@@ -684,12 +684,6 @@ export default function AdminHomePage() {
                 <span className="adm-home-sect-badge">Auto</span>
                 <span className="adm-home-sect-arrow">↗</span>
               </Link>
-              <Link href="/admin/dashboard" className="adm-home-sect-item" style={{ textDecoration: 'none' }}>
-                <span className="adm-home-sect-icon">✏</span>
-                <span className="adm-home-sect-name">Journal</span>
-                <span className="adm-home-sect-badge">Auto</span>
-                <span className="adm-home-sect-arrow">↗</span>
-              </Link>
             </div>
           </div>
         </div>

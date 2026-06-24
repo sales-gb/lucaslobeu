@@ -84,19 +84,6 @@ export const links = sqliteTable('links', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
-// ─── Journal ──────────────────────────────────────────────────
-export const journal = sqliteTable('journal', {
-  id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
-  slug: text('slug').notNull().unique(),
-  title: text('title').notNull(),
-  excerpt: text('excerpt').notNull(),
-  content: text('content').notNull().default(''),
-  imageId: text('image_id'),
-  readTime: text('read_time').default('3 min'),
-  publishedAt: text('published_at').notNull().default(sql`(datetime('now'))`),
-  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
-});
-
 // ─── About Content ────────────────────────────────────────────
 // Single-row table for the About page editorial content.
 export const aboutContent = sqliteTable('about_content', {
@@ -150,6 +137,5 @@ export type Project = typeof projects.$inferSelect;
 export type Media = typeof media.$inferSelect;
 export type HomeTile = typeof homeTiles.$inferSelect;
 export type Link = typeof links.$inferSelect;
-export type JournalEntry = typeof journal.$inferSelect;
 export type AboutContent = typeof aboutContent.$inferSelect;
 export type HomeSettings = typeof homeSettings.$inferSelect;

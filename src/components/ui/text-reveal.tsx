@@ -31,7 +31,18 @@ export default function TextReveal({
       {items.map((item, i) => (
         <span
           key={i}
-          style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}
+          style={{
+            display: 'inline-block',
+            overflow: 'hidden',
+            verticalAlign: 'bottom',
+            // Expande a área de recorte à direita e abaixo (sem mexer no
+            // layout, via margem negativa) para que a ponta de glifos itálicos
+            // e descendentes não sejam cortados pelo overflow:hidden.
+            paddingRight: '0.14em',
+            marginRight: '-0.14em',
+            paddingBottom: '0.08em',
+            marginBottom: '-0.08em',
+          }}
         >
           <motion.span
             style={{ display: 'inline-block' }}

@@ -2,12 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eyebrow } from '@/components/ui/eyebrow'
+import { FlowButton } from '@/components/ui/flow-button'
+import { LetterSwapPingPong } from '@/components/ui/letter-swap'
+import { cn } from '@/lib/utils/cn'
 
 const BrandMark = () => (
-  <Link href="/" className="ll-brandmark">
+  <Link href="/" className="ll-brandmark" aria-label="Lobeu — início">
     <svg width="24" height="24" viewBox="0 0 200 200" fill="none">
       <path d="M 38 32 L 38 168 L 110 168" stroke="currentColor" strokeWidth="11" strokeLinecap="square" />
       <path d="M 162 168 L 162 32 L 90 32" stroke="currentColor" strokeWidth="11" strokeLinecap="square" />
@@ -24,14 +27,8 @@ const navLinks = [
   { href: '/', label: 'Index', sub: '00' },
   { href: '/projects', label: 'Projetos', sub: '01' },
   { href: '/about', label: 'Sobre', sub: '02' },
-  { href: '/journal', label: 'Diário', sub: '03' },
-  { href: '/contact', label: 'Contato', sub: '04' },
+  { href: '/contact', label: 'Contato', sub: '03' },
 ]
-
-const overlayVariants = {
-  closed: { opacity: 0, pointerEvents: 'none' as const },
-  open: { opacity: 1, pointerEvents: 'auto' as const },
-}
 
 const panelVariants = {
   closed: { x: '100%' },
@@ -51,15 +48,36 @@ const linkVariants = {
 export default function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href)
 
+  // Header oculta ao rolar para baixo; reaparece ao rolar para cima ou ao parar.
+  const lastY = useRef(0)
+  const stopTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openRef = useRef(open)
+  openRef.current = open
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => {
+      const y = window.scrollY
+      if (openRef.current || y < 80) {
+        setHidden(false)
+      } else if (y > lastY.current + 4) {
+        setHidden(true)
+      } else if (y < lastY.current - 4) {
+        setHidden(false)
+      }
+      lastY.current = y
+      if (stopTimer.current) clearTimeout(stopTimer.current)
+      stopTimer.current = setTimeout(() => setHidden(false), 250)
+    }
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (stopTimer.current) clearTimeout(stopTimer.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -67,37 +85,65 @@ export default function Nav() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  // Close on route change
+  // Fecha ao trocar de rota
   useEffect(() => { setOpen(false) }, [pathname])
 
   return (
     <>
-      <nav className={`ll-nav${scrolled ? ' is-scrolled' : ''}`}>
-        <div className="ll-nav--top">
-          <BrandMark />
+      <header className={cn('ll-nav', hidden && !open && 'is-hidden')}>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center px-[var(--page-x)] py-5">
+          {/* Esquerda: logo */}
+          <div className="flex justify-start">
+            <BrandMark />
+          </div>
 
-          <button
-            className={`ll-ham-trigger${open ? ' is-open' : ''}`}
-            onClick={() => setOpen(!open)}
-            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-            aria-expanded={open}
-          >
-            <span className={`ll-ham-icon${open ? ' is-open' : ''}`}>
-              <span />
-              <span />
-            </span>
-          </button>
+          {/* Centro: links (desktop) */}
+          <nav className="hidden items-center justify-center gap-9 lg:flex" aria-label="Navegação principal">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'relative inline-flex font-mono text-[12px] uppercase tracking-[0.18em] whitespace-nowrap transition-colors duration-200',
+                  isActive(link.href) ? 'text-paper' : 'text-paper/70 hover:text-paper',
+                )}
+              >
+                <LetterSwapPingPong label={link.label} staggerDuration={0.025} />
+                {isActive(link.href) && (
+                  <span className="absolute -bottom-1 left-0 right-0 h-[1px] bg-accent" aria-hidden />
+                )}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Direita: CTA (desktop) + hambúrguer (mobile) */}
+          <div className="flex items-center justify-end gap-4">
+            <div className="hidden lg:block">
+              <FlowButton text="Vamos conversar" href="/contact" className="py-2.5 text-[13px]" />
+            </div>
+            <button
+              className={`ll-ham-trigger lg:hidden${open ? ' is-open' : ''}`}
+              onClick={() => setOpen(!open)}
+              aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+              aria-expanded={open}
+            >
+              <span className={`ll-ham-icon${open ? ' is-open' : ''}`}>
+                <span />
+                <span />
+              </span>
+            </button>
+          </div>
         </div>
-      </nav>
+      </header>
 
+      {/* Painel mobile */}
       <AnimatePresence>
         {open && (
           <motion.div
             className="ll-ham-overlay is-open"
-            variants={overlayVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: 'easeInOut' }}
             onClick={() => setOpen(false)}
           >
@@ -109,7 +155,6 @@ export default function Nav() {
               exit="exit"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close button inside panel */}
               <button
                 className="ll-ham-close"
                 onClick={() => setOpen(false)}

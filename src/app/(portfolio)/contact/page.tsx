@@ -31,7 +31,7 @@ export default function ContactPage() {
                 <Eyebrow className="mb-3 block">Email principal</Eyebrow>
                 <a
                   href="mailto:lucas@lobeu.studio"
-                  className="ll-sweep border-b-[0.5px] border-ink pb-1 font-sans text-[26px]"
+                  className="ll-sweep border-b-[0.5px] border-paper pb-1 font-sans text-[26px]"
                 >
                   lucas@lobeu.studio
                 </a>

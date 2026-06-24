@@ -21,23 +21,30 @@
 
 @theme {
   /* ── Cores ── espelham os tokens de styles/portfolio.css ──────────
-     Use modificadores de opacidade para os tons "muted":
-     text-ink/55 (= --muted), text-ink/38 (= --muted-soft), etc. */
-  --color-ink: #181818;
-  --color-ink-soft: #242424;
-  --color-paper: #f4f1ea;
-  --color-paper-warm: #ede7da;
-  --color-paper-cool: #f8f6f1;
-  --color-accent: #b08d57;
-  --color-accent-soft: #c9ae82;
+     Tema ESCURO por padrão: a superfície da aplicação é preto quente
+     (--ink) e o texto é branco quente (--paper). O creme/dourado
+     (--accent) entra só nos detalhes. Seções "brancas de destaque"
+     usam .surface-light (ver portfolio.css) para reverter os neutros.
 
-  /* Tons "muted" sobre paper (base #0a0a0a, não --ink) — espelham portfolio.css */
-  --color-muted: rgba(10, 10, 10, 0.55);
-  --color-muted-soft: rgba(10, 10, 10, 0.38);
+     Como os neutros (muted/rule) agora vivem sobre fundo escuro, eles
+     são derivados de --paper (claros). Use modificadores de opacidade
+     para variações: text-paper/55, border-paper/12, etc. */
+  --color-ink: #0e0d0b; /* preto quente — superfície base */
+  --color-ink-soft: #161310; /* preto levemente elevado (cards/realces) */
+  --color-paper: #f9f9f8; /* branco (levíssimo calor) — texto e destaques */
+  --color-paper-warm: #efeee9;
+  --color-paper-cool: #fdfdfc;
+  --color-accent: #b08d57; /* dourado da marca */
+  --color-accent-soft: #c9ae82; /* champanhe/creme dourado */
+
+  /* Neutros sobre fundo escuro (base --paper). Em .surface-light estes
+     tokens são revertidos para base --ink. */
+  --color-muted: rgba(249, 249, 248, 0.6);
+  --color-muted-soft: rgba(249, 249, 248, 0.4);
 
   /* Réguas/bordas finas */
-  --color-rule: rgba(10, 10, 10, 0.12);
-  --color-rule-strong: rgba(10, 10, 10, 0.22);
+  --color-rule: rgba(249, 249, 248, 0.14);
+  --color-rule-strong: rgba(249, 249, 248, 0.24);
 
   /* ── Tipografia ── aponta para as variáveis do next/font (layout.tsx) ── */
   --font-serif: var(--font-instrument-serif), "Times New Roman", serif;

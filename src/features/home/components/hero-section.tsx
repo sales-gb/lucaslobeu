@@ -1,11 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import TextReveal from "@/components/ui/text-reveal";
-import { buttonVariants } from "@/components/ui/button";
+import { FlowButton } from "@/components/ui/flow-button";
 import { LinkRule } from "@/components/ui/link-rule";
 import { EASE_OUT } from "@/features/home/constants";
 
@@ -24,7 +23,7 @@ export function HeroSection({
   const titleY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
   const heroName =
-    "font-serif font-light text-[clamp(100px,16vw,260px)] leading-[0.86] tracking-[-0.03em] text-ink";
+    "font-serif font-light text-[clamp(100px,16vw,260px)] leading-[0.86] tracking-[-0.03em] text-paper";
 
   return (
     <section
@@ -66,9 +65,7 @@ export function HeroSection({
       <div className="flex items-center justify-center gap-10 border-t-[0.5px] border-rule pt-7 pb-12">
         <Reveal y={8} delay={720}>
           <div className="flex shrink-0 items-center gap-8">
-            <Link href="/projects" className={buttonVariants({ variant: "outline" })}>
-              Ver projetos
-            </Link>
+            <FlowButton text="Ver projetos" href="/projects" />
             <LinkRule href="/contact">Falar sobre um projeto</LinkRule>
           </div>
         </Reveal>

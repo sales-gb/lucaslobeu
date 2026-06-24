@@ -43,9 +43,9 @@ export default async function LinksPage() {
   const display = links.length > 0 ? links : FALLBACK_LINKS;
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-paper px-6 pt-20 pb-10">
+    <div className="relative flex min-h-screen flex-col items-center overflow-hidden bg-ink px-6 pt-20 pb-10">
       <div className="z-[2] flex w-full max-w-[460px] flex-col items-center">
-        <div className="mb-7 text-ink">
+        <div className="mb-7 text-paper">
           <BrandMarkLarge />
         </div>
 
@@ -63,9 +63,9 @@ export default async function LinksPage() {
               href={link.href}
               target={link.href.startsWith('http') ? '_blank' : undefined}
               rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="group grid grid-cols-[32px_1fr_24px] items-center gap-[14px] rounded-[2px] border-[0.5px] border-ink bg-transparent px-6 py-[18px] transition-[background-color,color,padding] duration-[250ms] hover:bg-ink hover:pl-[30px] hover:pr-[18px] hover:text-paper"
+              className="group grid grid-cols-[32px_1fr_24px] items-center gap-[14px] rounded-[2px] border-[0.5px] border-paper bg-transparent px-6 py-[18px] transition-[background-color,color,padding] duration-[250ms] hover:bg-paper hover:pl-[30px] hover:pr-[18px] hover:text-ink"
             >
-              <span className="ll-mono text-muted group-hover:text-paper/55" style={{ fontSize: 12 }}>
+              <span className="ll-mono text-muted group-hover:text-ink/55" style={{ fontSize: 12 }}>
                 {String(i + 1).padStart(2, '0')}
               </span>
               <span className={cn('font-sans font-normal', link.kind === 'primary' ? 'text-[22px]' : 'text-[20px]')}>
@@ -83,7 +83,7 @@ export default async function LinksPage() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-[-40px] z-0 text-center text-ink opacity-[0.04]" aria-hidden="true">
+      <div className="pointer-events-none absolute inset-x-0 bottom-[-40px] z-0 text-center text-paper opacity-[0.05]" aria-hidden="true">
         <span className="font-sans text-[32vw] font-light leading-none tracking-[-0.04em]">LOBEU</span>
       </div>
     </div>
