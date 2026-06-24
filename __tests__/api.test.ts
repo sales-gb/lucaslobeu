@@ -235,28 +235,6 @@ describe('Links entity', () => {
   });
 });
 
-// ─── Journal ──────────────────────────────────────────────────
-describe('Journal entity', () => {
-  it('creates, reads, updates, deletes a journal entry', () => {
-    db.insert(schema.journal).values({
-      id: 'j1', slug: 'test-post', title: 'Test Post',
-      excerpt: 'A short excerpt', content: 'Full content',
-      readTime: '3 min', publishedAt: '2025-01-01',
-    }).run();
-
-    const j = db.select().from(schema.journal).where(eq(schema.journal.id, 'j1')).get();
-    expect(j?.title).toBe('Test Post');
-    expect(j?.readTime).toBe('3 min');
-
-    db.update(schema.journal).set({ title: 'Updated Post' }).where(eq(schema.journal.id, 'j1')).run();
-    const u = db.select().from(schema.journal).where(eq(schema.journal.id, 'j1')).get();
-    expect(u?.title).toBe('Updated Post');
-
-    db.delete(schema.journal).where(eq(schema.journal.id, 'j1')).run();
-    expect(db.select().from(schema.journal).where(eq(schema.journal.id, 'j1')).get()).toBeUndefined();
-  });
-});
-
 // ─── About Content ─────────────────────────────────────────────
 describe('AboutContent entity', () => {
   it('stores and reads all about fields', () => {

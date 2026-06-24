@@ -4,17 +4,31 @@
  * ───────────────────────────────────────────────────────────── */
 
 :root {
-  --ink: #181818;
-  --ink-soft: #242424;
-  --paper: #f4f1ea;
-  --paper-warm: #ede7da;
-  --paper-cool: #f8f6f1;
+  /* Tema ESCURO por padrão — espelha app/globals.css (@theme). */
+  --ink: #0e0d0b; /* preto quente — superfície base */
+  --ink-soft: #161310; /* preto levemente elevado */
+  --paper: #f9f9f8; /* branco (levíssimo calor) — texto e destaques */
+  --paper-warm: #efeee9;
+  --paper-cool: #fdfdfc;
   --accent: #b08d57;
   --accent-soft: #c9ae82;
-  --rule: rgba(10, 10, 10, 0.12);
-  --rule-strong: rgba(10, 10, 10, 0.22);
-  --muted: rgba(10, 10, 10, 0.55);
-  --muted-soft: rgba(10, 10, 10, 0.38);
+
+  /* Neutros sobre fundo escuro (base --paper, claros). */
+  --rule: rgba(249, 249, 248, 0.14);
+  --rule-strong: rgba(249, 249, 248, 0.24);
+  --muted: rgba(249, 249, 248, 0.6);
+  --muted-soft: rgba(249, 249, 248, 0.4);
+
+  /* Texto de corpo (.ll-body); reverte em .surface-light. */
+  --body-text: rgba(249, 249, 248, 0.82);
+  --body-text-strong: var(--paper);
+
+  /* FlowButton — sobre fundo ESCURO: contorno/texto claros, preenchimento
+     claro e texto escuro no hover. Revertido em .surface-light. */
+  --btn-fg: var(--paper);
+  --btn-fg-hover: var(--ink);
+  --btn-fill: var(--paper);
+  --btn-border: rgba(249, 249, 248, 0.4);
 
   --serif: "Instrument Serif", "Times New Roman", serif;
   --sans: "DM Sans", system-ui, sans-serif;
@@ -24,13 +38,37 @@
   --section-y: 140px;
 }
 
+/* ── Seções "brancas de destaque" ──────────────────────────────
+ * Superfície clara (creme/branco) com texto escuro. Reverte os neutros
+ * (muted/rule) e o texto de corpo para a base escura, para que as
+ * utilitárias text-muted / border-rule e a classe .ll-body continuem
+ * legíveis. Aplicar junto de `bg-paper text-ink`. */
+.surface-light {
+  --muted: rgba(14, 13, 11, 0.55);
+  --muted-soft: rgba(14, 13, 11, 0.38);
+  --rule: rgba(14, 13, 11, 0.12);
+  --rule-strong: rgba(14, 13, 11, 0.22);
+  --body-text: rgba(20, 18, 15, 0.9);
+  --body-text-strong: var(--ink);
+  --color-muted: var(--muted);
+  --color-muted-soft: var(--muted-soft);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  /* FlowButton sobre fundo CLARO: contorno/texto escuros, preenchimento
+     escuro e texto claro no hover. */
+  --btn-fg: var(--ink);
+  --btn-fg-hover: var(--paper);
+  --btn-fill: var(--ink);
+  --btn-border: rgba(14, 13, 11, 0.4);
+}
+
 /* reset universal movido para app/globals.css (@layer base) */
 html {
   scroll-behavior: smooth;
 }
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
   font-family: var(--sans);
   font-weight: 300;
   font-size: 16px;
@@ -67,8 +105,8 @@ svg {
   max-width: 100%;
 }
 ::selection {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 /* ─── Type primitives ─────────────────────────────────────── */
@@ -90,12 +128,12 @@ svg {
   font-weight: 300;
   font-size: 17px;
   line-height: 1.55;
-  color: var(--ink-soft);
+  color: var(--body-text);
 }
 .ll-body--large {
   font-size: 22px;
   line-height: 1.4;
-  color: var(--ink);
+  color: var(--body-text-strong);
   font-weight: 300;
 }
 /* .ll-eyebrow migrado para src/components/ui/eyebrow.tsx (Tailwind) */
@@ -347,7 +385,7 @@ body:has(.ll-nav--side) .ll-main {
   right: 0;
   height: 100%;
   width: min(420px, 100%);
-  background: var(--paper);
+  background: var(--ink);
   padding: 96px 48px 48px;
   display: flex;
   flex-direction: column;
@@ -439,7 +477,7 @@ body:has(.ll-nav--side) .ll-main {
   gap: 10px;
 }
 .ll-ham-foot a {
-  color: var(--ink);
+  color: var(--paper);
 }
 
 /* ─── HERO A · editorial ──────────────────────────────────── */
@@ -573,8 +611,6 @@ body:has(.ll-nav--side) .ll-main {
 /* ─── Contact ────────────────────────────────────────────── */
 /* .ll-contact-* migrado para a página de contato + features/contact/components/contact-form.tsx */
 
-/* ─── Journal ────────────────────────────────────────────── */
-
 /* .ll-404* migrado para src/app/not-found.tsx */
 
 /* ─── Footer ─────────────────────────────────────────────── */
@@ -596,40 +632,39 @@ body:has(.ll-nav--side) .ll-main {
   left: 0;
   right: 0;
   z-index: 80;
-  background: transparent;
-  border-bottom: none;
-  mix-blend-mode: difference;
+  /* Header fixo sólido, mesma cor do fundo (preto). */
+  background: var(--ink);
+  border-bottom: 0.5px solid var(--rule);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.ll-nav--top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px var(--page-x);
+/* Some no scroll para baixo; volta no scroll para cima ou quando para. */
+.ll-nav.is-hidden {
+  transform: translateY(-100%);
 }
 .ll-nav .ll-brandmark {
-  color: white;
-}
-.ll-nav .ll-brandmark svg circle {
-  fill: white;
+  color: var(--paper);
 }
 .ll-nav .ll-ham-trigger {
-  border-color: white;
-  color: white;
+  border-color: var(--paper);
+  color: var(--paper);
 }
 .ll-nav .ll-ham-trigger:hover {
-  background: white;
-  color: black;
+  background: var(--paper);
+  color: var(--ink);
 }
 .ll-nav .ll-ham-trigger.is-open {
-  background: white;
-  color: black;
+  background: var(--paper);
+  color: var(--ink);
   transform: rotate(180deg);
 }
-/* Ensure burger is always visible */
-.ll-ham-trigger {
-  display: inline-flex !important;
+/* Burger só no mobile (<1024px). No desktop: links centrais + CTA.
+   Necessário em CSS porque o display base de .ll-ham-trigger é unlayered
+   e venceria a utilitária lg:hidden do Tailwind. */
+@media (min-width: 1024px) {
+  .ll-nav .ll-ham-trigger {
+    display: none;
+  }
 }
-
 /* Close button inside panel */
 .ll-ham-close {
   position: absolute;
@@ -650,7 +685,7 @@ body:has(.ll-nav--side) .ll-main {
   display: block;
   width: 18px;
   height: 0.6px;
-  background: var(--ink);
+  background: var(--paper);
   transform-origin: center;
 }
 .ll-ham-close span:first-child {
@@ -750,10 +785,6 @@ body:has(.ll-nav--side) .ll-main {
   color: var(--paper);
 }
 
-/* ─── Journal v2 ─────────────────────────────────────────── */
-/* .ll-journal-hero* / .ll-journal-entry* migrados para
-   features/journal/components/journal-view.tsx */
-
 /* ════════════════════════════════════════════════════════════
  * HOME v3  ·  ll-h3-* namespace
  * 4-column editorial grid throughout
@@ -785,10 +816,6 @@ body:has(.ll-nav--side) .ll-main {
      CTA | img-zone | list (name · year, space-between internally)
 ── */
 /* .ll-h3-clients* migrado para features/home/components/clients-section.tsx */
-
-/* ─── h3 · JOURNAL sticky stack (createstudio-style) ────── */
-/* .ll-h3-journal* / .ll-h3-jsc-* migrados para
-   features/home/components/journal-section.tsx */
 
 /* ─── h3 · MARQUEE ───────────────────────────────────────── */
 /* .ll-h3-marquee migrado para marquee-section.tsx */

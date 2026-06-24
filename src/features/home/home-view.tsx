@@ -6,7 +6,6 @@ import { SelectedWorksSection } from "@/features/home/components/selected-works-
 import { TestimonialsSection } from "@/features/home/components/testimonials-section";
 import { ClientsSection } from "@/features/home/components/clients-section";
 import { FaqSection } from "@/features/home/components/faq-section";
-import { JournalSection } from "@/features/home/components/journal-section";
 import { MarqueeSection } from "@/features/home/components/marquee-section";
 import { CtaSection } from "@/features/home/components/cta-section";
 import {
@@ -26,7 +25,6 @@ import type { HomeData } from "@/features/home/api/get-home-data";
  */
 export function HomeView({
   projects,
-  journalEntries,
   heroRoles,
   heroDescription,
   aboutStatement,
@@ -59,7 +57,6 @@ export function HomeView({
       <TestimonialsSection testimonials={testimonials} />
       <ClientsSection clients={clients} />
       <FaqSection faqItems={faqItems} />
-      <JournalSection journalEntries={journalEntries} />
       <MarqueeSection />
       <CtaSection
         headline={ctaHeadline || DEFAULT_CTA_HEAD}

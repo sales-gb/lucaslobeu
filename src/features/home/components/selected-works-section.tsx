@@ -4,10 +4,9 @@ import { useRef } from "react";
 import Link from "next/link";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
-import { buttonVariants } from "@/components/ui/button";
+import { FlowButton } from "@/components/ui/flow-button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { SectionMarker } from "@/components/ui/section-marker";
-import { cn } from "@/lib/utils/cn";
 import type { Project } from "@/lib/db/schema";
 
 // ─── SELECTED WORKS · bubble/reveal cards ────────────────────
@@ -165,12 +164,7 @@ export function SelectedWorksSection({ projects }: { projects: Project[] }) {
         </div>
         <div className="[grid-column:4/5] max-lg:[grid-column:2/3] max-sm:[grid-column:1]">
           <Reveal y={12} delay={80}>
-            <Link
-              href="/projects"
-              className={cn(buttonVariants({ variant: "outline" }), "w-full")}
-            >
-              Ver todos os trabalhos →
-            </Link>
+            <FlowButton text="Ver todos os trabalhos" href="/projects" />
           </Reveal>
         </div>
       </div>

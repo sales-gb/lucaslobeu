@@ -194,7 +194,7 @@ export default async function AboutPage() {
         <div className="grid grid-cols-4 gap-x-12 gap-y-8 max-lg:grid-cols-2 max-sm:grid-cols-1">
           {displayClients.map((client, i) => (
             <Reveal key={client} y={12} delay={i * 30}>
-              <div className="group relative grid cursor-default grid-cols-[28px_1fr_16px] items-baseline gap-[14px] border-b-[0.5px] border-rule py-4 transition-[padding] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-2 after:absolute after:inset-x-0 after:-bottom-px after:h-[0.5px] after:origin-right after:scale-x-0 after:bg-ink after:transition-transform hover:after:animate-[ll-link-sweep_0.9s_cubic-bezier(0.7,0,0.3,1)_forwards]">
+              <div className="group relative grid cursor-default grid-cols-[28px_1fr_16px] items-baseline gap-[14px] border-b-[0.5px] border-rule py-4 transition-[padding] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-2 after:absolute after:inset-x-0 after:-bottom-px after:h-[0.5px] after:origin-right after:scale-x-0 after:bg-paper after:transition-transform hover:after:animate-[ll-link-sweep_0.9s_cubic-bezier(0.7,0,0.3,1)_forwards]">
                 <span className="ll-mono muted text-[10px]">{String(i + 1).padStart(2, '0')}</span>
                 <span className="font-sans text-[20px] font-normal">{client}</span>
                 <span className="font-mono text-[12px] text-muted opacity-0 -translate-x-[6px] transition-[opacity,transform] duration-300 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100">

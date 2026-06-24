@@ -3,7 +3,6 @@ import type {
   TestimonialItem,
   FaqItem,
   ClientItem,
-  JournalEntry,
 } from "@/features/home/types";
 
 // ─── Textos default das seções (usados quando o CMS não traz valor) ──────────
@@ -97,34 +96,4 @@ export const DEFAULT_CLIENTS: ClientItem[] = [
   { name: "Tech Forward", category: "2023/" },
   { name: "Visão Criativa", category: "2022/" },
   { name: "Arte & Forma", category: "2021/" },
-];
-
-export const FALLBACK_JOURNAL: JournalEntry[] = [
-  {
-    id: "1",
-    slug: "sobre-o-caderno",
-    title: "Sobre o caderno que precede a câmera",
-    excerpt:
-      "Toda imagem boa tem um peso antes de ter uma forma. O planejamento editorial define tudo.",
-    readTime: "4 min",
-    publishedAt: "2026-03-01",
-  },
-  {
-    id: "2",
-    slug: "luz-natural-inverno",
-    title: "O que a luz natural de inverno ensina",
-    excerpt:
-      "A qualidade da luz muda a percepção do produto. Fotografar no inverno paulistano tem nuances que nenhum estúdio replica.",
-    readTime: "3 min",
-    publishedAt: "2026-02-01",
-  },
-  {
-    id: "3",
-    slug: "metodo-editorial",
-    title: "Por que todo projeto começa por um briefing editorial",
-    excerpt:
-      "Antes de qualquer câmera ligada, o projeto precisa existir em palavras. A metodologia que usamos para cada cliente.",
-    readTime: "6 min",
-    publishedAt: "2026-01-01",
-  },
 ];

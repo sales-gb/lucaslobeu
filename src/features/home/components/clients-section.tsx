@@ -27,7 +27,7 @@ export function ClientsSection({ clients }: { clients: ClientItem[] }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <section className="overflow-hidden border-y-[0.5px] border-rule">
+    <section className="surface-light overflow-hidden border-y-[0.5px] border-rule bg-paper text-ink">
       {/* ── Header: título (esq) · descrição (dir, alinhada ao inferior) ── */}
       <div className="flex items-end justify-between px-[var(--page-x)] pt-20 pb-10 max-[900px]:flex-col max-[900px]:items-start max-[900px]:gap-8 max-[900px]:py-[60px]">
         <div>

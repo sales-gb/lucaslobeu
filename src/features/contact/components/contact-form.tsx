@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { Eyebrow } from '@/components/ui/eyebrow';
+import { FlowButton } from '@/components/ui/flow-button';
 
 type FormState = 'idle' | 'sending' | 'sent' | 'error';
 
@@ -18,7 +19,7 @@ interface FormData {
 
 // Campo de input: sans (respeita o override de fonte do design); o textarea usa serif.
 const FIELD =
-  'w-full border-b-[0.5px] border-ink bg-transparent py-2 text-[22px] font-normal placeholder:font-light placeholder:italic placeholder:text-muted-soft';
+  'w-full border-b-[0.5px] border-paper bg-transparent py-2 text-[22px] font-normal placeholder:font-light placeholder:italic placeholder:text-muted-soft';
 
 export default function ContactForm() {
   const [state, setState] = useState<FormState>('idle');
@@ -112,7 +113,7 @@ export default function ContactForm() {
           {TIPOS.map((tipo) => (
             <label
               key={tipo}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full border-[0.5px] border-ink px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] has-[:checked]:bg-ink has-[:checked]:text-paper"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full border-[0.5px] border-paper px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] has-[:checked]:bg-paper has-[:checked]:text-ink"
             >
               <input
                 type="checkbox"
@@ -139,14 +140,12 @@ export default function ContactForm() {
         />
       </div>
 
-      <button
+      <FlowButton
         type="submit"
-        className="inline-flex items-center justify-between gap-[14px] bg-ink px-6 py-[18px] font-mono text-[13px] uppercase tracking-[0.2em] text-paper transition-[gap] duration-300 hover:gap-7"
+        text={state === 'sending' ? 'Enviando…' : 'Enviar mensagem'}
         disabled={state === 'sending'}
-      >
-        <span>{state === 'sending' ? 'Enviando…' : 'Enviar mensagem'}</span>
-        <span>{state === 'sending' ? '…' : '→'}</span>
-      </button>
+        className="mt-1 self-start"
+      />
     </form>
   );
 }

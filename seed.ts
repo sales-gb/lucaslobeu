@@ -244,17 +244,6 @@ for (const l of LINKS) {
   db.insert(schema.links).values(l).run();
 }
 
-// ─── Journal ──────────────────────────────────────────────────
-db.delete(schema.journal).run();
-const JOURNAL = [
-  { id: 'j1', slug: 'sobre-a-paciencia-da-luz', title: 'Sobre a paciência da luz', excerpt: 'Notas de produção de Silêncio Azul. Por que filmar três meses antes de filmar.', content: 'Texto completo em breve.', readTime: '4 min', publishedAt: '2025-04-01' },
-  { id: 'j2', slug: 'caderno-de-vidro', title: 'Caderno de vidro', excerpt: 'Documentação de uma exposição que documenta a si mesma.', content: 'Texto completo em breve.', readTime: '3 min', publishedAt: '2025-02-01' },
-  { id: 'j3', slug: 'fogos-domesticos', title: 'Fogos domésticos', excerpt: 'Inventário das chamas que apagam sozinhas.', content: 'Texto completo em breve.', readTime: '2 min', publishedAt: '2024-11-01' },
-];
-for (const j of JOURNAL) {
-  db.insert(schema.journal).values(j).run();
-}
-
 // ─── About Content ─────────────────────────────────────────────
 db.delete(schema.aboutContent).run();
 db.insert(schema.aboutContent).values({
@@ -286,5 +275,4 @@ console.log('  Usuário: lucas@lobeu.com / lobeu2026');
 console.log('  Projetos:', PROJECTS.length);
 console.log('  Tiles:', TILES.length);
 console.log('  Links:', LINKS.length);
-console.log('  Journal:', JOURNAL.length);
 sqlite.close();

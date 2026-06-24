@@ -1,12 +1,11 @@
 import { getDb, schema } from "@/lib/db";
-import { eq, asc, desc } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import type { Project } from "@/lib/db/schema";
 import type {
   StatItem,
   TestimonialItem,
   FaqItem,
   ClientItem,
-  JournalEntry,
 } from "@/features/home/types";
 
 function parseJson<T>(val: unknown, fallback: T): T {
@@ -23,7 +22,6 @@ function parseJson<T>(val: unknown, fallback: T): T {
 
 export interface HomeData {
   projects: Project[];
-  journalEntries: JournalEntry[];
   heroRoles: string | null;
   heroDescription: string | null;
   aboutStatement: string | null;
@@ -41,8 +39,8 @@ export interface HomeData {
 }
 
 /**
- * Server-side data layer da home. Lê home_settings + projetos em destaque +
- * últimas entradas do diário e devolve o objeto pronto para o <HomeView>.
+ * Server-side data layer da home. Lê home_settings + projetos em destaque e
+ * devolve o objeto pronto para o <HomeView>.
  */
 export async function getHomeData(): Promise<HomeData> {
   try {
@@ -60,15 +58,8 @@ export async function getHomeData(): Promise<HomeData> {
       .orderBy(asc(schema.projects.sortOrder))
       .limit(settings?.homeFeaturedCount ?? 5);
 
-    const journalEntries = await db
-      .select()
-      .from(schema.journal)
-      .orderBy(desc(schema.journal.publishedAt))
-      .limit(3);
-
     return {
       projects: featuredProjects,
-      journalEntries: journalEntries as unknown as JournalEntry[],
       heroRoles: settings?.heroRoles ?? null,
       heroDescription: settings?.heroDescription ?? null,
       aboutStatement: settings?.aboutStatement ?? null,
@@ -87,7 +78,6 @@ export async function getHomeData(): Promise<HomeData> {
   } catch {
     return {
       projects: [],
-      journalEntries: [],
       heroRoles: null,
       heroDescription: null,
       aboutStatement: null,
