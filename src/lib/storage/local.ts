@@ -6,7 +6,7 @@ import crypto from 'crypto';
 const UPLOADS_DIR = process.env.UPLOADS_DIR ?? path.join(process.cwd(), 'public', 'uploads');
 
 export const localAdapter: StorageAdapter = {
-  async save(file: Buffer, filename: string, mimeType: string): Promise<string> {
+  async save(file: Buffer, filename: string, _mimeType: string): Promise<string> {
     await fs.mkdir(UPLOADS_DIR, { recursive: true });
     const ext = path.extname(filename).toLowerCase();
     const hash = crypto.createHash('sha256').update(file).digest('hex').slice(0, 16);

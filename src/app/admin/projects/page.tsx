@@ -164,7 +164,7 @@ function DrawerContent({ section, data, onChange }: { section: SectionId | null;
     case 'hero': return (
       <div className="adm-field">
         <label className="adm-label">Subtítulo (lede da página)</label>
-        <p className="adm-muted" style={{ fontSize: 11, marginBottom: 6 }}>Exibido abaixo do título "Projetos" no hero escuro.</p>
+        <p className="adm-muted" style={{ fontSize: 11, marginBottom: 6 }}>Exibido abaixo do título &quot;Projetos&quot; no hero escuro.</p>
         <textarea
           className="adm-input adm-textarea"
           rows={3}

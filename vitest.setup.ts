@@ -5,6 +5,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from './src/lib/db/schema';
 import bcrypt from 'bcryptjs';
 import path from 'path';
+import fs from 'fs';
 
 const TEST_DB = path.join(process.cwd(), 'test.db');
 
@@ -34,12 +35,11 @@ beforeAll(async () => {
   }).onConflictDoNothing().run();
 
   // Make db available globally for tests
-  (globalThis as any).__testDb = db;
+  (globalThis as Record<string, unknown>).__testDb = db;
 });
 
 afterAll(() => {
   // Clean up test DB
-  const fs = require('fs');
   try { fs.unlinkSync(TEST_DB); } catch {}
   try { fs.rmSync(path.join(process.cwd(), 'test-uploads'), { recursive: true, force: true }); } catch {}
 });

@@ -8,10 +8,11 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from '../src/lib/db/schema';
 import bcrypt from 'bcryptjs';
-import { eq, desc } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { UPLOAD_LIMITS } from '../src/lib/storage/interface';
 import path from 'path';
 import fs from 'fs/promises';
+import { unlinkSync } from 'fs';
 
 // ─── Test DB setup ──────────────────────────────────────────────
 const TEST_DB_PATH = path.join(process.cwd(), '__test_api.db');
@@ -22,14 +23,14 @@ function setupDb() {
   sqlite.pragma('journal_mode = WAL');
   sqlite.pragma('foreign_keys = ON');
   db = drizzle(sqlite, { schema });
-  migrate(db, { migrationsFolder: './lib/db/migrations' });
+  migrate(db, { migrationsFolder: './src/lib/db/migrations' });
   return sqlite;
 }
 
 let sqlite: ReturnType<typeof Database>;
 beforeEach(() => {
   // Fresh DB per test group
-  try { require('fs').unlinkSync(TEST_DB_PATH); } catch {}
+  try { unlinkSync(TEST_DB_PATH); } catch {}
   sqlite = setupDb();
 });
 
@@ -37,7 +38,7 @@ beforeEach(() => {
 import { afterAll } from 'vitest';
 afterAll(() => {
   try { sqlite?.close(); } catch {}
-  try { require('fs').unlinkSync(TEST_DB_PATH); } catch {}
+  try { unlinkSync(TEST_DB_PATH); } catch {}
 });
 
 // ─── Upload Limits ─────────────────────────────────────────────
@@ -53,8 +54,9 @@ describe('UPLOAD_LIMITS', () => {
     }
   });
 
-  it('rejects non-image types', () => {
-    const rejected = ['application/pdf', 'text/plain', 'video/mp4'];
+  it('rejects disallowed types', () => {
+    // video/mp4 é permitido (showcase em vídeo); só tipos realmente inválidos são rejeitados.
+    const rejected = ['application/pdf', 'text/plain'];
     for (const mime of rejected) {
       expect(UPLOAD_LIMITS.allowedMimeTypes).not.toContain(mime);
     }
@@ -184,7 +186,9 @@ describe('Projects entity — field by field', () => {
   it('validates all required fields are present', () => {
     // Missing required fields should throw
     expect(() => {
-      (db.insert(schema.projects) as any).values({ id: 'bad' }).run();
+      db.insert(schema.projects)
+        .values({ id: 'bad' } as typeof schema.projects.$inferInsert)
+        .run();
     }).toThrow();
   });
 });
@@ -279,9 +283,9 @@ describe('AboutContent entity', () => {
 // ─── Media entity ──────────────────────────────────────────────
 describe('Media entity', () => {
   it('validates mime type against UPLOAD_LIMITS', () => {
-    const badTypes = ['video/mp4', 'application/pdf', 'text/html'];
+    const badTypes = ['application/pdf', 'text/html'];
     for (const t of badTypes) {
-      expect(UPLOAD_LIMITS.allowedMimeTypes.includes(t as any)).toBe(false);
+      expect(UPLOAD_LIMITS.allowedMimeTypes.includes(t as (typeof UPLOAD_LIMITS.allowedMimeTypes)[number])).toBe(false);
     }
   });
 
@@ -323,7 +327,7 @@ describe('Local storage adapter', () => {
 
   it('saves a file and returns the stored filename', async () => {
     process.env.UPLOADS_DIR = TEST_UPLOADS;
-    const { localAdapter } = await import('../lib/storage/local');
+    const { localAdapter } = await import('../src/lib/storage/local');
     const buf = Buffer.from('fake image data');
     const stored = await localAdapter.save(buf, 'test.jpg', 'image/jpeg');
     expect(stored).toMatch(/\.jpg$/);
@@ -333,7 +337,7 @@ describe('Local storage adapter', () => {
   });
 
   it('getUrl returns /uploads/{filename}', async () => {
-    const { localAdapter } = await import('../lib/storage/local');
+    const { localAdapter } = await import('../src/lib/storage/local');
     expect(localAdapter.getUrl('abc123.jpg')).toBe('/uploads/abc123.jpg');
   });
 });

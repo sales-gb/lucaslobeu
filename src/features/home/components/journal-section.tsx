@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
