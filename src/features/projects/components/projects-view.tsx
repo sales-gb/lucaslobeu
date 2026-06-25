@@ -9,14 +9,8 @@ import TextReveal from '@/components/ui/text-reveal';
 import { Eyebrow } from '@/components/ui/eyebrow';
 import { SectionMarker } from '@/components/ui/section-marker';
 import { cn } from '@/lib/utils/cn';
-import type { Project } from '@/lib/db/schema';
+import { useTrailReveal } from '@/components/ui/use-trail-reveal';
 import type { ProjectWithUrls } from '@/features/projects/types';
-
-const REVEAL_TONE: Record<'light' | 'mid' | 'dark', 'light' | 'mid' | 'dark'> = {
-  light: 'dark',
-  mid: 'dark',
-  dark: 'light',
-};
 
 type Filter = 'Todos' | 'Filme' | 'Foto' | 'Social';
 const FILTERS: Filter[] = ['Todos', 'Filme', 'Foto', 'Social'];
@@ -139,36 +133,11 @@ function ProjectCard({ project, index }: { project: ProjectWithUrls; index: numb
   const ratioMap: Record<string, string> = { tall: '3/4', wide: '4/3', square: '1/1' };
   const ratio = ratioMap[project.coverKind ?? 'tall'] ?? '3/4';
   const [hovered, setHovered] = useState(false);
-  const imgRef = useRef<HTMLDivElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-
-  const getPercent = (e: React.MouseEvent) => {
-    const rect = imgRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 50, y: 50 };
-    return {
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    };
-  };
-
-  const reveal = (e: React.MouseEvent) => {
-    const { x, y } = getPercent(e);
-    const p = previewRef.current;
-    if (!p) return;
-    p.style.transition = 'none';
-    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-    void p.offsetWidth;
-    p.style.transition = 'clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)';
-    p.style.clipPath = `circle(150% at ${x}% ${y}%)`;
-  };
-
-  const conceal = (e: React.MouseEvent) => {
-    const { x, y } = getPercent(e);
-    const p = previewRef.current;
-    if (!p) return;
-    p.style.transition = 'clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1)';
-    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-  };
+  const revealUrl = project.coverHoverImageUrl ?? project.coverImageUrl;
+  const { containerRef, layerRef, onMouseMove, onMouseLeave } = useTrailReveal(
+    revealUrl,
+    project.coverHoverImageUrl ? undefined : 'saturate(1.5) contrast(1.08)',
+  );
 
   return (
     <Reveal y={20} delay={index * 40}>
@@ -176,28 +145,25 @@ function ProjectCard({ project, index }: { project: ProjectWithUrls; index: numb
         href={`/projects/${project.slug}`}
         className="group flex flex-col gap-4"
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseLeave={() => {
+          setHovered(false);
+          onMouseLeave();
+        }}
       >
-        <div className="relative overflow-hidden" ref={imgRef} onMouseEnter={reveal} onMouseLeave={conceal}>
-          <motion.div
-            className="transition-[filter] duration-500 group-hover:brightness-[0.92]"
-            animate={{ scale: hovered ? 1.05 : 1 }}
-            transition={{ duration: 0.7, ease: EASE_OUT }}
-          >
+        <div
+          className="relative overflow-hidden"
+          ref={containerRef}
+          onMouseMove={onMouseMove}
+        >
+          <div className="transition-[filter] duration-500 group-hover:brightness-[0.9]">
             <ImageBlock tone={tone} ratio={ratio} src={project.coverImageUrl} />
-          </motion.div>
-          <div
-            ref={previewRef}
-            className="pointer-events-none absolute inset-0 z-[2] [clip-path:circle(0%_at_50%_50%)] [&>figure]:h-full [&>figure>div]:h-full"
-            aria-hidden
-          >
-            <ImageBlock
-              tone={project.coverHoverImageUrl ? tone : REVEAL_TONE[tone]}
-              ratio={ratio}
-              src={project.coverHoverImageUrl ?? project.coverImageUrl}
-              style={{ height: '100%' }}
-            />
           </div>
+          {/* Camada do pincel: carimbos são anexados aqui pelo hook. */}
+          <div
+            ref={layerRef}
+            className="pointer-events-none absolute inset-0 z-[2] overflow-hidden"
+            aria-hidden
+          />
           <motion.div
             className="absolute inset-x-4 bottom-4 z-[3] flex items-end justify-between text-paper [mix-blend-mode:difference]"
             animate={{ opacity: hovered ? 1 : 0 }}
@@ -254,18 +220,31 @@ export default function ProjectsClient({
     Social: projects.filter((p) => p.category === 'Social').length,
   };
 
-  // Fibonacci layout: alternating A (2 items: col1 + col3) and B (1 item: col2)
-  const groups: Array<{ type: 'A' | 'B'; items: Project[] }> = [];
+  // Layout editorial não-uniforme. Em vez de um padrão fixo, percorremos um
+  // ciclo de "templates de linha" sobre uma grade de 12 colunas. Cada célula
+  // define posição (col) e um deslocamento vertical (mt) que quebra a baseline,
+  // produzindo um ritmo orgânico: 2 desalinhados → 1 → 1 → 2 desalinhados → …
+  type Cell = { col: string; mt: number };
+  const ROW_TEMPLATES: Cell[][] = [
+    [{ col: '1 / 8', mt: 0 }, { col: '9 / 13', mt: 132 }],   // dupla, direita mais baixa
+    [{ col: '3 / 9', mt: 0 }],                                // único, centro-esquerda
+    [{ col: '7 / 13', mt: 48 }],                              // único, direita, descido
+    [{ col: '1 / 6', mt: 96 }, { col: '7 / 13', mt: 0 }],     // dupla, esquerda mais baixa
+    [{ col: '2 / 8', mt: 0 }],                                // único, largo à esquerda
+    [{ col: '6 / 12', mt: 72 }],                              // único, deslocado
+  ];
+
+  const rows: Array<{ item: ProjectWithUrls; cell: Cell; index: number }[]> = [];
   let i = 0;
+  let t = 0;
   while (i < filtered.length) {
-    if (groups.length % 2 === 0) {
-      const items = filtered.slice(i, Math.min(i + 2, filtered.length));
-      groups.push({ type: 'A', items });
-      i += items.length;
-    } else {
-      groups.push({ type: 'B', items: [filtered[i]] });
-      i += 1;
-    }
+    const tpl = ROW_TEMPLATES[t % ROW_TEMPLATES.length];
+    const row = tpl
+      .map((cell, c) => ({ item: filtered[i + c], cell, index: i + c }))
+      .filter((r) => !!r.item);
+    rows.push(row);
+    i += row.length;
+    t += 1;
   }
 
   return (
@@ -296,36 +275,34 @@ export default function ProjectsClient({
         </div>
       </div>
 
-      {/* Fibonacci grid */}
-      <div className="flex flex-col gap-20 px-[var(--page-x)] pt-20 pb-[120px]">
-        {groups.length === 0 && (
+      {/* Non-uniform editorial grid */}
+      <div className="flex flex-col gap-7 px-[var(--page-x)] pt-20 pb-[120px] max-[900px]:gap-12">
+        {rows.length === 0 && (
           <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-paper/40">
             Nenhum projeto encontrado.
           </p>
         )}
-        {groups.map((group, gi) => {
-          const baseIdx = groups.slice(0, gi).reduce((sum, g) => sum + g.items.length, 0);
-          const rowBase = 'grid grid-cols-3 items-start gap-7 max-[900px]:grid-cols-2 max-[900px]:gap-5 max-md:grid-cols-1';
-          const gap = <div className="max-[900px]:hidden" aria-hidden />;
-          if (group.type === 'A') {
-            return (
-              <div key={gi} className={rowBase}>
-                <ProjectCard project={group.items[0]} index={baseIdx} />
-                {gap}
-                {group.items[1]
-                  ? <ProjectCard project={group.items[1]} index={baseIdx + 1} />
-                  : gap}
+        {rows.map((row, ri) => (
+          <div
+            key={ri}
+            className="grid grid-cols-12 items-start gap-7 max-[900px]:flex max-[900px]:flex-col max-[900px]:gap-12"
+          >
+            {row.map(({ item, cell, index }) => (
+              <div
+                key={item.id}
+                className="[grid-column:var(--col)] mt-[var(--mt)] max-[900px]:!mt-0"
+                style={
+                  {
+                    '--col': cell.col,
+                    '--mt': `${cell.mt}px`,
+                  } as React.CSSProperties
+                }
+              >
+                <ProjectCard project={item} index={index} />
               </div>
-            );
-          }
-          return (
-            <div key={gi} className={cn(rowBase, 'max-[900px]:grid-cols-1')}>
-              {gap}
-              <ProjectCard project={group.items[0]} index={baseIdx} />
-              {gap}
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center justify-between border-t-[0.5px] border-paper/8 px-[var(--page-x)] pt-10 pb-20">

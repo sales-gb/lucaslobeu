@@ -4,9 +4,14 @@
  * Coexists with site brand: ink/paper accent retained
  * ───────────────────────────────────────────────────────────── */
 
-.ll-admin {
+/* Design tokens do admin. Aplicados tanto na shell (.ll-admin) quanto na tela
+   de login (.adm-login), que NÃO usa a shell — sem isto, o login herdava o
+   texto branco (var(--paper)) do body do portfólio sobre cartões brancos. */
+.ll-admin,
+.adm-login {
   --bg:        #FAFAFA;
   --surface:   #FFFFFF;
+  --surface-1: #FFFFFF;
   --surface-2: #F5F5F5;
   --border:    #E5E5E5;
   --border-strong: #D4D4D4;
@@ -16,7 +21,9 @@
   --accent-blue:  #0A0A0A;
   --danger:    #B91C1C;
   --success:   #15803D;
+}
 
+.ll-admin {
   position: fixed; inset: 0;
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -47,10 +54,12 @@
 .adm-login {
   position: fixed; inset: 0;
   display: grid; grid-template-columns: 1fr 1fr;
-  background: var(--paper);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
   cursor: auto;
 }
-.adm-login-card { background: #fff; padding: 64px 72px; display: flex; flex-direction: column; gap: 36px; justify-content: center; border-right: 1px solid var(--border); }
+.adm-login-card { background: var(--surface); color: var(--fg); padding: 64px 72px; display: flex; flex-direction: column; gap: 36px; justify-content: center; border-right: 1px solid var(--border); }
 .adm-login-brand { display: flex; gap: 16px; align-items: center; }
 .adm-login-brand-text { display: flex; flex-direction: column; gap: 4px; }
 .adm-login-form { display: flex; flex-direction: column; gap: 18px; max-width: 360px; }

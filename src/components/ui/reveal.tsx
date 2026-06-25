@@ -9,6 +9,7 @@ interface RevealProps {
   delay?: number
   duration?: number
   className?: string
+  style?: React.CSSProperties
   once?: boolean
 }
 
@@ -18,6 +19,7 @@ export default function Reveal({
   delay = 0,
   duration = 0.7,
   className,
+  style,
   once = true,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -34,6 +36,7 @@ export default function Reveal({
         ease: [0.22, 1, 0.36, 1],
       }}
       className={className}
+      style={style}
     >
       {children}
     </motion.div>

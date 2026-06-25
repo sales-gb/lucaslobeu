@@ -893,3 +893,27 @@ body:has(.ll-nav--side) .ll-main {
 .ll-manifesto-step-label {
   font-family: var(--sans);
 }
+
+/* ── Pincel de rastro (reveal por carimbos que seguem o cursor) ───────────
+   Cada carimbo é uma janela circular para a imagem (alinhada ao card). Aparece
+   rápido e some, deixando um rastro curto ao longo do caminho do mouse. */
+.ll-brush {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  opacity: 0;
+  will-change: opacity;
+  animation-name: ll-brush-fade;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes ll-brush-fade {
+  0% { opacity: 0; }
+  14% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ll-brush { display: none; }
+}
+

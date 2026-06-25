@@ -42,7 +42,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${instrumentSerif.variable} ${dmSans.variable} ${jetbrains.variable}`}
     >
-      <body>
+      {/* suppressHydrationWarning: extensões de navegador (ex. Cold Turkey)
+          injetam atributos no <body> antes do React hidratar — aviso benigno. */}
+      <body suppressHydrationWarning>
         <ScrollProgressBar />
         {children}
       </body>

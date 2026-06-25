@@ -1,88 +1,53 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import Reveal from "@/components/ui/reveal";
 import ImageBlock from "@/components/ui/image-block";
 import { FlowButton } from "@/components/ui/flow-button";
 import { Eyebrow } from "@/components/ui/eyebrow";
 import { SectionMarker } from "@/components/ui/section-marker";
-import type { Project } from "@/lib/db/schema";
+import { useTrailReveal } from "@/components/ui/use-trail-reveal";
+import type { ProjectWithUrls } from "@/features/projects/types";
 
-// ─── SELECTED WORKS · bubble/reveal cards ────────────────────
-const SW_TONES: Record<"dark" | "mid" | "light", string> = {
-  dark: "repeating-linear-gradient(135deg, #1A1A1A 0px, #1A1A1A 2px, #0A0A0A 2px, #0A0A0A 12px)",
-  mid: "repeating-linear-gradient(135deg, #9C9183 0px, #9C9183 2px, #8A7F72 2px, #8A7F72 12px)",
-  light:
-    "repeating-linear-gradient(135deg, #E9E3D5 0px, #E9E3D5 2px, #DDD7C8 2px, #DDD7C8 12px)",
-};
+// Layout editorial não-uniforme sobre grade de 12 colunas. O ciclo de templates
+// alterna larguras e deslocamentos verticais (mt) para quebrar a baseline e
+// adaptar-se à quantidade definida no CRM (homeFeaturedCount).
+type Cell = { col: string; mt: number };
+const HOME_TEMPLATES: Cell[][] = [
+  [{ col: "2 / 7", mt: 0 }, { col: "8 / 13", mt: 96 }], // par, direita descida
+  [{ col: "1 / 6", mt: 36 }], // único, esquerda
+  [{ col: "7 / 13", mt: 0 }], // único, direita
+  [{ col: "3 / 10", mt: 64 }], // único, largo ao centro
+];
 
-// Grid editorial 4-col: row 1 carta central (cols 2-3); row 2 offset (col 1 + cols 3-4).
-const PROJ_PLACE = {
-  center:
-    "[grid-column:2/4] [grid-row:1] max-lg:[grid-column:auto] max-lg:[grid-row:auto] max-sm:[grid-column:1]",
-  left: "[grid-column:1/2] [grid-row:2] max-lg:[grid-column:auto] max-lg:[grid-row:auto] max-sm:[grid-column:1]",
-  right:
-    "[grid-column:3/5] [grid-row:2] max-lg:[grid-column:auto] max-lg:[grid-row:auto] max-sm:[grid-column:1]",
-};
-
-function SwCard({
-  project,
-  previewTone = "dark",
-}: {
-  project: Project;
-  previewTone?: "dark" | "mid" | "light";
-}) {
-  const imgRef = useRef<HTMLDivElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-
-  const getPercent = (e: React.MouseEvent) => {
-    const rect = imgRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 50, y: 50 };
-    return {
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    };
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    const { x, y } = getPercent(e);
-    const p = previewRef.current;
-    if (!p) return;
-    p.style.transition = "none";
-    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-    void p.offsetWidth; // force reflow for transition to kick in
-    p.style.transition = "clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1)";
-    p.style.clipPath = `circle(150% at ${x}% ${y}%)`;
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent) => {
-    const { x, y } = getPercent(e);
-    const p = previewRef.current;
-    if (!p) return;
-    p.style.transition = "clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1)";
-    p.style.clipPath = `circle(0% at ${x}% ${y}%)`;
-  };
-
+function SwCard({ project }: { project: ProjectWithUrls }) {
   const coverTone = (project.coverTone as "dark" | "mid" | "light") ?? "mid";
+  // Imagem revelada pelo pincel: a 2ª imagem (hover) ou, sem ela, a própria
+  // capa com um filtro (para o rastro ficar visível).
+  const revealUrl = project.coverHoverImageUrl ?? project.coverImageUrl;
+  const { containerRef, layerRef, onMouseMove, onMouseLeave } = useTrailReveal(
+    revealUrl,
+    project.coverHoverImageUrl ? undefined : "saturate(1.5) contrast(1.08)",
+  );
 
   return (
     <Link
       href={`/projects/${project.slug}`}
       className="group block text-inherit no-underline"
+      onMouseLeave={onMouseLeave}
     >
       <div className="flex flex-col">
         <div
-          ref={imgRef}
+          ref={containerRef}
           className="relative cursor-pointer overflow-hidden rounded-[2px]"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseMove={onMouseMove}
         >
-          <ImageBlock tone={coverTone} ratio="4/3" />
+          <ImageBlock tone={coverTone} ratio="4/3" src={project.coverImageUrl} />
+          {/* Camada do pincel: carimbos são anexados aqui pelo hook. */}
           <div
-            ref={previewRef}
-            className="pointer-events-none absolute inset-0 [clip-path:circle(0%_at_50%_50%)]"
-            style={{ background: SW_TONES[previewTone] }}
+            ref={layerRef}
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden
           />
         </div>
         <div className="mt-4 flex flex-col gap-1.5 border-t-[0.5px] border-rule pt-4">
@@ -101,8 +66,25 @@ function SwCard({
   );
 }
 
-export function SelectedWorksSection({ projects }: { projects: Project[] }) {
-  const [proj1, proj2, proj3] = projects;
+export function SelectedWorksSection({
+  projects,
+}: {
+  projects: ProjectWithUrls[];
+}) {
+  // Constrói as linhas a partir do ciclo de templates, respeitando a
+  // quantidade vinda do CRM (todos os projetos recebidos são exibidos).
+  const rows: Array<{ project: ProjectWithUrls; cell: Cell }[]> = [];
+  let i = 0;
+  let t = 0;
+  while (i < projects.length) {
+    const tpl = HOME_TEMPLATES[t % HOME_TEMPLATES.length];
+    const row = tpl
+      .map((cell, c) => ({ project: projects[i + c], cell }))
+      .filter((r) => !!r.project);
+    rows.push(row);
+    i += row.length;
+    t += 1;
+  }
 
   return (
     <section className="border-b-[0.5px] border-rule px-[var(--page-x)] py-[var(--section-y)]">
@@ -134,23 +116,36 @@ export function SelectedWorksSection({ projects }: { projects: Project[] }) {
         </div>
       </div>
 
-      {/* Cards: row 1 centered (cols 2–3), row 2 offset (col 1 + cols 3–4) */}
-      <div className="grid grid-cols-4 gap-x-8 gap-y-12 max-lg:grid-cols-2 max-sm:grid-cols-1">
-        {proj1 && (
-          <Reveal y={28} delay={0} className={PROJ_PLACE.center}>
-            <SwCard project={proj1} previewTone="light" />
-          </Reveal>
+      {/* Cards: grade editorial não-uniforme dirigida pelo CRM */}
+      <div className="flex flex-col gap-8 max-lg:gap-12">
+        {rows.length === 0 && (
+          <p className="ll-mono small-cap muted" style={{ fontSize: 12 }}>
+            Nenhum projeto em destaque.
+          </p>
         )}
-        {proj2 && (
-          <Reveal y={28} delay={80} className={PROJ_PLACE.left}>
-            <SwCard project={proj2} previewTone="dark" />
-          </Reveal>
-        )}
-        {proj3 && (
-          <Reveal y={28} delay={160} className={PROJ_PLACE.right}>
-            <SwCard project={proj3} previewTone="mid" />
-          </Reveal>
-        )}
+        {rows.map((row, ri) => (
+          <div
+            key={ri}
+            className="grid grid-cols-12 items-start gap-x-8 max-lg:flex max-lg:flex-col max-lg:gap-12"
+          >
+            {row.map(({ project, cell }, ci) => (
+              <Reveal
+                key={project.id}
+                y={28}
+                delay={ci * 80}
+                className="[grid-column:var(--col)] mt-[var(--mt)] max-lg:!mt-0"
+                style={
+                  {
+                    "--col": cell.col,
+                    "--mt": `${cell.mt}px`,
+                  } as React.CSSProperties
+                }
+              >
+                <SwCard project={project} />
+              </Reveal>
+            ))}
+          </div>
+        ))}
       </div>
 
       {/* Footer: text cols 1–2, CTA button col 4 */}

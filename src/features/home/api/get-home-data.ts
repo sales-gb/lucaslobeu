@@ -1,12 +1,45 @@
 import { getDb, schema } from "@/lib/db";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, inArray } from "drizzle-orm";
+import { storage } from "@/lib/storage";
 import type { Project } from "@/lib/db/schema";
+import type { ProjectWithUrls } from "@/features/projects/types";
 import type {
   StatItem,
   TestimonialItem,
   FaqItem,
   ClientItem,
 } from "@/features/home/types";
+
+/** Resolve as URLs públicas das capas (capa + imagem de hover), igual à página de Projetos. */
+async function resolveCoverUrls(projects: Project[]): Promise<ProjectWithUrls[]> {
+  const ids = [
+    ...new Set(
+      [
+        ...projects.map((p) => p.coverImageId),
+        ...projects.map((p) => p.coverHoverImageId),
+      ].filter((id): id is string => !!id),
+    ),
+  ];
+  if (ids.length === 0) return projects;
+  try {
+    const db = getDb();
+    const records = await db
+      .select()
+      .from(schema.media)
+      .where(inArray(schema.media.id, ids));
+    const map = new Map<string, string>();
+    for (const r of records) map.set(r.id, storage.getUrl(r.path));
+    return projects.map((p) => ({
+      ...p,
+      coverImageUrl: p.coverImageId ? map.get(p.coverImageId) : undefined,
+      coverHoverImageUrl: p.coverHoverImageId
+        ? map.get(p.coverHoverImageId)
+        : undefined,
+    }));
+  } catch {
+    return projects;
+  }
+}
 
 function parseJson<T>(val: unknown, fallback: T): T {
   if (Array.isArray(val)) return val as T;
@@ -21,7 +54,7 @@ function parseJson<T>(val: unknown, fallback: T): T {
 }
 
 export interface HomeData {
-  projects: Project[];
+  projects: ProjectWithUrls[];
   heroRoles: string | null;
   heroDescription: string | null;
   aboutStatement: string | null;
@@ -58,8 +91,10 @@ export async function getHomeData(): Promise<HomeData> {
       .orderBy(asc(schema.projects.sortOrder))
       .limit(settings?.homeFeaturedCount ?? 5);
 
+    const projectsWithUrls = await resolveCoverUrls(featuredProjects);
+
     return {
-      projects: featuredProjects,
+      projects: projectsWithUrls,
       heroRoles: settings?.heroRoles ?? null,
       heroDescription: settings?.heroDescription ?? null,
       aboutStatement: settings?.aboutStatement ?? null,
