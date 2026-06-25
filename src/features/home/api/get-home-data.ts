@@ -1,6 +1,6 @@
 import { getDb, schema } from "@/lib/db";
 import { eq, asc, inArray } from "drizzle-orm";
-import { storage } from "@/lib/storage";
+import { getStorage } from "@/lib/storage";
 import type { Project } from "@/lib/db/schema";
 import type { ProjectWithUrls } from "@/features/projects/types";
 import type {
@@ -23,7 +23,8 @@ async function resolveCoverUrls(projects: Project[]): Promise<ProjectWithUrls[]>
   ];
   if (ids.length === 0) return projects;
   try {
-    const db = getDb();
+    const db = await getDb();
+    const storage = await getStorage();
     const records = await db
       .select()
       .from(schema.media)
@@ -56,6 +57,7 @@ function parseJson<T>(val: unknown, fallback: T): T {
 
 export interface HomeData {
   projects: ProjectWithUrls[];
+  heroImages: string[];
   heroRoles: string | null;
   heroDescription: string | null;
   aboutStatement: string | null;
@@ -78,7 +80,7 @@ export interface HomeData {
  */
 export async function getHomeData(): Promise<HomeData> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const [settings] = await db
       .select()
       .from(schema.homeSettings)
@@ -95,8 +97,14 @@ export async function getHomeData(): Promise<HomeData> {
     const projectsWithUrls = await resolveCoverUrls(featuredProjects);
     const clients = await getClients();
 
+    // Imagens dos projetos para o rastro de cursor na hero (capa + hover).
+    const heroImages = projectsWithUrls
+      .flatMap((p) => [p.coverImageUrl, p.coverHoverImageUrl])
+      .filter((u): u is string => !!u);
+
     return {
       projects: projectsWithUrls,
+      heroImages,
       heroRoles: settings?.heroRoles ?? null,
       heroDescription: settings?.heroDescription ?? null,
       aboutStatement: settings?.aboutStatement ?? null,
@@ -115,6 +123,7 @@ export async function getHomeData(): Promise<HomeData> {
   } catch {
     return {
       projects: [],
+      heroImages: [],
       heroRoles: null,
       heroDescription: null,
       aboutStatement: null,

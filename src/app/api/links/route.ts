@@ -7,7 +7,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const rows = await db
     .select()
     .from(schema.links)
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid kind' }, { status: 400 })
   }
 
-  const db = getDb()
+  const db = await getDb()
   const [maxOrder] = await db
     .select({ sortOrder: schema.links.sortOrder })
     .from(schema.links)
@@ -62,7 +62,7 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json()
 
   if (Array.isArray(body.order)) {
-    const db = getDb()
+    const db = await getDb()
     for (let i = 0; i < body.order.length; i++) {
       await db
         .update(schema.links)
@@ -74,7 +74,7 @@ export async function PATCH(request: NextRequest) {
 
   // Single link update: { id, label?, href?, kind?, enabled? }
   if (body.id) {
-    const db = getDb()
+    const db = await getDb()
     const [existing] = await db.select().from(schema.links).where(eq(schema.links.id, body.id))
     if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 
@@ -99,7 +99,7 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get('id')
   if (!id) return Response.json({ error: 'id required' }, { status: 400 })
 
-  const db = getDb()
+  const db = await getDb()
   const [existing] = await db.select({ id: schema.links.id }).from(schema.links).where(eq(schema.links.id, id))
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 

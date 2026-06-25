@@ -10,7 +10,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const rows = await db
     .select()
     .from(schema.clients)
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   if (!name) return Response.json({ error: 'name is required' }, { status: 400 })
 
-  const db = getDb()
+  const db = await getDb()
   const [maxOrder] = await db
     .select({ sortOrder: schema.clients.sortOrder })
     .from(schema.clients)
@@ -58,7 +58,7 @@ export async function PATCH(request: NextRequest) {
 
   // Reordenação em lote: { order: [id, id, ...] }
   if (Array.isArray(body.order)) {
-    const db = getDb()
+    const db = await getDb()
     for (let i = 0; i < body.order.length; i++) {
       await db.update(schema.clients).set({ sortOrder: i }).where(eq(schema.clients.id, body.order[i]))
     }
@@ -67,7 +67,7 @@ export async function PATCH(request: NextRequest) {
 
   // Atualização individual: { id, name?, year?, category?, imageUrl?, instagramUrl? }
   if (body.id) {
-    const db = getDb()
+    const db = await getDb()
     const [existing] = await db.select().from(schema.clients).where(eq(schema.clients.id, body.id))
     if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 
@@ -98,7 +98,7 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get('id')
   if (!id) return Response.json({ error: 'id required' }, { status: 400 })
 
-  const db = getDb()
+  const db = await getDb()
   const [existing] = await db.select({ id: schema.clients.id }).from(schema.clients).where(eq(schema.clients.id, id))
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 

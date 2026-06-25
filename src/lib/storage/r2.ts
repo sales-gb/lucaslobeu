@@ -1,16 +1,14 @@
-// R2 adapter stub — plug in when deploying to Cloudflare
-// Replace bucket with the R2Bucket binding from wrangler.toml
+// Adapter R2 para produção (Cloudflare). O `bucket` é o binding MEDIA_BUCKET do
+// wrangler.toml; `publicUrl` é a URL pública do bucket (r2.dev ou domínio).
 import type { StorageAdapter } from './interface';
 
 export function createR2Adapter(bucket: R2Bucket, publicUrl: string): StorageAdapter {
+  const base = publicUrl.replace(/\/+$/, '');
   return {
-    async save(file: Buffer, filename: string, _mimeType: string): Promise<string> {
-      const { ext } = await import('path').then(p => ({ ext: p.extname(filename) }));
-      const { createHash } = await import('crypto');
-      const hash = createHash('sha256').update(file).digest('hex').slice(0, 16);
-      const stored = `${hash}${ext}`;
-      await bucket.put(stored, file);
-      return stored;
+    async save(file: Buffer, filename: string, mimeType: string): Promise<string> {
+      // O filename já vem único (hex aleatório + extensão) da rota de mídia.
+      await bucket.put(filename, file, { httpMetadata: { contentType: mimeType } });
+      return filename;
     },
 
     async delete(stored: string): Promise<void> {
@@ -18,15 +16,15 @@ export function createR2Adapter(bucket: R2Bucket, publicUrl: string): StorageAda
     },
 
     getUrl(stored: string): string {
-      return `${publicUrl}/${stored}`;
+      return `${base}/${stored}`;
     },
   };
 }
 
-// Type shim for non-Cloudflare build environments
+// Shim de tipo mínimo para ambientes sem @cloudflare/workers-types.
 declare global {
   interface R2Bucket {
-    put(key: string, body: ArrayBuffer | Buffer): Promise<void>;
+    put(key: string, body: ArrayBuffer | Buffer, options?: { httpMetadata?: { contentType?: string } }): Promise<void>;
     delete(key: string): Promise<void>;
   }
 }

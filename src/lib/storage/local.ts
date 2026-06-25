@@ -1,24 +1,31 @@
 import type { StorageAdapter } from './interface';
-import fs from 'fs/promises';
-import path from 'path';
-import crypto from 'crypto';
 
-const UPLOADS_DIR = process.env.UPLOADS_DIR ?? path.join(process.cwd(), 'public', 'uploads');
+// Adapter de arquivo para dev local. Os módulos Node (fs/path/crypto) são
+// importados sob demanda dentro de cada método — assim o módulo pode ser
+// importado em qualquer ambiente sem avaliar built-ins do Node no topo.
+
+const UPLOADS_DIR = () =>
+  process.env.UPLOADS_DIR ?? `${process.cwd()}/public/uploads`;
 
 export const localAdapter: StorageAdapter = {
-  async save(file: Buffer, filename: string, _mimeType: string): Promise<string> {
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
+  async save(file: Buffer, filename: string): Promise<string> {
+    const [fs, path, crypto] = await Promise.all([
+      import('node:fs/promises'),
+      import('node:path'),
+      import('node:crypto'),
+    ]);
+    const dir = UPLOADS_DIR();
+    await fs.mkdir(dir, { recursive: true });
     const ext = path.extname(filename).toLowerCase();
     const hash = crypto.createHash('sha256').update(file).digest('hex').slice(0, 16);
     const stored = `${hash}${ext}`;
-    const dest = path.join(UPLOADS_DIR, stored);
-    await fs.writeFile(dest, file);
+    await fs.writeFile(path.join(dir, stored), file);
     return stored;
   },
 
   async delete(storedFilename: string): Promise<void> {
-    const dest = path.join(UPLOADS_DIR, storedFilename);
-    await fs.unlink(dest).catch(() => {});
+    const [fs, path] = await Promise.all([import('node:fs/promises'), import('node:path')]);
+    await fs.unlink(path.join(UPLOADS_DIR(), storedFilename)).catch(() => {});
   },
 
   getUrl(storedFilename: string): string {

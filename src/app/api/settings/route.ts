@@ -7,7 +7,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const [user] = await db.select().from(schema.users)
   const [homeSettings] = await db.select().from(schema.homeSettings)
 
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const db = getDb()
+  const db = await getDb()
   const userId = session.user?.id as string | undefined
 
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })

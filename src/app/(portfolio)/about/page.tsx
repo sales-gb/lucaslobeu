@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 async function getAbout(): Promise<AboutContent | null> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const [row] = await db.select().from(schema.aboutContent).where(eq(schema.aboutContent.id, 1)).limit(1);
     return row ?? null;
   } catch {

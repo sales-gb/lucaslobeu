@@ -33,7 +33,7 @@ function buildUpdates(body: Record<string, unknown>) {
 }
 
 async function upsert(updates: Record<string, unknown>) {
-  const db = getDb()
+  const db = await getDb()
   const [existing] = await db.select({ id: schema.aboutContent.id }).from(schema.aboutContent)
   if (existing) {
     await db.update(schema.aboutContent).set(updates as never).where(eq(schema.aboutContent.id, 1))
@@ -48,7 +48,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const [row] = await db.select().from(schema.aboutContent)
   return Response.json(row ? parseRow(row as Record<string, unknown>) : null)
 }

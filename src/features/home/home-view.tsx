@@ -25,6 +25,7 @@ import type { HomeData } from "@/features/home/api/get-home-data";
  */
 export function HomeView({
   projects,
+  heroImages,
   heroRoles,
   heroDescription,
   aboutStatement,
@@ -44,6 +45,7 @@ export function HomeView({
       <HeroSection
         roles={heroRoles || DEFAULT_HERO_ROLES}
         description={heroDescription || DEFAULT_HERO_DESC}
+        images={heroImages}
       />
       <AboutSection
         statement={aboutStatement || DEFAULT_ABOUT_STMT}

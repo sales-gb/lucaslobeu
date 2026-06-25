@@ -52,3 +52,12 @@ next-env.d.ts
 
 # user uploads — runtime content, not source code
 /public/uploads/
+.gstack/
+
+# DB backups (gerados por scripts/clean-db.ts)
+local.db.bak-*
+
+# Cloudflare generated types (conflitam com a DOM lib — usamos src/types/cloudflare.d.ts)
+worker-configuration.d.ts
+.open-next/
+.wrangler/

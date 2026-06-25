@@ -1,25 +1,31 @@
 name = "lucaslobeu-portfolio"
 main = ".open-next/worker.js"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
 
-# D1 binding — set DB_NAME to your D1 database name before deploying
+# Assets estáticos gerados pelo OpenNext (CSS, JS, imagens do build).
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# D1 — banco de dados. Rode `wrangler d1 create lucaslobeu-db` e cole o id aqui.
 [[d1_databases]]
 binding = "DB"
 database_name = "lucaslobeu-db"
 database_id = "REPLACE_WITH_D1_ID"
+migrations_dir = "src/lib/db/migrations"
 
-# R2 binding — set bucket_name before deploying
+# R2 — armazenamento das imagens enviadas no admin.
 [[r2_buckets]]
 binding = "MEDIA_BUCKET"
 bucket_name = "lucaslobeu-media"
 
-# KV for session storage (optional, NextAuth uses JWT)
-# [[kv_namespaces]]
-# binding = "KV"
-# id = "REPLACE_WITH_KV_ID"
-
 [vars]
 NODE_ENV = "production"
-NEXTAUTH_URL = "https://lucaslobeu.com"
-# NEXTAUTH_SECRET is set as a secret via: wrangler secret put NEXTAUTH_SECRET
+# URL pública do site (NextAuth). Em preview use a URL *.workers.dev gerada.
+NEXTAUTH_URL = "https://lucaslobeu-portfolio.SEU-SUBDOMINIO.workers.dev"
+# URL pública do bucket R2 (habilite "Public access" no bucket → r2.dev),
+# ex: https://pub-xxxxxxxx.r2.dev
+R2_PUBLIC_URL = "REPLACE_WITH_R2_PUBLIC_URL"
+# Secrets (NÃO ficam aqui): definir com `wrangler secret put`:
+#   NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET

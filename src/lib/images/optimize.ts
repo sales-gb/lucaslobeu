@@ -1,5 +1,3 @@
-import sharp from "sharp";
-
 export interface OptimizedImage {
   buffer: Buffer;
   width: number;
@@ -22,6 +20,9 @@ const WEBP_QUALITY = 80;
  * Retorna o buffer otimizado já como WebP, com dimensões finais.
  */
 export async function optimizeImage(input: Buffer): Promise<OptimizedImage> {
+  // Import dinâmico: sharp é nativo (só roda no Node/dev). No Worker esta
+  // função não é chamada (ver a rota de mídia, que detecta a ausência de sharp).
+  const sharp = (await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ "sharp")).default;
   const { data, info } = await sharp(input)
     .rotate() // aplica orientação EXIF antes de descartar metadados
     .resize({

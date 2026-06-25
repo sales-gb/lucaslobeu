@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  const db = getDb()
+  const db = await getDb()
   const [project] = await db
     .select()
     .from(schema.projects)
@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const { id } = await params
   const body = await request.json()
-  const db = getDb()
+  const db = await getDb()
 
   const [existing] = await db
     .select()
@@ -68,7 +68,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
-  const db = getDb()
+  const db = await getDb()
 
   const [existing] = await db
     .select()

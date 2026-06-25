@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status')
   const search = searchParams.get('q')
 
-  const db = getDb()
+  const db = await getDb()
   let rows = await db
     .select()
     .from(schema.projects)
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid category' }, { status: 400 })
   }
 
-  const db = getDb()
+  const db = await getDb()
   const [existing] = await db
     .select({ id: schema.projects.id })
     .from(schema.projects)

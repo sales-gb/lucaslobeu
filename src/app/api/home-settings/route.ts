@@ -28,7 +28,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const [row] = await db.select().from(schema.homeSettings).where(eq(schema.homeSettings.id, 1))
   return Response.json(row ? parseRow(row as Record<string, unknown>) : null)
 }
@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const db = getDb()
+    const db = await getDb()
 
     const updates: Record<string, unknown> = {}
     for (const key of ALLOWED_FIELDS) {

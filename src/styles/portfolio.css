@@ -917,3 +917,32 @@ body:has(.ll-nav--side) .ll-main {
   .ll-brush { display: none; }
 }
 
+/* ── Hero: rastro de imagens no cursor ──────────────────────────
+   Ao mover o mouse sobre/perto do nome na Home, cada passo do cursor
+   "carimba" uma das imagens dos projetos, que sobe e desaparece — um
+   rastro editorial. As imagens ficam ATRÁS do nome (z baixo), então o
+   título continua legível. */
+.ll-hero-trail-img {
+  position: absolute;
+  width: clamp(120px, 13vw, 220px);
+  aspect-ratio: 4 / 5;
+  transform: translate(-50%, -50%);
+  background-size: cover;
+  background-position: center;
+  border-radius: 2px;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity, transform;
+  animation-name: ll-hero-trail;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes ll-hero-trail {
+  0%   { opacity: 0; transform: translate(-50%, -46%) scale(0.9); }
+  16%  { opacity: 0.92; }
+  100% { opacity: 0; transform: translate(-50%, -62%) scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ll-hero-trail-img { display: none; }
+}
+

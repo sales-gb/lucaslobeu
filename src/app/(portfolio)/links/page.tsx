@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 async function getLinks(): Promise<LinkRow[]> {
   try {
-    const db = getDb();
+    const db = await getDb();
     return await db
       .select()
       .from(schema.links)

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils/cn'
  * (http/mailto/tel) e <button> quando não há href (ex.: submit de formulário).
  */
 const ROOT =
-  'group relative inline-flex items-center justify-center gap-1 overflow-hidden rounded-[100px] border-[1.5px] border-[var(--btn-border)] bg-transparent px-8 py-3 text-sm font-medium text-[var(--btn-fg)] no-underline cursor-pointer transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:rounded-[12px] hover:border-transparent hover:text-[var(--btn-fg-hover)] active:scale-[0.95] disabled:pointer-events-none disabled:opacity-50'
+  'group relative inline-flex items-center justify-center gap-1 overflow-hidden rounded-[100px] border-[1.5px] border-[var(--btn-border)] bg-transparent px-8 py-3 text-sm font-medium text-[var(--btn-fg)] no-underline cursor-pointer transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] hover:rounded-[12px] hover:border-transparent active:scale-[0.95] disabled:pointer-events-none disabled:opacity-50'
 
 function FlowInner({ text }: { text: string }) {
   return (
@@ -24,8 +24,8 @@ function FlowInner({ text }: { text: string }) {
         className="absolute left-[-25%] z-[9] h-4 w-4 fill-none stroke-[var(--btn-fg)] transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:left-4 group-hover:stroke-[var(--btn-fg-hover)]"
       />
 
-      {/* Texto */}
-      <span className="relative z-[1] -translate-x-3 transition-all duration-[800ms] ease-out group-hover:translate-x-3">
+      {/* Texto — cor controlada por group-hover (o hover: no root perde do base) */}
+      <span className="relative z-[1] -translate-x-3 text-[var(--btn-fg)] transition-all duration-[800ms] ease-out group-hover:translate-x-3 group-hover:text-[var(--btn-fg-hover)]">
         {text}
       </span>
 

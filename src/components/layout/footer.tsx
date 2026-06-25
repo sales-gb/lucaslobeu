@@ -25,7 +25,7 @@ const PLATFORM_LABELS: Record<string, string> = {
 
 async function getSocialLinks(): Promise<SocialLink[]> {
   try {
-    const db = getDb()
+    const db = await getDb()
     const [user] = await db.select().from(schema.users)
     if (!user?.socialLinks) return []
     const parsed = JSON.parse(user.socialLinks) as SocialLink[]
@@ -37,7 +37,7 @@ async function getSocialLinks(): Promise<SocialLink[]> {
 
 async function getUserInfo() {
   try {
-    const db = getDb()
+    const db = await getDb()
     const [user] = await db.select({ email: schema.users.email, city: schema.users.city, phone: schema.users.phone, bio: schema.users.bio }).from(schema.users)
     return user ?? null
   } catch {
@@ -116,9 +116,6 @@ export default async function Footer() {
         <span className="ll-mono small-cap" style={{ fontSize: 10 }}>
           © {year} Lucas Lobeu. Todos os direitos reservados.
         </span>
-        <Link href="/admin/login" className="ll-mono small-cap" style={{ fontSize: 10, opacity: 0.55 }}>
-          Acesso reservado
-        </Link>
       </div>
     </footer>
   )

@@ -3,17 +3,19 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Reveal from "@/components/ui/reveal";
-import TextReveal from "@/components/ui/text-reveal";
 import { FlowButton } from "@/components/ui/flow-button";
 import { LinkRule } from "@/components/ui/link-rule";
+import { HeroNameTrail } from "@/features/home/components/hero-name-trail";
 import { EASE_OUT } from "@/features/home/constants";
 
 export function HeroSection({
   roles,
   description,
+  images = [],
 }: {
   roles: string;
   description: string;
+  images?: string[];
 }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -22,44 +24,32 @@ export function HeroSection({
   });
   const titleY = useTransform(scrollYProgress, [0, 1], [0, -80]);
 
-  const heroName =
-    "font-serif font-light text-[clamp(100px,16vw,260px)] leading-[0.86] tracking-[-0.03em] text-paper";
-
   return (
     <section
       className="relative grid min-h-screen grid-rows-[1fr_auto] overflow-hidden border-b-[0.5px] border-rule px-[var(--page-x)]"
       ref={ref}
     >
-      <motion.div
-        className="flex flex-col items-center justify-center pt-[120px] pb-12 text-center"
-        style={{ y: titleY }}
-      >
-        <Reveal y={8} delay={0}>
-          <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.28em] text-muted-soft">
-            {roles}
-          </p>
-        </Reveal>
-        <TextReveal
-          text="Lucas"
-          as="h1"
-          className={`${heroName} italic`}
-          delay={80}
-          stagger={0.06}
-          splitBy="char"
-        />
-        <TextReveal
-          text="Lobeu."
-          as="h1"
-          className={heroName}
-          delay={240}
-          stagger={0.06}
-          splitBy="char"
-        />
-        <Reveal y={12} delay={600}>
-          <p className="mt-9 max-w-[420px] text-center font-sans font-light text-[clamp(15px,1.4vw,17px)] leading-[1.65] text-muted">
-            {description}
-          </p>
-        </Reveal>
+      <motion.div className="flex" style={{ y: titleY }}>
+        <HeroNameTrail
+          images={images}
+          className="relative flex w-full flex-col items-center justify-center pt-[120px] pb-12 text-center"
+        >
+          <Reveal y={8} delay={0}>
+            <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.28em] text-muted-soft">
+              {roles}
+            </p>
+          </Reveal>
+          <Reveal y={24} delay={120}>
+            <h1 className="whitespace-nowrap font-serif font-light text-[clamp(56px,11.5vw,184px)] leading-[0.9] tracking-[-0.03em] text-paper">
+              <span className="italic">Lucas</span> Lobeu
+            </h1>
+          </Reveal>
+          <Reveal y={12} delay={600}>
+            <p className="mt-9 max-w-[420px] text-center font-sans font-light text-[clamp(15px,1.4vw,17px)] leading-[1.65] text-muted">
+              {description}
+            </p>
+          </Reveal>
+        </HeroNameTrail>
       </motion.div>
 
       <div className="flex items-center justify-center gap-10 border-t-[0.5px] border-rule pt-7 pb-12">

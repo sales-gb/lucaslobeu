@@ -9,7 +9,7 @@ import type { Client } from '@/features/clients/types';
  */
 export async function getClients(): Promise<Client[]> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const rows = await db
       .select()
       .from(schema.clients)

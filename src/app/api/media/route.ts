@@ -2,9 +2,8 @@ import { NextRequest } from 'next/server'
 import { getDb, schema } from '@/lib/db'
 import { desc } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
-import { storage, UPLOAD_LIMITS } from '@/lib/storage'
+import { getStorage, UPLOAD_LIMITS } from '@/lib/storage'
 import { optimizeImage } from '@/lib/images/optimize'
-import sharp from 'sharp'
 import { randomBytes } from 'crypto'
 
 const MIME_EXT: Record<string, string> = {
@@ -20,7 +19,8 @@ export async function GET() {
     const session = await auth()
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const db = getDb()
+    const db = await getDb()
+    const storage = await getStorage()
     const rows = await db
       .select()
       .from(schema.media)
@@ -66,35 +66,49 @@ export async function POST(request: NextRequest) {
   let height: number | undefined
 
   if (!isVideo) {
-    // 1) Segurança: verifica que os bytes batem com o MIME declarado.
-    const declaredFormat = file.type.split('/')[1] === 'jpeg' ? 'jpeg' : file.type.split('/')[1]
+    // sharp é nativo: existe no Node (dev) e não no Worker (produção). Carrega
+    // sob demanda; se indisponível, confiamos na otimização feita no browser
+    // (o cliente já envia WebP redimensionado) e guardamos como veio.
+    type SharpFn = (input: Buffer) => { metadata: () => Promise<{ format?: string }> }
+    let sharp: SharpFn | null = null
     try {
-      const meta = await sharp(buffer).metadata()
-      if (!meta.format || meta.format !== declaredFormat) {
-        return Response.json({ error: 'Conteúdo do arquivo não corresponde ao tipo declarado' }, { status: 400 })
-      }
+      sharp = ((await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ 'sharp')) as unknown as { default: SharpFn }).default
     } catch {
-      return Response.json({ error: 'Não foi possível processar a imagem' }, { status: 400 })
+      sharp = null
     }
 
-    // 2) Otimização: redimensiona + converte para WebP leve (sempre .webp).
-    try {
-      const optimized = await optimizeImage(buffer)
-      outBuffer = optimized.buffer
-      outMime = optimized.mimeType
-      outExt = optimized.ext
-      width = optimized.width
-      height = optimized.height
-    } catch {
-      return Response.json({ error: 'Falha ao otimizar a imagem' }, { status: 400 })
+    if (sharp) {
+      // 1) Segurança: verifica que os bytes batem com o MIME declarado.
+      const declaredFormat = file.type.split('/')[1] === 'jpeg' ? 'jpeg' : file.type.split('/')[1]
+      try {
+        const meta = await sharp(buffer).metadata()
+        if (!meta.format || meta.format !== declaredFormat) {
+          return Response.json({ error: 'Conteúdo do arquivo não corresponde ao tipo declarado' }, { status: 400 })
+        }
+      } catch {
+        return Response.json({ error: 'Não foi possível processar a imagem' }, { status: 400 })
+      }
+
+      // 2) Otimização: redimensiona + converte para WebP leve (sempre .webp).
+      try {
+        const optimized = await optimizeImage(buffer)
+        outBuffer = optimized.buffer
+        outMime = optimized.mimeType
+        outExt = optimized.ext
+        width = optimized.width
+        height = optimized.height
+      } catch {
+        return Response.json({ error: 'Falha ao otimizar a imagem' }, { status: 400 })
+      }
     }
   }
 
   const filename = `${randomBytes(16).toString('hex')}${outExt}`
 
+  const storage = await getStorage()
   const storedPath = await storage.save(outBuffer, filename, outMime)
 
-  const db = getDb()
+  const db = await getDb()
   const [record] = await db
     .insert(schema.media)
     .values({

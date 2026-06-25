@@ -12,7 +12,6 @@ type Tipo = typeof TIPOS[number];
 interface FormData {
   nome: string;
   email: string;
-  empresa: string;
   tipos: Tipo[];
   sobre: string;
 }
@@ -26,7 +25,6 @@ export default function ContactForm() {
   const [form, setForm] = useState<FormData>({
     nome: '',
     email: '',
-    empresa: '',
     tipos: [],
     sobre: '',
   });
@@ -96,24 +94,12 @@ export default function ContactForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Eyebrow as="label" htmlFor="empresa">Empresa</Eyebrow>
-        <input
-          id="empresa"
-          type="text"
-          placeholder="Nome da empresa ou projeto"
-          className={`${FIELD} font-sans`}
-          value={form.empresa}
-          onChange={(e) => setForm({ ...form, empresa: e.target.value })}
-        />
-      </div>
-
-      <div className="flex flex-col gap-2">
         <Eyebrow>Tipo de projeto</Eyebrow>
         <div className="flex flex-wrap gap-2 pt-1">
           {TIPOS.map((tipo) => (
             <label
               key={tipo}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-full border-[0.5px] border-paper px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] has-[:checked]:bg-paper has-[:checked]:text-ink"
+              className="group/pill inline-flex cursor-pointer items-center gap-2 rounded-full border-[0.5px] border-paper px-[18px] py-[10px] font-mono text-[12px] uppercase tracking-[0.14em] transition-colors duration-200 has-[:checked]:bg-paper"
             >
               <input
                 type="checkbox"
@@ -121,7 +107,8 @@ export default function ContactForm() {
                 checked={form.tipos.includes(tipo)}
                 onChange={() => toggleTipo(tipo)}
               />
-              {tipo}
+              {/* cor do texto via group-has (o has-[:checked]:text-* no label não vence) */}
+              <span className="text-paper group-has-[:checked]/pill:text-ink">{tipo}</span>
             </label>
           ))}
         </div>

@@ -1,11 +1,11 @@
 import { getDb, schema } from "@/lib/db";
 import { eq, asc } from "drizzle-orm";
 import type { Project } from "@/lib/db/schema";
-import { storage } from "@/lib/storage";
+import { getStorage } from "@/lib/storage";
 
 export async function getProject(slug: string): Promise<Project | null> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const [project] = await db
       .select()
       .from(schema.projects)
@@ -22,13 +22,15 @@ async function getCoverImageUrl(
 ): Promise<string | undefined> {
   if (!coverImageId) return undefined;
   try {
-    const db = getDb();
+    const db = await getDb();
     const [record] = await db
       .select()
       .from(schema.media)
       .where(eq(schema.media.id, coverImageId))
       .limit(1);
-    return record ? storage.getUrl(record.path) : undefined;
+    if (!record) return undefined;
+    const storage = await getStorage();
+    return storage.getUrl(record.path);
   } catch {
     return undefined;
   }
@@ -38,7 +40,7 @@ async function getSiblings(
   slug: string,
 ): Promise<{ prev: Project | null; next: Project | null }> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const all = await db
       .select()
       .from(schema.projects)
@@ -57,7 +59,7 @@ async function getSiblings(
 /** Slugs publicados — para generateStaticParams. */
 export async function getPublishedProjectSlugs(): Promise<{ slug: string }[]> {
   try {
-    const db = getDb();
+    const db = await getDb();
     const projects = await db
       .select({ slug: schema.projects.slug })
       .from(schema.projects)

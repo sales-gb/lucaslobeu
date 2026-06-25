@@ -1,13 +1,13 @@
 import { getDb, schema } from "@/lib/db";
 import { eq, asc, inArray } from "drizzle-orm";
 import type { Project } from "@/lib/db/schema";
-import { storage } from "@/lib/storage";
+import { getStorage } from "@/lib/storage";
 import type { ProjectWithUrls } from "@/features/projects/types";
 import { FALLBACK_PROJECTS } from "@/features/projects/data/fallbacks";
 
 async function getProjects(): Promise<Project[]> {
   try {
-    const db = getDb();
+    const db = await getDb();
     return await db
       .select()
       .from(schema.projects)
@@ -35,7 +35,8 @@ async function resolveCoverUrls(
   ];
   if (ids.length === 0) return new Map();
   try {
-    const db = getDb();
+    const db = await getDb();
+    const storage = await getStorage();
     const records = await db
       .select()
       .from(schema.media)
@@ -50,7 +51,7 @@ async function resolveCoverUrls(
 
 async function getSettings() {
   try {
-    const db = getDb();
+    const db = await getDb();
     const [row] = await db
       .select()
       .from(schema.homeSettings)

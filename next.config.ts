@@ -12,7 +12,10 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
-  serverExternalPackages: ['better-sqlite3'],
+  // better-sqlite3 e sharp são nativos e SÓ rodam no Node (dev). São importados
+  // dinamicamente com magic comments (turbopackIgnore/webpackIgnore), ficando
+  // fora do bundle do Worker. Por isso não entram em serverExternalPackages
+  // (que geraria um require externo que o OpenNext não resolve).
   turbopack: {
     root: __dirname,
   },

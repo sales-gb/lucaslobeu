@@ -7,7 +7,7 @@ export async function GET() {
   const session = await auth()
   if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const db = getDb()
+  const db = await getDb()
   const tiles = await db
     .select()
     .from(schema.homeTiles)
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   if (!label) return Response.json({ error: 'label is required' }, { status: 400 })
 
-  const db = getDb()
+  const db = await getDb()
   const [maxOrder] = await db
     .select({ sortOrder: schema.homeTiles.sortOrder })
     .from(schema.homeTiles)
@@ -59,7 +59,7 @@ export async function PATCH(request: NextRequest) {
 
   // Batch reorder: { order: string[] }
   if (Array.isArray(body.order)) {
-    const db = getDb()
+    const db = await getDb()
     for (let i = 0; i < body.order.length; i++) {
       await db
         .update(schema.homeTiles)
