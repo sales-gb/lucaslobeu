@@ -9,7 +9,7 @@ import { SectionMarker } from "@/components/ui/section-marker";
 import { cn } from "@/lib/utils/cn";
 import { DEFAULT_CLIENTS } from "@/features/home/data/fallbacks";
 import { EASE_OUT } from "@/features/home/constants";
-import type { ClientItem } from "@/features/home/types";
+import type { Client } from "@/features/clients/types";
 
 const CLIENT_TONES: Array<"dark" | "mid" | "light"> = [
   "mid",
@@ -22,7 +22,7 @@ const CLIENT_TONES: Array<"dark" | "mid" | "light"> = [
   "light",
 ];
 
-export function ClientsSection({ clients }: { clients: ClientItem[] }) {
+export function ClientsSection({ clients }: { clients: Client[] }) {
   const CLIENTS = clients.length > 0 ? clients : DEFAULT_CLIENTS;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -104,17 +104,26 @@ export function ClientsSection({ clients }: { clients: ClientItem[] }) {
             {hoveredIndex !== null && (
               <motion.div
                 key={hoveredIndex}
-                className="absolute left-1/2 top-1/2 aspect-[4/5] w-[clamp(140px,15vw,220px)] -translate-x-1/2 -translate-y-1/2 [&>*]:!h-full [&>*]:!w-full"
+                className="absolute left-1/2 top-1/2 aspect-[4/5] w-[clamp(140px,15vw,220px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[2px] [&>*]:!h-full [&>*]:!w-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.22, ease: EASE_OUT }}
               >
-                <ImageBlock
-                  tone={CLIENT_TONES[hoveredIndex % CLIENT_TONES.length]}
-                  ratio="4/5"
-                  style={{ height: "100%" }}
-                />
+                {CLIENTS[hoveredIndex]?.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={CLIENTS[hoveredIndex].imageUrl}
+                    alt={CLIENTS[hoveredIndex].name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageBlock
+                    tone={CLIENT_TONES[hoveredIndex % CLIENT_TONES.length]}
+                    ratio="4/5"
+                    style={{ height: "100%" }}
+                  />
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -122,8 +131,9 @@ export function ClientsSection({ clients }: { clients: ClientItem[] }) {
 
         <div className="flex flex-col justify-start py-10 pr-[var(--page-x)] pl-12 max-[900px]:justify-start max-[900px]:px-[var(--page-x)] max-[900px]:pt-0 max-[900px]:pb-[60px]">
           <div className="flex flex-col">
-            {CLIENTS.map((client, i) => (
-              <Reveal key={i} y={12} delay={i * 40}>
+            {CLIENTS.map((client, i) => {
+              const meta = [client.category, client.year].filter(Boolean).join(" · ");
+              const row = (
                 <div
                   className={cn(
                     "flex items-center justify-between border-t-[0.5px] border-rule py-[13px] transition-opacity duration-[250ms] first:border-t-0 last:border-b-[0.5px]",
@@ -136,11 +146,29 @@ export function ClientsSection({ clients }: { clients: ClientItem[] }) {
                     {client.name}
                   </span>
                   <span className="font-mono text-[11px] tracking-[0.04em] text-muted">
-                    {client.category}
+                    {meta}
+                    {client.instagramUrl && <span className="ml-2 text-ink">↗</span>}
                   </span>
                 </div>
-              </Reveal>
-            ))}
+              );
+              return (
+                <Reveal key={client.id || i} y={12} delay={i * 40}>
+                  {client.instagramUrl ? (
+                    <a
+                      href={client.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Ver trabalho de ${client.name} no Instagram`}
+                      className="block no-underline text-ink"
+                    >
+                      {row}
+                    </a>
+                  ) : (
+                    row
+                  )}
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </div>

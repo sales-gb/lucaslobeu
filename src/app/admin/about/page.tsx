@@ -262,66 +262,6 @@ function TrajectoryEditor({ value, onChange }: { value: TrajectoryItem[]; onChan
   )
 }
 
-// Empresas: nome + imagem do trabalho + link do Instagram.
-function CompaniesEditor({ value, onChange }: { value: Company[]; onChange: (v: Company[]) => void }) {
-  const [pickerFor, setPickerFor] = useState<number | null>(null)
-  const add = () => onChange([...value, { name: '', year: '', imageUrl: '', instagramUrl: '' }])
-  const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i))
-  const update = (i: number, patch: Partial<Company>) =>
-    onChange(value.map((row, idx) => idx === i ? { ...row, ...patch } : row))
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {value.map((row, i) => (
-        <div key={i} style={{ border: '0.5px solid var(--border)', borderRadius: 6, padding: 12, display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: 12, alignItems: 'start' }}>
-          {/* Miniatura / seletor de imagem */}
-          <button
-            type="button"
-            className="adm-media-picker-item"
-            style={{ width: 72, height: 72, padding: 0, borderRadius: 4, overflow: 'hidden' }}
-            onClick={() => setPickerFor(i)}
-            title={row.imageUrl ? 'Trocar imagem' : 'Selecionar imagem'}
-          >
-            {row.imageUrl
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={row.imageUrl} alt={row.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span className="adm-muted" style={{ fontSize: 20 }}>🖼</span>}
-          </button>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 8 }}>
-              <div className="adm-field">
-                {i === 0 && <label className="adm-label">Empresa</label>}
-                <input className="adm-input" value={row.name} onChange={e => update(i, { name: e.target.value })} placeholder="Natura" />
-              </div>
-              <div className="adm-field">
-                {i === 0 && <label className="adm-label">Ano</label>}
-                <input className="adm-input adm-mono" value={row.year ?? ''} onChange={e => update(i, { year: e.target.value })} placeholder="2024" />
-              </div>
-            </div>
-            <div className="adm-field">
-              {i === 0 && <label className="adm-label">Link do Instagram (do projeto)</label>}
-              <input className="adm-input adm-mono" value={row.instagramUrl ?? ''} onChange={e => update(i, { instagramUrl: e.target.value })} placeholder="https://instagram.com/p/..." />
-            </div>
-            {row.imageUrl && (
-              <button className="adm-btn adm-btn--xs" style={{ alignSelf: 'flex-start' }} onClick={() => update(i, { imageUrl: '' })}>Remover imagem</button>
-            )}
-          </div>
-
-          <button className="adm-btn adm-btn--xs adm-btn--danger" onClick={() => remove(i)}>✕</button>
-        </div>
-      ))}
-      <button className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Adicionar empresa</button>
-
-      <MediaPicker
-        open={pickerFor !== null}
-        onClose={() => setPickerFor(null)}
-        onSelect={(url) => { if (pickerFor !== null) update(pickerFor, { imageUrl: url }) }}
-      />
-    </div>
-  )
-}
-
 // ─── Section config ───────────────────────────────────────────
 interface SectionConfig {
   id: SectionId
@@ -362,11 +302,8 @@ const SECTIONS_LIST: SectionConfig[] = [
   },
   {
     id: 'companies', icon: '◈', name: 'Empresas',
-    preview: d => d.companies.length > 0 ? d.companies.map(c => c.name).filter(Boolean).join(', ') : 'Usando padrão',
-    badge: d => {
-      const withImg = d.companies.filter(c => c.imageUrl).length
-      return d.companies.length > 0 ? `${d.companies.length} empresas · ${withImg} com imagem` : 'Padrão'
-    },
+    preview: () => 'Módulo global de clientes',
+    badge: () => 'Global',
   },
 ]
 
@@ -429,12 +366,15 @@ function DrawerContent({
     )
 
     case 'companies': return (
-      <>
-        <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Empresas/marcas exibidas na seção Empresas. No hover, a imagem do trabalho surge à direita; o clique abre o link do Instagram.
+      <div className="adm-field">
+        <p className="adm-muted" style={{ fontSize: 13, lineHeight: 1.5 }}>
+          As marcas da seção Empresas agora vêm do módulo global de clientes, compartilhado com a Home.
+          No hover, a imagem do trabalho surge ao lado do nome; o clique abre o Instagram.
         </p>
-        <CompaniesEditor value={data.companies} onChange={v => onChange({ companies: v })} />
-      </>
+        <Link href="/admin/clients" className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start', marginTop: 10, textDecoration: 'none' }}>
+          Gerenciar clientes →
+        </Link>
+      </div>
     )
 
     case 'cta': return (

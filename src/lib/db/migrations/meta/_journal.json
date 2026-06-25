@@ -5,7 +5,7 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1779574990772,
+      "when": 1750204800000,
       "tag": "0000_fast_lady_mastermind",
       "breakpoints": true
     },
@@ -63,6 +63,13 @@
       "version": "6",
       "when": 1750896000000,
       "tag": "0008_about_companies",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1779661390772,
+      "tag": "0009_clients",
       "breakpoints": true
     }
   ]

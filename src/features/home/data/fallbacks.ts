@@ -2,8 +2,8 @@ import type {
   StatItem,
   TestimonialItem,
   FaqItem,
-  ClientItem,
 } from "@/features/home/types";
+import type { Client } from "@/features/clients/types";
 
 // ─── Textos default das seções (usados quando o CMS não traz valor) ──────────
 export const DEFAULT_HERO_ROLES = "Filmmaker · Photographer · Social";
@@ -87,13 +87,13 @@ export const DEFAULT_FAQ: FaqItem[] = [
   },
 ];
 
-export const DEFAULT_CLIENTS: ClientItem[] = [
-  { name: "Studio Branding Co.", category: "2025/" },
-  { name: "Agência Forma", category: "2025/" },
-  { name: "Marca Premium", category: "2024/" },
-  { name: "Coletivo Visual", category: "2024/" },
-  { name: "Grupo Mídia SP", category: "2023/" },
-  { name: "Tech Forward", category: "2023/" },
-  { name: "Visão Criativa", category: "2022/" },
-  { name: "Arte & Forma", category: "2021/" },
+export const DEFAULT_CLIENTS: Client[] = [
+  { id: "d1", name: "Studio Branding Co.", year: "2025", category: "Branding", imageUrl: "", instagramUrl: "" },
+  { id: "d2", name: "Agência Forma", year: "2025", category: "Agência", imageUrl: "", instagramUrl: "" },
+  { id: "d3", name: "Marca Premium", year: "2024", category: "Varejo", imageUrl: "", instagramUrl: "" },
+  { id: "d4", name: "Coletivo Visual", year: "2024", category: "Arte", imageUrl: "", instagramUrl: "" },
+  { id: "d5", name: "Grupo Mídia SP", year: "2023", category: "Mídia", imageUrl: "", instagramUrl: "" },
+  { id: "d6", name: "Tech Forward", year: "2023", category: "Tech", imageUrl: "", instagramUrl: "" },
+  { id: "d7", name: "Visão Criativa", year: "2022", category: "Estúdio", imageUrl: "", instagramUrl: "" },
+  { id: "d8", name: "Arte & Forma", year: "2021", category: "Design", imageUrl: "", instagramUrl: "" },
 ];

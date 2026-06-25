@@ -1,21 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import type { Company } from '@/features/about/types';
+import type { Client } from '@/features/clients/types';
 
 /**
- * Lista de empresas/marcas em coluna única, ocupando toda a largura do
- * container. Nome à extrema esquerda, ano à extrema direita.
+ * Lista de clientes/marcas em coluna única, ocupando toda a largura do
+ * container. Nome à extrema esquerda, categoria + ano à extrema direita.
  *
  * No hover de uma linha, o nome desliza um pouco para a direita e a imagem do
  * trabalho surge no espaço aberto, à esquerda — ao lado do nome (revelação
  * inline). A imagem só existe no hover. Clicar abre o post do projeto no
  * Instagram da marca.
  *
- * No toque/mobile não há hover: a lista funciona só com nome + ano, sem
- * depender da imagem.
+ * No toque/mobile não há hover: a lista funciona só com nome + meta, sem
+ * depender da imagem. Os dados vêm do módulo global de clientes.
  */
-export function CompaniesList({ companies }: { companies: Company[] }) {
+export function CompaniesList({ companies }: { companies: Client[] }) {
   const [active, setActive] = useState<number | null>(null);
   if (companies.length === 0) return null;
 
@@ -49,9 +49,12 @@ export function CompaniesList({ companies }: { companies: Company[] }) {
               </span>
             </span>
 
-            {/* Ano — extrema direita. */}
-            <span className="shrink-0 font-mono text-[12px] tabular-nums tracking-[0.12em] text-muted transition-colors duration-300 group-hover/row:text-accent max-sm:text-[11px]">
-              {c.year || (c.instagramUrl ? '↗' : '')}
+            {/* Categoria + ano — extrema direita. */}
+            <span className="flex shrink-0 items-baseline gap-2 font-mono text-[12px] tracking-[0.12em] text-muted transition-colors duration-300 group-hover/row:text-accent max-sm:text-[11px]">
+              {c.category && <span className="uppercase">{c.category}</span>}
+              {c.category && c.year && <span className="opacity-40">·</span>}
+              {c.year && <span className="tabular-nums">{c.year}</span>}
+              {!c.category && !c.year && c.instagramUrl && <span>↗</span>}
             </span>
           </div>
         );

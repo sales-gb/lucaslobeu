@@ -7,8 +7,9 @@ import type {
   StatItem,
   TestimonialItem,
   FaqItem,
-  ClientItem,
 } from "@/features/home/types";
+import { getClients } from "@/features/clients/api/get-clients";
+import type { Client } from "@/features/clients/types";
 
 /** Resolve as URLs públicas das capas (capa + imagem de hover), igual à página de Projetos. */
 async function resolveCoverUrls(projects: Project[]): Promise<ProjectWithUrls[]> {
@@ -65,7 +66,7 @@ export interface HomeData {
   stats: StatItem[];
   testimonials: TestimonialItem[];
   faqItems: FaqItem[];
-  clients: ClientItem[];
+  clients: Client[];
   showcaseImageUrl: string | null;
   aboutPortraitUrl: string | null;
   aboutFooterImageUrl: string | null;
@@ -92,6 +93,7 @@ export async function getHomeData(): Promise<HomeData> {
       .limit(settings?.homeFeaturedCount ?? 5);
 
     const projectsWithUrls = await resolveCoverUrls(featuredProjects);
+    const clients = await getClients();
 
     return {
       projects: projectsWithUrls,
@@ -105,7 +107,7 @@ export async function getHomeData(): Promise<HomeData> {
       stats: parseJson(settings?.stats, [] as StatItem[]),
       testimonials: parseJson(settings?.testimonials, [] as TestimonialItem[]),
       faqItems: parseJson(settings?.faqItems, [] as FaqItem[]),
-      clients: parseJson(settings?.clients, [] as ClientItem[]),
+      clients,
       showcaseImageUrl: settings?.showcaseImageUrl ?? null,
       aboutPortraitUrl: settings?.aboutPortraitUrl ?? null,
       aboutFooterImageUrl: settings?.aboutFooterImageUrl ?? null,

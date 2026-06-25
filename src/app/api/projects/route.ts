@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       slug,
       title,
       client,
+      clientId: body.clientId ?? null,
       year,
       category,
       role,

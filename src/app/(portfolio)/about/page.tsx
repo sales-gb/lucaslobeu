@@ -8,7 +8,9 @@ import { SectionMarker } from '@/components/ui/section-marker';
 import { AboutStatement } from '@/features/about/components/about-statement';
 import { TrajectoryList } from '@/features/about/components/trajectory-list';
 import { CompaniesList } from '@/features/about/components/companies-list';
-import type { Company, TrajectoryItem } from '@/features/about/types';
+import { getClients } from '@/features/clients/api/get-clients';
+import type { TrajectoryItem } from '@/features/about/types';
+import type { Client } from '@/features/clients/types';
 import type { AboutContent } from '@/lib/db/schema';
 import type { Metadata } from 'next';
 
@@ -36,11 +38,11 @@ const DEFAULT_TRAJECTORY: TrajectoryItem[] = [
   { year: '2023', title: 'Mudança para o Bom Retiro', description: 'Estúdio próprio, equipe enxuta e os primeiros contratos recorrentes de marca.' },
   { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre, entre filme, ensaio e direção de conteúdo.' },
 ];
-const DEFAULT_COMPANIES: Company[] = [
-  { name: 'Natura', year: '2024' },
-  { name: 'Itaú', year: '2023' },
-  { name: 'Havaianas', year: '2023' },
-  { name: 'Heineken', year: '2022' },
+const DEFAULT_CLIENTS: Client[] = [
+  { id: 'd1', name: 'Natura', year: '2024', category: 'Beleza', imageUrl: '', instagramUrl: '' },
+  { id: 'd2', name: 'Itaú', year: '2023', category: 'Banco', imageUrl: '', instagramUrl: '' },
+  { id: 'd3', name: 'Havaianas', year: '2023', category: 'Moda', imageUrl: '', instagramUrl: '' },
+  { id: 'd4', name: 'Heineken', year: '2022', category: 'Bebidas', imageUrl: '', instagramUrl: '' },
 ];
 const DEFAULT_NUMBERS: [string, string][] = [
   ['72', 'Projetos'],
@@ -73,19 +75,12 @@ function normalizeTrajectory(raw: string | null | undefined): TrajectoryItem[] {
     .filter((x): x is TrajectoryItem => !!x && (!!x.year || !!x.title));
 }
 
-/** companies do CMS; cai para selectedClients (só nomes) e depois para o default. */
-function normalizeCompanies(about: AboutContent | null): Company[] {
-  const companies = parseJson<Company[]>(about?.companies, []);
-  if (companies.length > 0) return companies.filter((c) => c.name);
-  const legacy = parseJson<string[]>(about?.selectedClients, []);
-  if (legacy.length > 0) return legacy.map((name) => ({ name }));
-  return DEFAULT_COMPANIES;
-}
-
 const SECTION = 'px-[var(--page-x)] py-[var(--section-y)]';
 
 export default async function AboutPage() {
   const about = await getAbout();
+  const clientsRaw = await getClients();
+  const clients = clientsRaw.length > 0 ? clientsRaw : DEFAULT_CLIENTS;
 
   const intro = about?.intro || DEFAULT_INTRO;
   const bodyParagraphs = parseJson<string[]>(about?.body, []);
@@ -93,7 +88,6 @@ export default async function AboutPage() {
     const t = normalizeTrajectory(about?.trajectory);
     return t.length > 0 ? t : DEFAULT_TRAJECTORY;
   })();
-  const companies = normalizeCompanies(about);
   const numbers = (() => {
     const n = parseJson<[string, string][]>(about?.numbers, []);
     return n.length > 0 ? n : DEFAULT_NUMBERS;
@@ -197,7 +191,7 @@ export default async function AboutPage() {
             </p>
           </div>
         </Reveal>
-        <CompaniesList companies={companies} />
+        <CompaniesList companies={clients} />
       </section>
 
       {/* ── CTA (quebra clara) ──────────────────────────── */}

@@ -27,6 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admin/media', label: 'Mídia', icon: '▢' },
   { href: '/admin/home', label: 'Home', icon: '◯' },
   { href: '/admin/projects', label: 'Projetos', icon: '☰' },
+  { href: '/admin/clients', label: 'Clientes', icon: '◈' },
   { href: '/admin/about', label: 'Sobre', icon: '¶' },
   { href: '/admin/settings', label: 'Configurações', icon: '⚙' },
 ]

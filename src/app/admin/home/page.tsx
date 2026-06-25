@@ -267,31 +267,6 @@ function FaqEditor({ value, onChange }: { value: FaqItem[]; onChange: (v: FaqIte
   )
 }
 
-function ClientsEditor({ value, onChange }: { value: ClientItem[]; onChange: (v: ClientItem[]) => void }) {
-  const add = () => onChange([...value, { name: '', category: '' }])
-  const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i))
-  const update = (i: number, key: keyof ClientItem, v: string) =>
-    onChange(value.map((item, idx) => idx === i ? { ...item, [key]: v } : item))
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {value.map((item, i) => (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 160px auto', gap: 8, alignItems: 'end' }}>
-          <div className="adm-field">
-            {i === 0 && <label className="adm-label">Cliente</label>}
-            <input className="adm-input" value={item.name} onChange={e => update(i, 'name', e.target.value)} placeholder="Nome do cliente" />
-          </div>
-          <div className="adm-field">
-            {i === 0 && <label className="adm-label">Ano</label>}
-            <input className="adm-input" value={item.category} onChange={e => update(i, 'category', e.target.value)} placeholder="2025/" />
-          </div>
-          <button className="adm-btn adm-btn--xs adm-btn--danger" style={{ marginBottom: 1 }} onClick={() => remove(i)}>✕</button>
-        </div>
-      ))}
-      <button className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Adicionar cliente</button>
-    </div>
-  )
-}
-
 // ─── Section config ───────────────────────────────────────────
 interface SectionConfig {
   id: SectionId
@@ -344,8 +319,8 @@ const SECTIONS_LIST: SectionConfig[] = [
   },
   {
     id: 'clients', icon: '◈', name: 'Clientes',
-    preview: d => d.clients.length > 0 ? d.clients.map(c => c.name).join(', ') : 'Usando padrão',
-    badge: d => d.clients.length > 0 ? `${d.clients.length} itens` : 'Padrão',
+    preview: () => 'Módulo global de clientes',
+    badge: () => 'Global',
   },
 ]
 
@@ -462,10 +437,14 @@ function DrawerContent({
     )
 
     case 'clients': return (
-      <>
-        <p className="adm-muted" style={{ fontSize: 12 }}>Quando vazio, clientes padrão são exibidos.</p>
-        <ClientsEditor value={data.clients} onChange={v => onChange({ clients: v })} />
-      </>
+      <div className="adm-field">
+        <p className="adm-muted" style={{ fontSize: 13, lineHeight: 1.5 }}>
+          Os clientes agora são gerenciados num módulo global, compartilhado entre a Home e a página Sobre.
+        </p>
+        <Link href="/admin/clients" className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start', marginTop: 10, textDecoration: 'none' }}>
+          Gerenciar clientes →
+        </Link>
+      </div>
     )
 
     case 'cta': return (

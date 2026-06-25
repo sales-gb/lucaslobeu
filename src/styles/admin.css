@@ -870,6 +870,16 @@
   align-items: center; flex-shrink: 0;
 }
 
+/* ─── Clients editor ────────────────────────────────────────── */
+.adm-client-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface);
+  transition: border-color .15s ease, background .15s ease;
+}
+.adm-client-row:hover { border-color: var(--border-strong); }
+.adm-client-row.is-over { border-color: var(--fg); background: var(--surface-2); }
+
 /* ─── Media picker ──────────────────────────────────────────── */
 .adm-media-picker-overlay {
   position: fixed; inset: 0;

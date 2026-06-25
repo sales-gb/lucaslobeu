@@ -18,12 +18,29 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 });
 
+// ─── Clients ──────────────────────────────────────────────────
+// Módulo global de clientes/marcas. Fonte única consumida pela Home, pela
+// página Sobre e atrelada aos Projetos (projects.clientId). `client` em
+// projects permanece como nome desnormalizado para exibição/busca/fallback.
+export const clients = sqliteTable('clients', {
+  id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
+  name: text('name').notNull(),
+  year: text('year').notNull().default(''),          // ano de referência do trabalho
+  category: text('category').notNull().default(''),  // categoria/setor (ex: Moda)
+  imageUrl: text('image_url').notNull().default(''),  // imagem do trabalho (URL resolvida)
+  instagramUrl: text('instagram_url').notNull().default(''),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
+});
+
 // ─── Projects ─────────────────────────────────────────────────
 export const projects = sqliteTable('projects', {
   id: text('id').primaryKey().default(sql`(lower(hex(randomblob(16))))`),
   slug: text('slug').notNull().unique(),
   title: text('title').notNull(),
-  client: text('client').notNull(),
+  client: text('client').notNull(),               // nome desnormalizado (display/fallback)
+  clientId: text('client_id'),                    // FK opcional → clients.id
   year: text('year').notNull(),
   category: text('category').notNull(), // Filme | Foto | Social
   role: text('role').notNull(),
@@ -135,6 +152,7 @@ export const homeSettings = sqliteTable('home_settings', {
 });
 
 export type User = typeof users.$inferSelect;
+export type Client = typeof clients.$inferSelect;
 export type Project = typeof projects.$inferSelect;
 export type Media = typeof media.$inferSelect;
 export type HomeTile = typeof homeTiles.$inferSelect;

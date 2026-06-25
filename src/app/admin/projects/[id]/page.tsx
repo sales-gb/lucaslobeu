@@ -6,7 +6,7 @@ import Image from 'next/image'
 import AdminShell from '@/components/admin/AdminShell'
 import { optimizeImageForUpload } from '@/lib/images/client-optimize'
 import { isVideoEmbedUrl } from '@/components/ui/video-embed'
-import type { Project, Media } from '@/lib/db/schema'
+import type { Project, Media, Client } from '@/lib/db/schema'
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -488,6 +488,7 @@ export default function ProjectEditorPage({
     coverImageId: undefined,
   })
   const [blocks, setBlocks] = useState<ContentBlock[]>([])
+  const [clientsList, setClientsList] = useState<Client[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
@@ -536,9 +537,39 @@ export default function ProjectEditorPage({
       })
   }, [id, isNew])
 
+  // Carrega o módulo global de clientes para o seletor de "Cliente".
+  useEffect(() => {
+    fetch('/api/clients').then((r) => (r.ok ? r.json() : [])).then((data) => {
+      if (Array.isArray(data)) setClientsList(data)
+    }).catch(() => {})
+  }, [])
+
   const update = (field: string, value: unknown) => {
     setProject((p) => ({ ...p, [field]: value }))
     setSaved(false)
+  }
+
+  // Atrela o projeto a um cliente do módulo global (guarda id + nome desnormalizado).
+  const selectClient = (clientId: string) => {
+    const c = clientsList.find((x) => x.id === clientId)
+    setProject((p) => ({ ...p, clientId: clientId || null, client: c ? c.name : p.client }))
+    setSaved(false)
+  }
+
+  const createClient = async () => {
+    const name = prompt('Nome do novo cliente/marca:')
+    if (!name?.trim()) return
+    const res = await fetch('/api/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.trim() }),
+    })
+    if (res.ok) {
+      const created: Client = await res.json()
+      setClientsList((prev) => [...prev, created])
+      setProject((p) => ({ ...p, clientId: created.id, client: created.name }))
+      setSaved(false)
+    }
   }
 
   const autoSlug = (title: string) =>
@@ -710,7 +741,25 @@ export default function ProjectEditorPage({
                     </div>
                     <div className="adm-field">
                       <label className="adm-label">Cliente</label>
-                      <input className="adm-input" value={project.client ?? ''} onChange={(e) => update('client', e.target.value)} />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <select
+                          className="adm-input"
+                          style={{ flex: 1 }}
+                          value={project.clientId ?? ''}
+                          onChange={(e) => selectClient(e.target.value)}
+                        >
+                          <option value="">
+                            {project.client ? `— ${project.client} (sem vínculo)` : '— Selecione um cliente'}
+                          </option>
+                          {clientsList.map((c) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </select>
+                        <button type="button" className="adm-btn adm-btn--sm" onClick={createClient}>+ Novo</button>
+                      </div>
+                      <p className="adm-muted" style={{ fontSize: 11, marginTop: 4 }}>
+                        Detalhes do cliente (ano, categoria, imagem) são editados em Clientes.
+                      </p>
                     </div>
                     <div className="adm-field">
                       <label className="adm-label">Ano</label>

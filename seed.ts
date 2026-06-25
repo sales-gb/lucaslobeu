@@ -7,6 +7,7 @@
 import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
+import { eq } from 'drizzle-orm';
 import * as schema from './src/lib/db/schema';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
@@ -246,6 +247,29 @@ const LINKS = [
 ];
 for (const l of LINKS) {
   db.insert(schema.links).values(l).run();
+}
+
+// ─── Clients (módulo global) ───────────────────────────────────
+// Fonte única de clientes/marcas, consumida pela Home e pela página Sobre e
+// atrelada aos projetos. Os ids fixos permitem vincular os projetos abaixo.
+db.delete(schema.clients).run();
+const CLIENTS = [
+  { id: 'cli-studio-mareh', name: 'Studio Mareh', year: '2025', category: 'Filme', instagramUrl: 'https://instagram.com/studiomareh' },
+  { id: 'cli-editorial-pano', name: 'Editorial Pano', year: '2025', category: 'Editorial', instagramUrl: 'https://instagram.com/editorialpano' },
+  { id: 'cli-coltivare', name: 'Coltivare', year: '2024', category: 'Café', instagramUrl: '' },
+  { id: 'cli-galeria-hum', name: 'Galeria Hum', year: '2024', category: 'Arte', instagramUrl: 'https://instagram.com/galeriahum' },
+  { id: 'cli-marfa', name: 'Marfa', year: '2024', category: 'Design', instagramUrl: '' },
+  { id: 'cli-casa-tutoia', name: 'Casa Tutóia', year: '2023', category: 'Residência', instagramUrl: 'https://instagram.com/casatutoia' },
+  { id: 'cli-revista-serrote', name: 'Revista Serrote', year: '2023', category: 'Editorial', instagramUrl: 'https://instagram.com/revistaserrote' },
+];
+CLIENTS.forEach((c, i) => {
+  db.insert(schema.clients).values({ ...c, imageUrl: '', sortOrder: i }).run();
+});
+// Atrela cada projeto ao cliente correspondente pelo nome.
+const clientIdByName = new Map(CLIENTS.map((c) => [c.name.toLowerCase(), c.id]));
+for (const p of PROJECTS) {
+  const cid = clientIdByName.get(p.client.toLowerCase());
+  if (cid) db.update(schema.projects).set({ clientId: cid }).where(eq(schema.projects.id, p.id)).run();
 }
 
 // ─── About Content ─────────────────────────────────────────────
