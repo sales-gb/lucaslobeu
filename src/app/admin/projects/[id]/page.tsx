@@ -25,6 +25,7 @@ type ContentBlock =
   | { kind: 'image-trio'; items: [ImageSlot, ImageSlot, ImageSlot] }
   | { kind: 'image-grid'; items: ImageSlot[]; cols: number }
   | { kind: 'video'; url: string; caption?: string }
+  | { kind: 'break'; imageId?: string; imageUrl?: string; url?: string; text?: string; caption?: string }
 
 type MediaItem = Media & { url: string }
 
@@ -38,6 +39,7 @@ const BLOCK_LABELS: Record<string, string> = {
   'image-trio': 'Trio de imagens',
   'image-grid': 'Grade',
   video: 'Vídeo',
+  break: 'Quebra · tela cheia',
 }
 
 const BLOCK_ICONS: Record<string, string> = {
@@ -48,6 +50,7 @@ const BLOCK_ICONS: Record<string, string> = {
   'image-trio': '▪▪▪',
   'image-grid': '⊞',
   video: '▶',
+  break: '⛶',
 }
 
 const RATIO_OPTIONS = [
@@ -56,12 +59,6 @@ const RATIO_OPTIONS = [
   { value: '3/4', label: '3:4' },
   { value: '1/1', label: '1:1' },
   { value: '21/9', label: '21:9' },
-]
-
-const TEMPLATES = [
-  { value: 'editorial', label: 'Editorial', sub: 'Texto e imagens intercalados' },
-  { value: 'gallery', label: 'Galeria', sub: 'Grade de imagens predominante' },
-  { value: 'longform', label: 'Longform', sub: 'Narrativa com texto extenso' },
 ]
 
 const COVER_KINDS = [
@@ -408,6 +405,56 @@ function BlockEditor({
     )
   }
 
+  if (block.kind === 'break') {
+    const videoValid = !block.url || isVideoEmbedUrl(block.url)
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <p className="adm-muted" style={{ fontSize: 11 }}>
+          Seção em tela cheia. Preencha <b>um</b>: imagem, vídeo ou texto.
+          Divide a galeria — o que vier depois vira um grid 2×2.
+        </p>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <ImageThumb
+            imageUrl={block.imageUrl}
+            onPick={() =>
+              onPickImage((imgId, url) => onChange({ ...block, imageId: imgId, imageUrl: url, url: '', text: '' }))
+            }
+          />
+          {block.imageUrl && (
+            <button
+              className="adm-btn adm-btn--xs adm-btn--ghost"
+              onClick={() => onChange({ ...block, imageId: undefined, imageUrl: undefined })}
+            >
+              Remover imagem
+            </button>
+          )}
+        </div>
+        <input
+          className="adm-input"
+          value={block.url ?? ''}
+          placeholder="…ou link de vídeo (Vimeo/YouTube)"
+          onChange={(e) => onChange({ ...block, url: e.target.value, imageId: undefined, imageUrl: undefined })}
+        />
+        {!videoValid && (
+          <span className="adm-err" style={{ fontSize: 11 }}>Link não reconhecido (Vimeo/YouTube).</span>
+        )}
+        <textarea
+          className="adm-input adm-textarea"
+          rows={2}
+          value={block.text ?? ''}
+          placeholder="…ou um texto de impacto (tela cheia)"
+          onChange={(e) => onChange({ ...block, text: e.target.value })}
+        />
+        <input
+          className="adm-input"
+          value={block.caption ?? ''}
+          placeholder="Legenda (opcional, para imagem/vídeo)…"
+          onChange={(e) => onChange({ ...block, caption: e.target.value })}
+        />
+      </div>
+    )
+  }
+
   return null
 }
 
@@ -434,7 +481,7 @@ export default function ProjectEditorPage({
     body: '[]',
     coverTone: 'mid',
     coverKind: 'tall',
-    template: 'editorial',
+    template: 'cinematic',
     status: 'draft',
     metaTitle: '',
     metaDescription: '',
@@ -516,6 +563,7 @@ export default function ProjectEditorPage({
       'image-trio': { kind: 'image-trio', items: [{ ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }] },
       'image-grid': { kind: 'image-grid', items: [{ ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }], cols: 2 },
       video: { kind: 'video', url: '' },
+      break: { kind: 'break' },
     }
     setBlocks((b) => [...b, defaults[kind]])
     setSaved(false)
@@ -746,7 +794,7 @@ export default function ProjectEditorPage({
                     <span className="adm-mono adm-muted" style={{ fontSize: 10, letterSpacing: '.1em' }}>
                       ADICIONAR
                     </span>
-                    {(['paragraph', 'quote', 'image', 'image-pair', 'image-trio', 'image-grid', 'video'] as const).map((k) => (
+                    {(['paragraph', 'quote', 'image', 'image-pair', 'image-trio', 'image-grid', 'video', 'break'] as const).map((k) => (
                       <button
                         key={k}
                         type="button"
@@ -913,30 +961,6 @@ export default function ProjectEditorPage({
                         <div className="adm-cover-kind-preview" style={{ aspectRatio: k.ratio }} />
                         <span>{k.label}</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Template */}
-              <div className="adm-card">
-                <div className="adm-card-head"><span className="adm-h6">Template</span></div>
-                <div className="adm-card-body">
-                  <div className="adm-template-picker">
-                    {TEMPLATES.map((t) => (
-                      <label key={t.value} className="adm-template-card">
-                        <input
-                          type="radio"
-                          name="template"
-                          value={t.value}
-                          checked={project.template === t.value}
-                          onChange={() => update('template', t.value)}
-                        />
-                        <div>
-                          <div className="adm-h6">{t.label}</div>
-                          <div className="adm-muted" style={{ fontSize: 11, marginTop: 2 }}>{t.sub}</div>
-                        </div>
-                      </label>
                     ))}
                   </div>
                 </div>

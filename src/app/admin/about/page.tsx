@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import AdminShell from '@/components/admin/AdminShell'
 import { optimizeImageForUpload } from '@/lib/images/client-optimize'
+import type { Company, TrajectoryItem } from '@/features/about/types'
 
 // ─── Types ────────────────────────────────────────────────────
 interface MediaItem { id: string; url: string; alt: string; filename: string; mimeType?: string }
@@ -12,14 +13,13 @@ interface AboutData {
   intro: string
   body: string[]
   numbers: [string, string][]
-  trajectory: [string, string][]
-  selectedClients: string[]
-  recognition: [string, string][]
+  trajectory: TrajectoryItem[]
+  companies: Company[]
   contactBlurb: string
   portraitImageUrl: string
 }
 
-type SectionId = 'intro' | 'body' | 'numbers' | 'trajectory' | 'clients' | 'recognition' | 'cta'
+type SectionId = 'intro' | 'body' | 'numbers' | 'trajectory' | 'companies' | 'cta'
 
 // ─── Defaults ────────────────────────────────────────────────
 const DEFAULTS: AboutData = {
@@ -28,21 +28,19 @@ const DEFAULTS: AboutData = {
   numbers: [
     ['72', 'Projetos'],
     ['08', 'Países'],
-    ['3—4', 'Projetos por trimestre'],
+    ['3—4', 'Por trimestre'],
   ],
   trajectory: [
-    ['2019', 'Início como assistente de câmera em São Paulo'],
-    ['2020', 'Primeiros trabalhos autorais, pandemia e reinvenção'],
-    ['2021', 'Primeiro projeto internacional — Lisboa'],
-    ['2023', 'Estúdio próprio consolidado'],
-    ['2026', 'Presente'],
+    { year: '2019', title: 'O primeiro estúdio', description: 'Um porão na Vila Madalena e a teimosia de não separar foto de filme.' },
+    { year: '2021', title: 'Primeira capa', description: 'Direção e fotografia para a Pano nº 07.' },
+    { year: '2023', title: 'Mudança para o Bom Retiro', description: 'Estúdio próprio e os primeiros contratos recorrentes de marca.' },
+    { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre.' },
   ],
-  selectedClients: ['Natura', 'Itaú', 'Volkswagen', 'Havaianas', 'Heineken', 'Ambev', 'O Boticário', 'Claro'],
-  recognition: [
-    ['2024', 'Melhor Direção — Festival ABC'],
-    ['2023', 'Finalista — Cannes Lions'],
-    ['2022', 'Prêmio Caboré — Categoria Digital'],
-    ['2021', 'Destaque — Anuário do Clube de Criação'],
+  companies: [
+    { name: 'Natura', imageUrl: '', instagramUrl: '' },
+    { name: 'Itaú', imageUrl: '', instagramUrl: '' },
+    { name: 'Havaianas', imageUrl: '', instagramUrl: '' },
+    { name: 'Heineken', imageUrl: '', instagramUrl: '' },
   ],
   contactBlurb: 'O estúdio aceita três a quatro projetos por trimestre. Se o seu projeto faz sentido, vamos conversar.',
   portraitImageUrl: '',
@@ -218,38 +216,89 @@ function BodyEditor({ value, onChange }: { value: string[]; onChange: (v: string
   )
 }
 
-function ClientsEditor({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
-  const [newVal, setNewVal] = useState('')
-  const add = () => {
-    const c = newVal.trim()
-    if (!c) return
-    onChange([...value, c])
-    setNewVal('')
-  }
+// Trajetória: ano + título + descrição.
+function TrajectoryEditor({ value, onChange }: { value: TrajectoryItem[]; onChange: (v: TrajectoryItem[]) => void }) {
+  const add = () => onChange([...value, { year: '', title: '', description: '' }])
   const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i))
+  const update = (i: number, patch: Partial<TrajectoryItem>) =>
+    onChange(value.map((row, idx) => idx === i ? { ...row, ...patch } : row))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div className="adm-chips">
-        {value.map((c, i) => (
-          <span key={i} className="adm-chip">
-            {c}
-            <button className="adm-chip-x" onClick={() => remove(i)}>✕</button>
-          </span>
-        ))}
-        {value.length === 0 && <span className="adm-muted" style={{ fontSize: 12 }}>Nenhum cliente adicionado</span>}
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input
-          className="adm-input"
-          placeholder="Nome do cliente"
-          value={newVal}
-          onChange={e => setNewVal(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); add() } }}
-          style={{ maxWidth: 280 }}
-        />
-        <button className="adm-btn adm-btn--sm" onClick={add}>Adicionar</button>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {value.map((row, i) => (
+        <div key={i} style={{ border: '0.5px solid var(--border)', borderRadius: 6, padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: 8, alignItems: 'end' }}>
+            <div className="adm-field">
+              <label className="adm-label">Ano</label>
+              <input className="adm-input adm-mono" value={row.year} onChange={e => update(i, { year: e.target.value })} placeholder="2019" />
+            </div>
+            <div className="adm-field">
+              <label className="adm-label">Título</label>
+              <input className="adm-input" value={row.title} onChange={e => update(i, { title: e.target.value })} placeholder="O primeiro estúdio" />
+            </div>
+            <button className="adm-btn adm-btn--xs adm-btn--danger" style={{ marginBottom: 1 }} onClick={() => remove(i)}>✕</button>
+          </div>
+          <div className="adm-field">
+            <label className="adm-label">Descrição</label>
+            <textarea className="adm-input adm-textarea" rows={2} value={row.description ?? ''} onChange={e => update(i, { description: e.target.value })} placeholder="Uma frase sobre esse marco..." />
+          </div>
+        </div>
+      ))}
+      <button className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Adicionar marco</button>
+    </div>
+  )
+}
+
+// Empresas: nome + imagem do trabalho + link do Instagram.
+function CompaniesEditor({ value, onChange }: { value: Company[]; onChange: (v: Company[]) => void }) {
+  const [pickerFor, setPickerFor] = useState<number | null>(null)
+  const add = () => onChange([...value, { name: '', imageUrl: '', instagramUrl: '' }])
+  const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i))
+  const update = (i: number, patch: Partial<Company>) =>
+    onChange(value.map((row, idx) => idx === i ? { ...row, ...patch } : row))
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {value.map((row, i) => (
+        <div key={i} style={{ border: '0.5px solid var(--border)', borderRadius: 6, padding: 12, display: 'grid', gridTemplateColumns: '72px 1fr auto', gap: 12, alignItems: 'start' }}>
+          {/* Miniatura / seletor de imagem */}
+          <button
+            type="button"
+            className="adm-media-picker-item"
+            style={{ width: 72, height: 72, padding: 0, borderRadius: 4, overflow: 'hidden' }}
+            onClick={() => setPickerFor(i)}
+            title={row.imageUrl ? 'Trocar imagem' : 'Selecionar imagem'}
+          >
+            {row.imageUrl
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={row.imageUrl} alt={row.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span className="adm-muted" style={{ fontSize: 20 }}>🖼</span>}
+          </button>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="adm-field">
+              {i === 0 && <label className="adm-label">Empresa</label>}
+              <input className="adm-input" value={row.name} onChange={e => update(i, { name: e.target.value })} placeholder="Natura" />
+            </div>
+            <div className="adm-field">
+              {i === 0 && <label className="adm-label">Link do Instagram (do projeto)</label>}
+              <input className="adm-input adm-mono" value={row.instagramUrl ?? ''} onChange={e => update(i, { instagramUrl: e.target.value })} placeholder="https://instagram.com/p/..." />
+            </div>
+            {row.imageUrl && (
+              <button className="adm-btn adm-btn--xs" style={{ alignSelf: 'flex-start' }} onClick={() => update(i, { imageUrl: '' })}>Remover imagem</button>
+            )}
+          </div>
+
+          <button className="adm-btn adm-btn--xs adm-btn--danger" onClick={() => remove(i)}>✕</button>
+        </div>
+      ))}
+      <button className="adm-btn adm-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={add}>+ Adicionar empresa</button>
+
+      <MediaPicker
+        open={pickerFor !== null}
+        onClose={() => setPickerFor(null)}
+        onSelect={(url) => { if (pickerFor !== null) update(pickerFor, { imageUrl: url }) }}
+      />
     </div>
   )
 }
@@ -276,7 +325,7 @@ const SECTIONS_TOP: SectionConfig[] = [
   },
   {
     id: 'trajectory', icon: '⟲', name: 'Trajetória',
-    preview: d => d.trajectory.length > 0 ? d.trajectory.map(([y, t]) => `${y} — ${t}`).slice(0, 2).join(' · ') : 'Usando padrão',
+    preview: d => d.trajectory.length > 0 ? d.trajectory.map(t => `${t.year} — ${t.title}`).slice(0, 2).join(' · ') : 'Usando padrão',
     badge: d => d.trajectory.length > 0 ? `${d.trajectory.length} marcos` : 'Padrão',
   },
   {
@@ -293,14 +342,12 @@ const SECTIONS_LIST: SectionConfig[] = [
     badge: d => d.numbers.length > 0 ? `${d.numbers.length} itens` : 'Padrão',
   },
   {
-    id: 'clients', icon: '◈', name: 'Clientes',
-    preview: d => d.selectedClients.length > 0 ? d.selectedClients.join(', ') : 'Usando padrão',
-    badge: d => d.selectedClients.length > 0 ? `${d.selectedClients.length} clientes` : 'Padrão',
-  },
-  {
-    id: 'recognition', icon: '★', name: 'Reconhecimento',
-    preview: d => d.recognition.length > 0 ? d.recognition.map(([y, t]) => `${y} ${t}`).slice(0, 2).join(' · ') : 'Usando padrão',
-    badge: d => d.recognition.length > 0 ? `${d.recognition.length} prêmios` : 'Padrão',
+    id: 'companies', icon: '◈', name: 'Empresas',
+    preview: d => d.companies.length > 0 ? d.companies.map(c => c.name).filter(Boolean).join(', ') : 'Usando padrão',
+    badge: d => {
+      const withImg = d.companies.filter(c => c.imageUrl).length
+      return d.companies.length > 0 ? `${d.companies.length} empresas · ${withImg} com imagem` : 'Padrão'
+    },
   },
 ]
 
@@ -321,7 +368,7 @@ function DrawerContent({
         />
         <div className="adm-field">
           <label className="adm-label">Texto de intro</label>
-          <p className="adm-muted" style={{ fontSize: 11, marginBottom: 6 }}>Frase de abertura em destaque, em corpo grande.</p>
+          <p className="adm-muted" style={{ fontSize: 11, marginBottom: 6 }}>Frase de abertura, revelada palavra a palavra no scroll.</p>
           <textarea className="adm-input adm-textarea" rows={4} value={data.intro} onChange={e => onChange({ intro: e.target.value })} placeholder="Acredito que a fotografia e o cinema..." />
         </div>
       </>
@@ -330,7 +377,7 @@ function DrawerContent({
     case 'body': return (
       <>
         <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Parágrafos do corpo exibidos abaixo do texto de intro. Quando vazio, o texto padrão é usado.
+          Parágrafos do corpo exibidos abaixo do texto de intro. Quando vazio, nada é exibido.
         </p>
         <BodyEditor value={data.body} onChange={v => onChange({ body: v })} />
       </>
@@ -339,7 +386,7 @@ function DrawerContent({
     case 'numbers': return (
       <>
         <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Números em destaque exibidos no final da seção intro. Quando vazio, usa os valores padrão.
+          Números em destaque ao final da seção intro. Quando vazio, usa os valores padrão.
         </p>
         <PairEditor
           value={data.numbers}
@@ -356,43 +403,18 @@ function DrawerContent({
     case 'trajectory': return (
       <>
         <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Linha do tempo exibida na seção Trajetória. Quando vazio, usa os marcos padrão.
+          Linha do tempo da seção Trajetória — ano, título e uma descrição curta. Quando vazio, usa os marcos padrão.
         </p>
-        <PairEditor
-          value={data.trajectory}
-          onChange={v => onChange({ trajectory: v })}
-          col1Label="Ano"
-          col1Placeholder="2019"
-          col2Label="Marco"
-          col2Placeholder="Fundação do estúdio"
-          addLabel="Adicionar marco"
-        />
+        <TrajectoryEditor value={data.trajectory} onChange={v => onChange({ trajectory: v })} />
       </>
     )
 
-    case 'clients': return (
+    case 'companies': return (
       <>
         <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Lista de clientes exibida na seção Clientes. Quando vazio, usa a lista padrão.
+          Empresas/marcas exibidas na seção Empresas. No hover, a imagem do trabalho surge à direita; o clique abre o link do Instagram.
         </p>
-        <ClientsEditor value={data.selectedClients} onChange={v => onChange({ selectedClients: v })} />
-      </>
-    )
-
-    case 'recognition': return (
-      <>
-        <p className="adm-muted" style={{ fontSize: 12, marginBottom: 8 }}>
-          Prêmios e destaques. Quando vazio, usa os itens padrão.
-        </p>
-        <PairEditor
-          value={data.recognition}
-          onChange={v => onChange({ recognition: v })}
-          col1Label="Ano"
-          col1Placeholder="2024"
-          col2Label="Premiação / destaque"
-          col2Placeholder="Melhor Direção — Festival ABC"
-          addLabel="Adicionar prêmio"
-        />
+        <CompaniesEditor value={data.companies} onChange={v => onChange({ companies: v })} />
       </>
     )
 
@@ -416,9 +438,38 @@ function getSectionPayload(section: SectionId, data: AboutData): Partial<AboutDa
     case 'body': return { body: data.body }
     case 'numbers': return { numbers: data.numbers }
     case 'trajectory': return { trajectory: data.trajectory }
-    case 'clients': return { selectedClients: data.selectedClients }
-    case 'recognition': return { recognition: data.recognition }
+    case 'companies': return { companies: data.companies }
     case 'cta': return { contactBlurb: data.contactBlurb }
+  }
+}
+
+// Normaliza os dados vindos da API para o shape do editor (tolerante a formatos antigos).
+function fromApi(d: Record<string, unknown>): AboutData {
+  const rawTraj = Array.isArray(d.trajectory) ? d.trajectory : []
+  const trajectory: TrajectoryItem[] = rawTraj.map((row): TrajectoryItem => {
+    if (Array.isArray(row)) return { year: String(row[0] ?? ''), title: String(row[1] ?? ''), description: '' }
+    const r = (row ?? {}) as Record<string, unknown>
+    return { year: String(r.year ?? ''), title: String(r.title ?? ''), description: r.description ? String(r.description) : '' }
+  })
+
+  const rawComp = Array.isArray(d.companies) ? d.companies : []
+  let companies: Company[] = rawComp.map((row) => {
+    const r = (row ?? {}) as Record<string, unknown>
+    return { name: String(r.name ?? ''), imageUrl: r.imageUrl ? String(r.imageUrl) : '', instagramUrl: r.instagramUrl ? String(r.instagramUrl) : '' }
+  })
+  // Migra a lista antiga de clientes (string[]) quando ainda não há empresas.
+  if (companies.length === 0 && Array.isArray(d.selectedClients)) {
+    companies = (d.selectedClients as unknown[]).map(name => ({ name: String(name), imageUrl: '', instagramUrl: '' }))
+  }
+
+  return {
+    intro: typeof d.intro === 'string' ? d.intro : DEFAULTS.intro,
+    body: Array.isArray(d.body) ? d.body as string[] : DEFAULTS.body,
+    numbers: Array.isArray(d.numbers) && d.numbers.length > 0 ? d.numbers as [string, string][] : DEFAULTS.numbers,
+    trajectory: trajectory.length > 0 ? trajectory : DEFAULTS.trajectory,
+    companies: companies.length > 0 ? companies : DEFAULTS.companies,
+    contactBlurb: typeof d.contactBlurb === 'string' ? d.contactBlurb : DEFAULTS.contactBlurb,
+    portraitImageUrl: typeof d.portraitImageUrl === 'string' ? d.portraitImageUrl : '',
   }
 }
 
@@ -433,18 +484,7 @@ export default function AdminAboutPage() {
 
   useEffect(() => {
     fetch('/api/about').then(r => r.ok ? r.json() : null).then(d => {
-      if (d) {
-        setData({
-          intro: d.intro ?? DEFAULTS.intro,
-          body: Array.isArray(d.body) ? d.body : DEFAULTS.body,
-          numbers: Array.isArray(d.numbers) && d.numbers.length > 0 ? d.numbers : DEFAULTS.numbers,
-          trajectory: Array.isArray(d.trajectory) && d.trajectory.length > 0 ? d.trajectory : DEFAULTS.trajectory,
-          selectedClients: Array.isArray(d.selectedClients) && d.selectedClients.length > 0 ? d.selectedClients : DEFAULTS.selectedClients,
-          recognition: Array.isArray(d.recognition) && d.recognition.length > 0 ? d.recognition : DEFAULTS.recognition,
-          contactBlurb: d.contactBlurb ?? DEFAULTS.contactBlurb,
-          portraitImageUrl: d.portraitImageUrl ?? '',
-        })
-      }
+      if (d) setData(fromApi(d))
       setLoading(false)
     })
   }, [])
@@ -469,19 +509,7 @@ export default function AdminAboutPage() {
         setSaveError(err?.error ?? `Erro ${res.status}`)
       } else {
         const updated = await res.json()
-        if (updated) {
-          setData(prev => ({
-            ...prev,
-            intro: updated.intro ?? prev.intro,
-            body: Array.isArray(updated.body) ? updated.body : prev.body,
-            numbers: Array.isArray(updated.numbers) && updated.numbers.length > 0 ? updated.numbers : prev.numbers,
-            trajectory: Array.isArray(updated.trajectory) && updated.trajectory.length > 0 ? updated.trajectory : prev.trajectory,
-            selectedClients: Array.isArray(updated.selectedClients) && updated.selectedClients.length > 0 ? updated.selectedClients : prev.selectedClients,
-            recognition: Array.isArray(updated.recognition) && updated.recognition.length > 0 ? updated.recognition : prev.recognition,
-            contactBlurb: updated.contactBlurb ?? prev.contactBlurb,
-            portraitImageUrl: updated.portraitImageUrl ?? prev.portraitImageUrl,
-          }))
-        }
+        if (updated) setData(fromApi(updated))
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
       }

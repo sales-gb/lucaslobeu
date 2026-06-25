@@ -9,6 +9,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from './src/lib/db/schema';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import path from 'path';
 
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'local.db');
@@ -21,7 +22,10 @@ const db = drizzle(sqlite, { schema });
 migrate(db, { migrationsFolder: './src/lib/db/migrations' });
 
 // ─── Users ─────────────────────────────────────────────────────
-const passwordHash = bcrypt.hashSync('lobeu2026', 12);
+// Login é exclusivamente via Google OAuth (whitelist em auth.config.ts). O
+// provider de senha foi removido; mantemos um hash aleatório só porque a coluna
+// é NOT NULL — ele não autentica ninguém e nenhuma senha é commitada.
+const passwordHash = bcrypt.hashSync(randomBytes(24).toString('hex'), 12);
 db.delete(schema.users).run();
 db.insert(schema.users).values({
   id: 'user-lucas-lobeu',
@@ -254,9 +258,21 @@ db.insert(schema.aboutContent).values({
     'A prática se divide entre três frentes: filme curto (autoral e comercial), ensaio fotográfico (editorial, identidade e arquitetura) e direção de conteúdo para marcas que entendem que ritmo importa mais que volume.',
     'Trabalhos publicados em Serrote, Pano, Vogue Brasil, e expostos na Galeria Hum e Casa Tutóia.',
   ]),
-  selectedClients: JSON.stringify(['Coltivare', 'Marfa', 'Studio Mareh', 'Editorial Pano', 'Galeria Hum', 'Casa Tutóia', 'Revista Serrote', 'Vogue Brasil']),
-  recognition: JSON.stringify([['2025','Selecionado · Mostra de Cinema de Tiradentes'],['2024','Menção · Prêmio Foto em Pauta'],['2023','Ensaio publicado · Serrote nº 41 (IMS)']]),
-  trajectory: JSON.stringify([['2019','Primeiro estúdio · porão na Vila Madalena'],['2021','Primeira capa · Pano nº 07'],['2023','Ensaio em Serrote (IMS) · 41'],['2024','Estúdio mudado para o Bom Retiro'],['2025','Silêncio Azul · Tiradentes'],['2026','—']]),
+  companies: JSON.stringify([
+    { name: 'Studio Mareh', imageUrl: '', instagramUrl: 'https://instagram.com/studiomareh' },
+    { name: 'Editorial Pano', imageUrl: '', instagramUrl: 'https://instagram.com/editorialpano' },
+    { name: 'Galeria Hum', imageUrl: '', instagramUrl: 'https://instagram.com/galeriahum' },
+    { name: 'Casa Tutóia', imageUrl: '', instagramUrl: 'https://instagram.com/casatutoia' },
+    { name: 'Revista Serrote', imageUrl: '', instagramUrl: 'https://instagram.com/revistaserrote' },
+    { name: 'Coltivare', imageUrl: '', instagramUrl: '' },
+  ]),
+  trajectory: JSON.stringify([
+    { year: '2019', title: 'O primeiro estúdio', description: 'Um porão na Vila Madalena e a teimosia de não separar foto de filme, nem nenhum dos dois do gesto cotidiano que os antecede.' },
+    { year: '2021', title: 'Primeira capa', description: 'Direção e fotografia para a Pano nº 07 — o método encontra um público.' },
+    { year: '2023', title: 'Ensaio em Serrote', description: 'Ensaio publicado na Serrote nº 41 (IMS) e mudança do estúdio para o Bom Retiro.' },
+    { year: '2025', title: 'Silêncio Azul', description: 'Curta selecionado para a Mostra de Cinema de Tiradentes.' },
+    { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre, entre filme, ensaio e direção de conteúdo.' },
+  ]),
   contactBlurb: 'Para projetos comerciais e autorais: estudio@lucaslobeu.com. Resposta em até dois dias úteis.',
   numbers: JSON.stringify([['72','projetos entregues'],['08','países alcançados'],['3—4','projetos por trimestre']]),
 }).run();
@@ -271,7 +287,7 @@ db.insert(schema.homeSettings).values({
 }).run();
 
 console.log('✓ Seed concluído. BD em:', DB_PATH);
-console.log('  Usuário: lucas@lobeu.com / lobeu2026');
+console.log('  Login: somente Google OAuth (whitelist em src/lib/auth.config.ts)');
 console.log('  Projetos:', PROJECTS.length);
 console.log('  Tiles:', TILES.length);
 console.log('  Links:', LINKS.length);

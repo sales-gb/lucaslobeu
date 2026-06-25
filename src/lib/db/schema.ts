@@ -90,9 +90,11 @@ export const aboutContent = sqliteTable('about_content', {
   id: integer('id').primaryKey().default(1),
   intro: text('intro').notNull().default(''),
   body: text('body').notNull().default('[]'),           // JSON: string[]
-  selectedClients: text('selected_clients').notNull().default('[]'), // JSON: string[]
-  recognition: text('recognition').notNull().default('[]'), // JSON: [year, txt][]
-  trajectory: text('trajectory').notNull().default('[]'),   // JSON: [year, txt][]
+  selectedClients: text('selected_clients').notNull().default('[]'), // JSON: string[] (legado)
+  // Empresas/marcas com imagem do trabalho + link de saída (Instagram).
+  companies: text('companies').notNull().default('[]'),  // JSON: { name, imageUrl, instagramUrl }[]
+  recognition: text('recognition').notNull().default('[]'), // JSON: [year, txt][] (legado — não exibido)
+  trajectory: text('trajectory').notNull().default('[]'),   // JSON: { year, title, description }[]
   contactBlurb: text('contact_blurb').notNull().default(''),
   portraitImageId: text('portrait_image_id'),
   portraitImageUrl: text('portrait_image_url').notNull().default(''),

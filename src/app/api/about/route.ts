@@ -3,7 +3,7 @@ import { getDb, schema } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
-const JSON_FIELDS = ['body', 'selectedClients', 'recognition', 'trajectory', 'numbers'] as const
+const JSON_FIELDS = ['body', 'selectedClients', 'companies', 'recognition', 'trajectory', 'numbers'] as const
 const ALLOWED_FIELDS = [
   'intro', 'contactBlurb', 'portraitImageUrl', 'portraitImageId',
   ...JSON_FIELDS,

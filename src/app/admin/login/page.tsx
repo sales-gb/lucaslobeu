@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
 const Logo = () => (
@@ -23,34 +23,9 @@ const GoogleIcon = () => (
 )
 
 function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(searchParams.get('error') === 'AccessDenied' ? 'Acesso negado. Email não autorizado.' : '')
-  const [loading, setLoading] = useState(false)
+  const [error] = useState(searchParams.get('error') === 'AccessDenied' ? 'Acesso negado. Email não autorizado.' : '')
   const [googleLoading, setGoogleLoading] = useState(false)
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
-
-    setLoading(false)
-
-    if (result?.error) {
-      setError('Email ou senha incorretos.')
-    } else {
-      router.push('/admin/dashboard')
-      router.refresh()
-    }
-  }
 
   const handleGoogle = async () => {
     setGoogleLoading(true)
@@ -91,50 +66,7 @@ function LoginForm() {
           {googleLoading ? 'Redirecionando...' : 'Entrar com Google'}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ flex: 1, height: '.5px', background: 'var(--border)' }} />
-          <span className="adm-mono adm-muted" style={{ fontSize: 11 }}>ou</span>
-          <div style={{ flex: 1, height: '.5px', background: 'var(--border)' }} />
-        </div>
-
-        <form className="adm-login-form" onSubmit={handleSubmit}>
-          <div className="adm-field">
-            <label className="adm-label" htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              className="adm-input"
-              placeholder="lucas@lucaslobeu.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div className="adm-field">
-            <label className="adm-label" htmlFor="password">Senha</label>
-            <input
-              id="password"
-              type="password"
-              className="adm-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
-
-          {error && <p className="adm-err">{error}</p>}
-
-          <button
-            type="submit"
-            className="adm-btn adm-btn--primary adm-btn--block"
-            disabled={loading}
-          >
-            {loading ? 'Entrando...' : 'Entrar com senha'}
-          </button>
-        </form>
+        {error && <p className="adm-err">{error}</p>}
 
         <div className="adm-login-foot">
           <span className="adm-muted">Acesso protegido por JWT</span>

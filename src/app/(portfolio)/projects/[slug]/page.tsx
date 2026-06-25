@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import ProjectDetailView from '@/features/projects/components/project-detail-view'
+import ProjectCinematicView from '@/features/projects/components/project-cinematic-view'
 import {
   getProject,
   getProjectDetail,
@@ -35,10 +35,9 @@ export default async function ProjectPage({
   if (!data) notFound()
 
   return (
-    <ProjectDetailView
+    <ProjectCinematicView
       project={data.project}
-      nextProject={data.next}
-      prevProject={data.prev}
+      next={data.next}
       coverImageUrl={data.coverImageUrl}
       nextCoverImageUrl={data.nextCoverImageUrl}
     />

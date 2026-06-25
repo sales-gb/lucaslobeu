@@ -4,6 +4,11 @@ import Link from 'next/link';
 import Reveal from '@/components/ui/reveal';
 import ImageBlock from '@/components/ui/image-block';
 import { Eyebrow } from '@/components/ui/eyebrow';
+import { SectionMarker } from '@/components/ui/section-marker';
+import { AboutStatement } from '@/features/about/components/about-statement';
+import { TrajectoryList } from '@/features/about/components/trajectory-list';
+import { CompaniesList } from '@/features/about/components/companies-list';
+import type { Company, TrajectoryItem } from '@/features/about/types';
 import type { AboutContent } from '@/lib/db/schema';
 import type { Metadata } from 'next';
 
@@ -22,63 +27,82 @@ async function getAbout(): Promise<AboutContent | null> {
   }
 }
 
-const DEFAULT_INTRO = 'Acredito que a fotografia e o cinema compartilham um segredo: a melhor imagem é sempre aquela que o espectador completa.';
-const DEFAULT_CLIENTS = ['Natura', 'Itaú', 'Volkswagen', 'Havaianas', 'Heineken', 'Ambev', 'O Boticário', 'Claro'];
-const DEFAULT_RECOGNITION: [string, string][] = [
-  ['2024', 'Melhor Direção — Festival ABC'],
-  ['2023', 'Finalista — Cannes Lions'],
-  ['2022', 'Prêmio Caboré — Categoria Digital'],
-  ['2021', 'Destaque — Anuário do Clube de Criação'],
+// ── Defaults (usados quando o CMS está vazio) ───────────────────
+const DEFAULT_INTRO =
+  'Acredito que a fotografia e o cinema compartilham um segredo: a melhor imagem é sempre aquela que o espectador completa.';
+const DEFAULT_TRAJECTORY: TrajectoryItem[] = [
+  { year: '2019', title: 'O primeiro estúdio', description: 'Um porão na Vila Madalena e a teimosia de não separar foto de filme.' },
+  { year: '2021', title: 'Primeira capa', description: 'Direção e fotografia para a Pano nº 07 — o método encontra um público.' },
+  { year: '2023', title: 'Mudança para o Bom Retiro', description: 'Estúdio próprio, equipe enxuta e os primeiros contratos recorrentes de marca.' },
+  { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre, entre filme, ensaio e direção de conteúdo.' },
 ];
-const DEFAULT_TRAJECTORY: [string, string][] = [
-  ['2019', 'Início como assistente de câmera em São Paulo'],
-  ['2020', 'Primeiros trabalhos autorais, pandemia e reinvenção'],
-  ['2021', 'Primeiro projeto internacional — Lisboa'],
-  ['2023', 'Estúdio próprio consolidado'],
-  ['2026', 'Presente'],
+const DEFAULT_COMPANIES: Company[] = [
+  { name: 'Natura' },
+  { name: 'Itaú' },
+  { name: 'Havaianas' },
+  { name: 'Heineken' },
 ];
 const DEFAULT_NUMBERS: [string, string][] = [
   ['72', 'Projetos'],
   ['08', 'Países'],
-  ['3—4', 'Projetos por trimestre'],
+  ['3—4', 'Por trimestre'],
 ];
 
-// Seções da página (era .ll-section) + linhas das listas (recognition/trajectory).
+function parseJson<T>(raw: string | null | undefined, fallback: T): T {
+  try {
+    const v = JSON.parse(raw ?? '');
+    return Array.isArray(v) ? (v as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/** Aceita tanto o formato antigo [ano, texto][] quanto { year, title, description }[]. */
+function normalizeTrajectory(raw: string | null | undefined): TrajectoryItem[] {
+  const arr = parseJson<unknown[]>(raw, []);
+  if (arr.length === 0) return [];
+  return arr
+    .map((row): TrajectoryItem | null => {
+      if (Array.isArray(row)) return { year: String(row[0] ?? ''), title: String(row[1] ?? '') };
+      if (row && typeof row === 'object') {
+        const r = row as Record<string, unknown>;
+        return { year: String(r.year ?? ''), title: String(r.title ?? ''), description: r.description ? String(r.description) : undefined };
+      }
+      return null;
+    })
+    .filter((x): x is TrajectoryItem => !!x && (!!x.year || !!x.title));
+}
+
+/** companies do CMS; cai para selectedClients (só nomes) e depois para o default. */
+function normalizeCompanies(about: AboutContent | null): Company[] {
+  const companies = parseJson<Company[]>(about?.companies, []);
+  if (companies.length > 0) return companies.filter((c) => c.name);
+  const legacy = parseJson<string[]>(about?.selectedClients, []);
+  if (legacy.length > 0) return legacy.map((name) => ({ name }));
+  return DEFAULT_COMPANIES;
+}
+
 const SECTION = 'px-[var(--page-x)] py-[var(--section-y)]';
-const ROW =
-  'group relative grid grid-cols-[80px_1fr_12px] items-center gap-8 border-b-[0.5px] border-rule py-7 font-serif text-[26px] font-normal transition-[padding] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-3';
-const DOT =
-  'size-1.5 rounded-full bg-rule transition-[background,transform] duration-[400ms] group-hover:scale-[1.6] group-hover:bg-accent';
 
 export default async function AboutPage() {
   const about = await getAbout();
 
   const intro = about?.intro || DEFAULT_INTRO;
-  const bodyParagraphs: string[] = (() => {
-    try { return JSON.parse(about?.body ?? '[]') as string[]; } catch { return []; }
+  const bodyParagraphs = parseJson<string[]>(about?.body, []);
+  const trajectory = (() => {
+    const t = normalizeTrajectory(about?.trajectory);
+    return t.length > 0 ? t : DEFAULT_TRAJECTORY;
   })();
-  const clients: string[] = (() => {
-    try { return JSON.parse(about?.selectedClients ?? '[]') as string[]; } catch { return DEFAULT_CLIENTS; }
+  const companies = normalizeCompanies(about);
+  const numbers = (() => {
+    const n = parseJson<[string, string][]>(about?.numbers, []);
+    return n.length > 0 ? n : DEFAULT_NUMBERS;
   })();
-  const recognition: [string, string][] = (() => {
-    try { return JSON.parse(about?.recognition ?? '[]') as [string, string][]; } catch { return DEFAULT_RECOGNITION; }
-  })();
-  const trajectory: [string, string][] = (() => {
-    try { return JSON.parse(about?.trajectory ?? '[]') as [string, string][]; } catch { return DEFAULT_TRAJECTORY; }
-  })();
-  const numbers: [string, string][] = (() => {
-    try { return JSON.parse(about?.numbers ?? '[]') as [string, string][]; } catch { return DEFAULT_NUMBERS; }
-  })();
-
-  const displayClients = clients.length > 0 ? clients : DEFAULT_CLIENTS;
-  const displayRecognition = recognition.length > 0 ? recognition : DEFAULT_RECOGNITION;
-  const displayTrajectory = trajectory.length > 0 ? trajectory : DEFAULT_TRAJECTORY;
-  const displayNumbers = numbers.length > 0 ? numbers : DEFAULT_NUMBERS;
   const portraitUrl = about?.portraitImageUrl || '';
 
   return (
     <>
-      {/* ── Header ─────────────────────────────────────── */}
+      {/* ── Header (escuro) ─────────────────────────────── */}
       <div className="px-[var(--page-x)] pt-[120px]">
         <Reveal y={20}>
           <Eyebrow>Sobre o estúdio</Eyebrow>
@@ -99,10 +123,10 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      {/* ── Intro + portrait ───────────────────────────── */}
+      {/* ── Intro + portrait + statement (escuro) ───────── */}
       <div className={`${SECTION} pt-0`}>
         <div className="grid grid-cols-[1fr_1.4fr] items-start gap-20 max-lg:grid-cols-1 max-lg:gap-10">
-          <div className="sticky top-[120px]">
+          <div className="sticky top-[120px] max-lg:static">
             {portraitUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -111,22 +135,19 @@ export default async function AboutPage() {
                 className="aspect-[3/4] w-full rounded-[2px] object-cover"
               />
             ) : (
-              <ImageBlock tone="mid" ratio="3/4" />
+              <ImageBlock tone="dark" ratio="3/4" />
             )}
             <div className="mt-4 flex flex-col gap-1.5">
               <Eyebrow>Lucas Lobeu</Eyebrow>
-              <span className="font-sans text-[14px] text-muted">
-                São Paulo, Brasil · 2019—
-              </span>
+              <span className="font-sans text-[14px] text-muted">São Paulo, Brasil · 2019—</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-7">
-            <Reveal y={20}>
-              <p className="font-sans font-light text-[clamp(22px,2.2vw,30px)] leading-[1.4]">
-                {intro}
-              </p>
-            </Reveal>
+            <AboutStatement
+              text={intro}
+              className="font-sans font-light text-[clamp(24px,2.6vw,40px)] leading-[1.3] tracking-[-0.01em]"
+            />
 
             {bodyParagraphs.map((para, i) => (
               <Reveal key={i} y={16} delay={i * 60}>
@@ -134,26 +155,11 @@ export default async function AboutPage() {
               </Reveal>
             ))}
 
-            {bodyParagraphs.length === 0 && (
-              <>
-                <Reveal y={16} delay={60}>
-                  <p className="ll-body">
-                    Fundei o estúdio em 2019 depois de alguns anos como assistente em sets de publicidade. Desde então, construímos um portfólio que transita entre o cinema, a fotografia editorial e a produção nativa para social.
-                  </p>
-                </Reveal>
-                <Reveal y={16} delay={120}>
-                  <p className="ll-body">
-                    O que nos diferencia não é a câmera — é o método. Cada projeto começa por uma ideia que precisa existir independente do suporte. A técnica serve à narrativa, nunca o contrário.
-                  </p>
-                </Reveal>
-              </>
-            )}
-
-            <Reveal y={10} delay={180}>
-              <div className="flex gap-8 pt-2">
-                {displayNumbers.map(([val, label]) => (
+            <Reveal y={10} delay={120}>
+              <div className="mt-2 flex gap-12 max-sm:gap-8">
+                {numbers.map(([val, label]) => (
                   <div key={label} className="flex flex-col gap-1">
-                    <span className="font-serif text-[48px] font-light leading-none">{val}</span>
+                    <span className="font-serif text-[clamp(40px,5vw,60px)] font-light leading-none">{val}</span>
                     <Eyebrow>{label}</Eyebrow>
                   </div>
                 ))}
@@ -163,76 +169,44 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      {/* ── Trajectory ─────────────────────────────────── */}
-      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
+      {/* ── Trajetória (quebra clara) ───────────────────── */}
+      <section className={`surface-light bg-paper text-ink ${SECTION}`}>
         <Reveal y={20}>
-          <div className="ll-section-head">
-            <h2 className="ll-section-title ll-section-title--sm">Trajetória</h2>
+          <div className="mb-16 flex flex-col gap-3">
+            <SectionMarker>Trajetória</SectionMarker>
+            <h2 className="font-serif font-light text-[clamp(40px,6vw,84px)] leading-[0.95] tracking-[-0.02em]">
+              Como chegamos aqui
+            </h2>
           </div>
         </Reveal>
-        <div className="flex flex-col">
-          {displayTrajectory.map(([year, text], i) => (
-            <Reveal key={year} y={16} delay={i * 50}>
-              <div className={ROW}>
-                <span className="ll-mono small-cap text-[13px] text-muted">{year}</span>
-                <span className="font-sans text-[18px] font-light">{text}</span>
-                <div className={DOT} />
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
+        <TrajectoryList items={trajectory} />
+      </section>
 
-      {/* ── Selected Clients ───────────────────────────── */}
-      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
+      {/* ── Empresas (quebra escura — imagens brilham) ──── */}
+      <section className={`relative bg-ink text-paper ${SECTION}`}>
+        <span className="ll-crosshair ll-crosshair--tl" aria-hidden />
+        <span className="ll-crosshair ll-crosshair--tr" aria-hidden />
         <Reveal y={20}>
-          <div className="mb-12 flex flex-col gap-2">
-            <Eyebrow>Clientes selecionados</Eyebrow>
-            <h2 className="ll-section-title ll-section-title--sm">Marcas com quem trabalhamos</h2>
+          <div className="mb-16 flex max-w-[680px] flex-col gap-4">
+            <SectionMarker tone="light">Empresas</SectionMarker>
+            <h2 className="font-serif font-light text-[clamp(40px,6vw,84px)] leading-[0.95] tracking-[-0.02em]">
+              Marcas com quem trabalhamos
+            </h2>
+            <p className="ll-body max-w-[52ch]">
+              Passe o cursor para ver o trabalho. Clique para abrir o projeto no Instagram da marca.
+            </p>
           </div>
         </Reveal>
-        <div className="grid grid-cols-4 gap-x-12 gap-y-8 max-lg:grid-cols-2 max-sm:grid-cols-1">
-          {displayClients.map((client, i) => (
-            <Reveal key={client} y={12} delay={i * 30}>
-              <div className="group relative grid cursor-default grid-cols-[28px_1fr_16px] items-baseline gap-[14px] border-b-[0.5px] border-rule py-4 transition-[padding] duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:pl-2 after:absolute after:inset-x-0 after:-bottom-px after:h-[0.5px] after:origin-right after:scale-x-0 after:bg-paper after:transition-transform hover:after:animate-[ll-link-sweep_0.9s_cubic-bezier(0.7,0,0.3,1)_forwards]">
-                <span className="ll-mono muted text-[10px]">{String(i + 1).padStart(2, '0')}</span>
-                <span className="font-sans text-[20px] font-normal">{client}</span>
-                <span className="font-mono text-[12px] text-muted opacity-0 -translate-x-[6px] transition-[opacity,transform] duration-300 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100">
-                  ↗
-                </span>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
+        <CompaniesList companies={companies} />
+      </section>
 
-      {/* ── Recognition ────────────────────────────────── */}
-      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
-        <Reveal y={20}>
-          <div className="mb-12 flex flex-col gap-2">
-            <Eyebrow>Reconhecimento</Eyebrow>
-            <h2 className="ll-section-title ll-section-title--sm">Prêmios e destaques</h2>
-          </div>
-        </Reveal>
-        <div className="flex flex-col">
-          {displayRecognition.map(([year, text], i) => (
-            <Reveal key={`${year}-${i}`} y={12} delay={i * 40}>
-              <div className={ROW}>
-                <span className="ll-mono small-cap text-[13px]">{year}</span>
-                <span>{text}</span>
-                <div className={DOT} />
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-
-      {/* ── CTA ────────────────────────────────────────── */}
-      <div className={`${SECTION} border-t-[0.5px] border-rule`}>
+      {/* ── CTA (quebra clara) ──────────────────────────── */}
+      <section className={`surface-light bg-paper text-ink ${SECTION}`}>
         <div className="flex flex-col items-start gap-7">
           <Reveal y={30}>
-            <p className="ll-body ll-body--large max-w-[600px]">
-              {about?.contactBlurb || 'O estúdio aceita três a quatro projetos por trimestre. Se o seu projeto faz sentido, vamos conversar.'}
+            <p className="ll-body ll-body--large max-w-[640px]">
+              {about?.contactBlurb ||
+                'O estúdio aceita três a quatro projetos por trimestre. Se o seu projeto faz sentido, vamos conversar.'}
             </p>
           </Reveal>
           <Reveal y={10} delay={80}>
@@ -241,7 +215,7 @@ export default async function AboutPage() {
             </Link>
           </Reveal>
         </div>
-      </div>
+      </section>
     </>
   );
 }

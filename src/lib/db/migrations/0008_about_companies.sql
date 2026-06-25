@@ -1,0 +1,1 @@
+ALTER TABLE `about_content` ADD COLUMN `companies` text DEFAULT '[]' NOT NULL;
