@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminShell from '@/components/admin/AdminShell'
+import { optimizeImageForUpload } from '@/lib/images/client-optimize'
 import type { Media } from '@/lib/db/schema'
 
 type MediaWithUrl = Media & { url: string }
@@ -114,7 +115,7 @@ export default function MediaPage() {
 
     for (let i = 0; i < files.length; i++) {
       const form = new FormData()
-      form.append('file', files[i])
+      form.append('file', await optimizeImageForUpload(files[i]))
       const res = await fetch('/api/media', { method: 'POST', body: form })
       if (!res.ok) {
         const data = await res.json()

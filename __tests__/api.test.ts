@@ -43,8 +43,8 @@ afterAll(() => {
 
 // ─── Upload Limits ─────────────────────────────────────────────
 describe('UPLOAD_LIMITS', () => {
-  it('maxSizeBytes is 10MB', () => {
-    expect(UPLOAD_LIMITS.maxSizeBytes).toBe(10 * 1024 * 1024);
+  it('maxSizeBytes is 30MB', () => {
+    expect(UPLOAD_LIMITS.maxSizeBytes).toBe(30 * 1024 * 1024);
   });
 
   it('allows JPEG, PNG, WebP, AVIF', () => {

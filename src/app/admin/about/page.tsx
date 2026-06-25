@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import AdminShell from '@/components/admin/AdminShell'
+import { optimizeImageForUpload } from '@/lib/images/client-optimize'
 
 // ─── Types ────────────────────────────────────────────────────
 interface MediaItem { id: string; url: string; alt: string; filename: string; mimeType?: string }
@@ -64,7 +65,7 @@ function MediaPicker({
   const upload = async (file: File) => {
     setUploading(true)
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', await optimizeImageForUpload(file))
     const res = await fetch('/api/media', { method: 'POST', body: fd })
     if (res.ok) {
       const item = await res.json()

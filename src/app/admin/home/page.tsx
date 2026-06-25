@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import AdminShell from '@/components/admin/AdminShell'
+import { optimizeImageForUpload } from '@/lib/images/client-optimize'
+import { isVideoEmbedUrl } from '@/components/ui/video-embed'
 import type { StatItem, TestimonialItem, FaqItem, ClientItem } from '@/features/home/types'
 
 // ─── Types ────────────────────────────────────────────────────
@@ -70,7 +72,7 @@ function MediaPicker({
   const upload = async (file: File) => {
     setUploading(true)
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', await optimizeImageForUpload(file))
     const res = await fetch('/api/media', { method: 'POST', body: fd })
     if (res.ok) {
       const item = await res.json()
@@ -402,20 +404,51 @@ function DrawerContent({
       </>
     )
 
-    case 'showcase': return (
-      <>
-        <p className="adm-muted" style={{ fontSize: 12 }}>
-          Mídia exibida no fundo da seção Showcase com efeito de scale ao scroll. Aceita imagem ou vídeo MP4.
-        </p>
-        <ImageField
-          label="Mídia do Showcase"
-          hint="Proporção 16:9 recomendada. Vídeos MP4 aceitam até 200MB."
-          value={data.showcaseImageUrl}
-          onChange={url => onChange({ showcaseImageUrl: url })}
-          acceptVideo
-        />
-      </>
-    )
+    case 'showcase': {
+      // Link de vídeo (Vimeo/YouTube) e arquivo enviado compartilham o mesmo
+      // campo. Tratamos como "link" tudo que não for um caminho de upload.
+      const linkValue = data.showcaseImageUrl.startsWith('/uploads/') ? '' : data.showcaseImageUrl
+      return (
+        <>
+          <p className="adm-muted" style={{ fontSize: 12 }}>
+            Mídia de fundo da seção Showcase (efeito de scale ao scroll).
+          </p>
+          <div className="adm-field">
+            <label className="adm-label">Link de vídeo (Vimeo ou YouTube)</label>
+            <p className="adm-muted" style={{ fontSize: 11, marginBottom: 6 }}>
+              Recomendado para vídeo — não pesa no servidor. Toca em loop, mudo.
+            </p>
+            <input
+              className="adm-input"
+              value={linkValue}
+              placeholder="https://vimeo.com/… ou https://youtu.be/…"
+              onChange={e => onChange({ showcaseImageUrl: e.target.value })}
+            />
+            {linkValue && !isVideoEmbedUrl(linkValue) && (
+              <span className="adm-err" style={{ fontSize: 11, marginTop: 4 }}>
+                Link não reconhecido. Use Vimeo ou YouTube.
+              </span>
+            )}
+          </div>
+          {!linkValue && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
+                <div style={{ flex: 1, height: '.5px', background: 'var(--border)' }} />
+                <span className="adm-mono adm-muted" style={{ fontSize: 11 }}>ou enviar arquivo</span>
+                <div style={{ flex: 1, height: '.5px', background: 'var(--border)' }} />
+              </div>
+              <ImageField
+                label="Mídia do Showcase (imagem ou MP4)"
+                hint="Proporção 16:9 recomendada. MP4 até 200MB — prefira o link de vídeo."
+                value={data.showcaseImageUrl}
+                onChange={url => onChange({ showcaseImageUrl: url })}
+                acceptVideo
+              />
+            </>
+          )}
+        </>
+      )
+    }
 
     case 'testimonials': return (
       <>

@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
       "img-src 'self' data: blob: https://*.r2.cloudflarestorage.com https://*.lucaslobeu.com",
       "font-src 'self' data:",
       "connect-src 'self'",
+      // Players de vídeo embutidos (Vimeo / YouTube). O arquivo de vídeo não
+      // fica no nosso servidor — só o iframe do provedor.
+      "frame-src 'self' https://player.vimeo.com https://www.youtube.com https://www.youtube-nocookie.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

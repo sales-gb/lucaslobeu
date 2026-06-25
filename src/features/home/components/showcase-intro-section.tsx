@@ -3,10 +3,12 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import ImageBlock from "@/components/ui/image-block";
+import { VideoEmbed, isVideoEmbedUrl } from "@/components/ui/video-embed";
 
 // ─── SHOWCASE INTRO · scroll-scale + SHOW/CASE split title ───
 export function ShowcaseIntroSection({ imageUrl }: { imageUrl?: string }) {
-  const isVideo = imageUrl ? /\.mp4$/i.test(imageUrl) : false;
+  const isEmbed = isVideoEmbedUrl(imageUrl);
+  const isVideo = !isEmbed && imageUrl ? /\.mp4$/i.test(imageUrl) : false;
   const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: trackRef,
@@ -32,7 +34,9 @@ export function ShowcaseIntroSection({ imageUrl }: { imageUrl?: string }) {
           className="absolute inset-0 origin-center will-change-transform [&>*]:!h-full [&>*]:!w-full [&>*]:block"
           style={{ scale: videoScale, borderRadius: videoBorderRadius }}
         >
-          {isVideo ? (
+          {isEmbed ? (
+            <VideoEmbed url={imageUrl!} title="Showcase" background />
+          ) : isVideo ? (
             <video
               autoPlay
               muted

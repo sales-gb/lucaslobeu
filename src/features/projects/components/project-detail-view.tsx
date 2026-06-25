@@ -6,6 +6,7 @@ import TextReveal from '@/components/ui/text-reveal'
 import ImageBlock from '@/components/ui/image-block'
 import { Eyebrow } from '@/components/ui/eyebrow'
 import { SectionMarker } from '@/components/ui/section-marker'
+import { VideoEmbed } from '@/components/ui/video-embed'
 import type { Project } from '@/lib/db/schema'
 
 // Padding horizontal próprio da página de detalhe (era --page-x: 153px nesta página).
@@ -26,6 +27,7 @@ type ContentBlock =
   | { kind: 'image-pair'; items: ImageSlot[] }
   | { kind: 'image-trio'; items: ImageSlot[] }
   | { kind: 'image-grid'; cols?: number; items: ImageSlot[] }
+  | { kind: 'video'; url: string; caption?: string }
 
 type CreditRow = [string, string]
 
@@ -83,6 +85,19 @@ function BodyBlock({ block }: { block: ContentBlock }) {
         </div>
       )
     }
+    case 'video':
+      return (
+        <figure className="flex flex-col gap-3">
+          <div className="overflow-hidden rounded-[2px]">
+            <VideoEmbed url={block.url} />
+          </div>
+          {block.caption && (
+            <figcaption className="ll-mono small-cap text-paper/45" style={{ fontSize: 11 }}>
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      )
     default:
       return null
   }

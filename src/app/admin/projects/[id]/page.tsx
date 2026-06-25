@@ -4,6 +4,8 @@ import { useEffect, useState, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import AdminShell from '@/components/admin/AdminShell'
+import { optimizeImageForUpload } from '@/lib/images/client-optimize'
+import { isVideoEmbedUrl } from '@/components/ui/video-embed'
 import type { Project, Media } from '@/lib/db/schema'
 
 // ─── Types ───────────────────────────────────────────────────────
@@ -22,6 +24,7 @@ type ContentBlock =
   | { kind: 'image-pair'; items: [ImageSlot, ImageSlot] }
   | { kind: 'image-trio'; items: [ImageSlot, ImageSlot, ImageSlot] }
   | { kind: 'image-grid'; items: ImageSlot[]; cols: number }
+  | { kind: 'video'; url: string; caption?: string }
 
 type MediaItem = Media & { url: string }
 
@@ -34,6 +37,7 @@ const BLOCK_LABELS: Record<string, string> = {
   'image-pair': 'Par de imagens',
   'image-trio': 'Trio de imagens',
   'image-grid': 'Grade',
+  video: 'Vídeo',
 }
 
 const BLOCK_ICONS: Record<string, string> = {
@@ -43,6 +47,7 @@ const BLOCK_ICONS: Record<string, string> = {
   'image-pair': '▪▪',
   'image-trio': '▪▪▪',
   'image-grid': '⊞',
+  video: '▶',
 }
 
 const RATIO_OPTIONS = [
@@ -91,7 +96,7 @@ function MediaPicker({
     if (!file) return
     setUploading(true)
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', await optimizeImageForUpload(file))
     const res = await fetch('/api/media', { method: 'POST', body: fd })
     const record = await res.json()
     if (res.ok && record.path) {
@@ -378,6 +383,31 @@ function BlockEditor({
     )
   }
 
+  if (block.kind === 'video') {
+    const valid = !block.url || isVideoEmbedUrl(block.url)
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <input
+          className="adm-input"
+          value={block.url}
+          placeholder="Cole o link do Vimeo ou YouTube…"
+          onChange={(e) => onChange({ ...block, url: e.target.value })}
+        />
+        {!valid && (
+          <span className="adm-err" style={{ fontSize: 11 }}>
+            Link não reconhecido. Use um link do Vimeo ou YouTube.
+          </span>
+        )}
+        <input
+          className="adm-input"
+          value={block.caption ?? ''}
+          placeholder="Legenda (opcional)…"
+          onChange={(e) => onChange({ ...block, caption: e.target.value })}
+        />
+      </div>
+    )
+  }
+
   return null
 }
 
@@ -485,6 +515,7 @@ export default function ProjectEditorPage({
       'image-pair': { kind: 'image-pair', items: [{ ratio: '3/4' }, { ratio: '3/4' }] },
       'image-trio': { kind: 'image-trio', items: [{ ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }] },
       'image-grid': { kind: 'image-grid', items: [{ ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }, { ratio: '1/1' }], cols: 2 },
+      video: { kind: 'video', url: '' },
     }
     setBlocks((b) => [...b, defaults[kind]])
     setSaved(false)
@@ -715,7 +746,7 @@ export default function ProjectEditorPage({
                     <span className="adm-mono adm-muted" style={{ fontSize: 10, letterSpacing: '.1em' }}>
                       ADICIONAR
                     </span>
-                    {(['paragraph', 'quote', 'image', 'image-pair', 'image-trio', 'image-grid'] as const).map((k) => (
+                    {(['paragraph', 'quote', 'image', 'image-pair', 'image-trio', 'image-grid', 'video'] as const).map((k) => (
                       <button
                         key={k}
                         type="button"

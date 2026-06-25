@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import AdminShell from '@/components/admin/AdminShell'
+import { optimizeImageForUpload } from '@/lib/images/client-optimize'
 import type { Project } from '@/lib/db/schema'
 
 const CATEGORIES = ['Todos', 'Filme', 'Foto', 'Social']
@@ -69,7 +70,7 @@ function MediaPicker({ open, onClose, onSelect }: { open: boolean; onClose: () =
   const upload = async (file: File) => {
     setUploading(true)
     const fd = new FormData()
-    fd.append('file', file)
+    fd.append('file', await optimizeImageForUpload(file))
     const res = await fetch('/api/media', { method: 'POST', body: fd })
     if (res.ok) {
       const item = await res.json()
