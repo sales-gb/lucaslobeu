@@ -3,6 +3,8 @@
 /** Empresa/marca com imagem do trabalho e link de saída para o Instagram. */
 export interface Company {
   name: string;
+  /** Ano do projeto feito para essa marca (exibido na extrema direita da linha). */
+  year?: string;
   imageUrl?: string;
   instagramUrl?: string;
 }

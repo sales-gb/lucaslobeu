@@ -911,6 +911,26 @@
 .adm-media-picker-item:hover { border-color: var(--border-strong); transform: scale(1.02); }
 .adm-media-picker-item.is-selected { border-color: var(--fg); }
 .adm-media-picker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.adm-media-picker-item.is-loading {
+  cursor: default;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+.adm-media-picker-item.is-loading:hover { transform: none; }
+.adm-media-picker-spinner {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--fg);
+  animation: adm-spin .7s linear infinite;
+}
+.adm-media-picker-loading-label {
+  font-size: 9px; font-family: var(--mono); color: var(--fg-subtle);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+@keyframes adm-spin { to { transform: rotate(360deg); } }
+
 .adm-media-picker-empty { padding: 40px 20px; text-align: center; }
 .adm-media-picker-video {
   width: 100%; height: 100%; display: flex; flex-direction: column;

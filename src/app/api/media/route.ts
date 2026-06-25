@@ -110,7 +110,9 @@ export async function POST(request: NextRequest) {
     })
     .returning()
 
-  return Response.json(record, { status: 201 })
+  // Devolve a URL já resolvida (igual ao GET). Sem isso, o cliente não consegue
+  // exibir o preview do recém-enviado — `path` é renomeado por hash no storage.
+  return Response.json({ ...record, url: storage.getUrl(record.path) }, { status: 201 })
   } catch (err) {
     console.error('[POST /api/media] error:', err)
     return Response.json({ error: String(err) }, { status: 500 })

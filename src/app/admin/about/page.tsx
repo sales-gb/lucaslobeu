@@ -37,10 +37,10 @@ const DEFAULTS: AboutData = {
     { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre.' },
   ],
   companies: [
-    { name: 'Natura', imageUrl: '', instagramUrl: '' },
-    { name: 'Itaú', imageUrl: '', instagramUrl: '' },
-    { name: 'Havaianas', imageUrl: '', instagramUrl: '' },
-    { name: 'Heineken', imageUrl: '', instagramUrl: '' },
+    { name: 'Natura', year: '2024', imageUrl: '', instagramUrl: '' },
+    { name: 'Itaú', year: '2023', imageUrl: '', instagramUrl: '' },
+    { name: 'Havaianas', year: '2023', imageUrl: '', instagramUrl: '' },
+    { name: 'Heineken', year: '2022', imageUrl: '', instagramUrl: '' },
   ],
   contactBlurb: 'O estúdio aceita três a quatro projetos por trimestre. Se o seu projeto faz sentido, vamos conversar.',
   portraitImageUrl: '',
@@ -61,15 +61,22 @@ function MediaPicker({
   }, [open])
 
   const upload = async (file: File) => {
+    // Cobre as duas etapas lentas: otimização no browser (canvas/WebP) + upload.
+    // O placeholder de loading no grid fica visível durante todo o intervalo.
     setUploading(true)
-    const fd = new FormData()
-    fd.append('file', await optimizeImageForUpload(file))
-    const res = await fetch('/api/media', { method: 'POST', body: fd })
-    if (res.ok) {
-      const item = await res.json()
-      setMedia(prev => [{ id: item.id, url: item.url ?? `/uploads/${item.filename}`, alt: item.alt ?? '', filename: item.filename, mimeType: item.mimeType }, ...prev])
+    try {
+      const fd = new FormData()
+      fd.append('file', await optimizeImageForUpload(file))
+      const res = await fetch('/api/media', { method: 'POST', body: fd })
+      if (res.ok) {
+        const item = await res.json()
+        const url: string = item.url ?? `/uploads/${item.filename}`
+        setMedia(prev => [{ id: item.id, url, alt: item.alt ?? '', filename: item.filename, mimeType: item.mimeType }, ...prev])
+        setSelected(url) // já deixa o recém-enviado pronto pra "Usar imagem"
+      }
+    } finally {
+      setUploading(false)
     }
-    setUploading(false)
   }
 
   return (
@@ -101,12 +108,18 @@ function MediaPicker({
             <button className="adm-btn adm-btn--ghost adm-btn--sm" onClick={onClose}>✕</button>
           </div>
         </div>
-        {media.length === 0 ? (
+        {media.length === 0 && !uploading ? (
           <div className="adm-media-picker-empty">
             <p className="adm-muted">Nenhuma imagem no acervo. Faça upload acima.</p>
           </div>
         ) : (
           <div className="adm-media-picker-grid">
+            {uploading && (
+              <div className="adm-media-picker-item is-loading" aria-busy="true" aria-label="Enviando imagem">
+                <span className="adm-media-picker-spinner" aria-hidden />
+                <span className="adm-media-picker-loading-label">Otimizando…</span>
+              </div>
+            )}
             {media.filter(m => !/\.mp4$/i.test(m.url)).map(m => (
               <button
                 key={m.id}
@@ -252,7 +265,7 @@ function TrajectoryEditor({ value, onChange }: { value: TrajectoryItem[]; onChan
 // Empresas: nome + imagem do trabalho + link do Instagram.
 function CompaniesEditor({ value, onChange }: { value: Company[]; onChange: (v: Company[]) => void }) {
   const [pickerFor, setPickerFor] = useState<number | null>(null)
-  const add = () => onChange([...value, { name: '', imageUrl: '', instagramUrl: '' }])
+  const add = () => onChange([...value, { name: '', year: '', imageUrl: '', instagramUrl: '' }])
   const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i))
   const update = (i: number, patch: Partial<Company>) =>
     onChange(value.map((row, idx) => idx === i ? { ...row, ...patch } : row))
@@ -276,9 +289,15 @@ function CompaniesEditor({ value, onChange }: { value: Company[]; onChange: (v: 
           </button>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div className="adm-field">
-              {i === 0 && <label className="adm-label">Empresa</label>}
-              <input className="adm-input" value={row.name} onChange={e => update(i, { name: e.target.value })} placeholder="Natura" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 8 }}>
+              <div className="adm-field">
+                {i === 0 && <label className="adm-label">Empresa</label>}
+                <input className="adm-input" value={row.name} onChange={e => update(i, { name: e.target.value })} placeholder="Natura" />
+              </div>
+              <div className="adm-field">
+                {i === 0 && <label className="adm-label">Ano</label>}
+                <input className="adm-input adm-mono" value={row.year ?? ''} onChange={e => update(i, { year: e.target.value })} placeholder="2024" />
+              </div>
             </div>
             <div className="adm-field">
               {i === 0 && <label className="adm-label">Link do Instagram (do projeto)</label>}

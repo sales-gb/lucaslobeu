@@ -37,10 +37,10 @@ const DEFAULT_TRAJECTORY: TrajectoryItem[] = [
   { year: '2026', title: 'Hoje', description: 'Três a quatro projetos por trimestre, entre filme, ensaio e direção de conteúdo.' },
 ];
 const DEFAULT_COMPANIES: Company[] = [
-  { name: 'Natura' },
-  { name: 'Itaú' },
-  { name: 'Havaianas' },
-  { name: 'Heineken' },
+  { name: 'Natura', year: '2024' },
+  { name: 'Itaú', year: '2023' },
+  { name: 'Havaianas', year: '2023' },
+  { name: 'Heineken', year: '2022' },
 ];
 const DEFAULT_NUMBERS: [string, string][] = [
   ['72', 'Projetos'],
